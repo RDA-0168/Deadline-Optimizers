@@ -3,7 +3,7 @@ services:
     name: railmark-ai
     env: node
     plan: free
-    buildCommand: npm run build
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -11,6 +11,6 @@ services:
       - key: DB_TYPE
         value: memory
       - key: JWT_SECRET
-        generateValue: true
+        value: railmark_secure_sih_prototype_jwt_secret_key_2026!
       - key: CORS_ORIGIN
         value: "*"
