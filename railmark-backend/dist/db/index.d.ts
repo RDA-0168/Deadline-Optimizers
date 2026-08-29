@@ -1,0 +1,44 @@
+import { User } from '../types/auth.types.js';
+import { FittingRecord } from '../types/fitting.types.js';
+import { InspectionRecord } from '../types/inspection.types.js';
+import { MaintenanceRecord } from '../types/maintenance.types.js';
+import { LifecycleEvent } from '../types/lifecycle.types.js';
+import { AuditLogEntry } from '../types/audit.types.js';
+declare class DatabaseEngine {
+    private isPostgres;
+    private pgPool;
+    private users;
+    private fittings;
+    private inspections;
+    private maintenanceRecords;
+    private lifecycleEvents;
+    private auditLogs;
+    constructor();
+    init(): Promise<void>;
+    seedInMemory(): void;
+    findUserByEmailOrUsername(identifier: string): Promise<User | null>;
+    findUserById(id: string): Promise<User | null>;
+    createUser(user: User): Promise<User>;
+    getAllFittings(): Promise<FittingRecord[]>;
+    findFittingById(fittingId: string): Promise<FittingRecord | null>;
+    findFittingByQR(qrValue: string): Promise<FittingRecord | null>;
+    createFitting(fitting: FittingRecord): Promise<FittingRecord>;
+    updateFitting(fittingId: string, updates: Partial<FittingRecord>): Promise<FittingRecord | null>;
+    deleteFitting(fittingId: string): Promise<boolean>;
+    getInspectionsByFittingId(fittingId: string): Promise<InspectionRecord[]>;
+    getAllInspections(): Promise<InspectionRecord[]>;
+    createInspection(inspection: InspectionRecord): Promise<InspectionRecord>;
+    getMaintenanceByFittingId(fittingId: string): Promise<MaintenanceRecord[]>;
+    getAllMaintenance(): Promise<MaintenanceRecord[]>;
+    createMaintenance(record: MaintenanceRecord): Promise<MaintenanceRecord>;
+    getLifecycleByFittingId(fittingId: string): Promise<LifecycleEvent[]>;
+    createLifecycleEvent(event: LifecycleEvent): Promise<LifecycleEvent>;
+    getAuditLogs(limit?: number, page?: number): Promise<{
+        items: AuditLogEntry[];
+        total: number;
+    }>;
+    createAuditLog(entry: AuditLogEntry): Promise<AuditLogEntry>;
+    search(term: string): Promise<FittingRecord[]>;
+}
+export declare const db: DatabaseEngine;
+export {};

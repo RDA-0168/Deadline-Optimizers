@@ -1,0 +1,297 @@
+{
+  "info": {
+    "_postman_id": "railmark-ai-backend-collection",
+    "name": "RailMark AI — Backend REST API",
+    "description": "Postman collection for testing the RailMark AI Backend REST API for Railway Track Fittings QR Traceability (Smart India Hackathon Prototype).\n\nDISCLAIMER: All seed data is DEMO / PROTOTYPE DATA ONLY.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inspectorToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "maintenanceToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('adminToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Inspector",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('inspectorToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"inspector\",\n  \"password\": \"Inspector@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Maintenance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('maintenanceToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"maintenance\",\n  \"password\": \"Maintenance@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. QR Scanning & Resolution",
+      "item": [
+        {
+          "name": "Resolve Scanned QR Code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrValue\": \"RM-FIT-0001\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/qr/resolve", "host": ["{{baseUrl}}"], "path": ["api", "qr", "resolve"] }
+          }
+        },
+        {
+          "name": "Get QR Laser Marking Specs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/qr/RM-FIT-0001", "host": ["{{baseUrl}}"], "path": ["api", "qr", "RM-FIT-0001"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Fittings Management",
+      "item": [
+        {
+          "name": "Get All Fittings",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/fittings", "host": ["{{baseUrl}}"], "path": ["api", "fittings"] }
+          }
+        },
+        {
+          "name": "Get Full Fitting Composite Record",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0001", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0001"] }
+          }
+        },
+        {
+          "name": "Create Fitting Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fittingId\": \"RM-FIT-0020\",\n  \"fittingType\": \"Elastic Rail Clip (ERC MK-V)\",\n  \"manufacturer\": \"Bharat Track Solutions\",\n  \"batchNumber\": \"BATCH-2026-020\",\n  \"manufacturingDate\": \"2026-02-15\",\n  \"materialGrade\": \"Spring Steel 60Si7\",\n  \"standardSpec\": \"RDSO/T-3701\",\n  \"status\": \"Active\",\n  \"railLine\": \"Northern High-Density Corridor\",\n  \"trackSection\": \"Section KM 145/2 - Up Main Line\",\n  \"sleeperNumber\": \"PSC-SLP-4501\",\n  \"gpsLatitude\": 28.6152,\n  \"gpsLongitude\": 77.2115,\n  \"installedBy\": \"Northern Maintenance Gang #2\",\n  \"installationDate\": \"2026-02-20\",\n  \"torqueSpecNm\": 120.0,\n  \"qrCodeValue\": \"RM-FIT-0020\",\n  \"markingMachineId\": \"LASER-ENG-MARK-01\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/fittings", "host": ["{{baseUrl}}"], "path": ["api", "fittings"] }
+          }
+        },
+        {
+          "name": "Update Fitting Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Maintenance Required\",\n  \"torqueSpecNm\": 125.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0020", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0020"] }
+          }
+        },
+        {
+          "name": "Delete Fitting Record",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0020", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0020"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Field Inspections (with AI Assistance)",
+      "item": [
+        {
+          "name": "Get Inspections for Fitting",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0001/inspections", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0001", "inspections"] }
+          }
+        },
+        {
+          "name": "Submit Field Inspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{inspectorToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inspectionDate\": \"2026-02-28T10:30:00.000Z\",\n  \"condition\": \"Good\",\n  \"qrReadability\": \"High\",\n  \"corrosion\": \"None\",\n  \"surfaceDamage\": \"None\",\n  \"deformation\": \"None\",\n  \"wear\": \"Minimal\",\n  \"notes\": \"Clip securely seated in rail insert. Laser mark clean and legible.\",\n  \"aiAssistanceResult\": \"AI Vision Assist: No defects detected. Geometry verified within 0.15mm tolerance.\",\n  \"aiConfidence\": 0.988\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0001/inspections", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0001", "inspections"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Maintenance Operations",
+      "item": [
+        {
+          "name": "Get Maintenance Logs for Fitting",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0001/maintenance", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0001", "maintenance"] }
+          }
+        },
+        {
+          "name": "Submit Maintenance Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{maintenanceToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceDate\": \"2026-02-28\",\n  \"maintenanceType\": \"Torque Recalibration & Anti-Corrosion Spray\",\n  \"technician\": \"Vikram Singh\",\n  \"description\": \"Tightened to 110 Nm with digital torque wrench.\",\n  \"status\": \"Completed\",\n  \"nextMaintenance\": \"2026-08-28\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0001/maintenance", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0001", "maintenance"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Lifecycle Timeline",
+      "item": [
+        {
+          "name": "Get Digital Lifecycle Timeline",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/fittings/RM-FIT-0001/lifecycle", "host": ["{{baseUrl}}"], "path": ["api", "fittings", "RM-FIT-0001", "lifecycle"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Search & Dashboard",
+      "item": [
+        {
+          "name": "Global Multi-field Search",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/search?q=ERC", "host": ["{{baseUrl}}"], "path": ["api", "search"], "query": [{ "key": "q", "value": "ERC" }] }
+          }
+        },
+        {
+          "name": "Get Dashboard Analytics & Stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/dashboard/stats", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "stats"] }
+          }
+        },
+        {
+          "name": "Get Audit Logs (Admin/Inspector)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/audit-logs", "host": ["{{baseUrl}}"], "path": ["api", "audit-logs"] }
+          }
+        }
+      ]
+    }
+  ]
+}

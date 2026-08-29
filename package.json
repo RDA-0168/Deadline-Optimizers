@@ -1,0 +1,23 @@
+{
+  "name": "railmark-ai-unified",
+  "version": "1.0.0",
+  "description": "RailMark AI — AI-Assisted Laser QR Marking & Digital Traceability for Railway Track Fittings",
+  "main": "railmark-backend/dist/server.js",
+  "scripts": {
+    "install:all": "npm install --prefix \"railmark-ai 1st/railmark-ai\" && npm install --prefix railmark-backend",
+    "build:frontend": "npm run build --prefix \"railmark-ai 1st/railmark-ai\"",
+    "build": "npm run install:all && npm run build:frontend",
+    "start": "node railmark-backend/dist/server.js",
+    "tunnel:localtunnel": "npx -y localtunnel --port 5000",
+    "tunnel:cloudflare": "npx -y @cloudflare/cloudflared tunnel --url http://localhost:5000"
+  },
+  "keywords": [
+    "railway",
+    "traceability",
+    "qr-code",
+    "sih-2024",
+    "sih-2026"
+  ],
+  "author": "RailMark AI Team",
+  "license": "MIT"
+}

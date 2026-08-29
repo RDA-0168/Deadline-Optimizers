@@ -1,0 +1,12 @@
+import { User } from '../types/auth.types.js';
+import { FittingRecord } from '../types/fitting.types.js';
+import { InspectionRecord } from '../types/inspection.types.js';
+import { MaintenanceRecord } from '../types/maintenance.types.js';
+import { LifecycleEvent } from '../types/lifecycle.types.js';
+import { AuditLogEntry } from '../types/audit.types.js';
+export declare const initialUsers: User[];
+export declare const initialFittings: FittingRecord[];
+export declare const initialInspections: InspectionRecord[];
+export declare const initialMaintenanceRecords: MaintenanceRecord[];
+export declare const initialLifecycleEvents: LifecycleEvent[];
+export declare const initialAuditLogs: AuditLogEntry[];
