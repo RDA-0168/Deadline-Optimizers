@@ -9,20 +9,7 @@ const seed_data_js_1 = require("./seed-data.js");
 class DatabaseEngine {
     isPostgres = false;
     pgPool = null;
-    storePath = (() => {
-        if (process.env.STORE_PATH) return path_1.resolve(process.env.STORE_PATH);
-        const candidates = [
-            path_1.resolve(__dirname, '../../../database_1st ok/railmark_store.json'),
-            path_1.resolve(process.cwd(), '../database_1st ok/railmark_store.json'),
-            path_1.resolve(process.cwd(), 'database_1st ok/railmark_store.json'),
-            path_1.resolve(__dirname, '../../database_1st ok/railmark_store.json'),
-            path_1.resolve(process.cwd(), 'railmark_store.json'),
-        ];
-        for (const p of candidates) {
-            if (fs_1.existsSync(p)) return p;
-        }
-        return candidates[0];
-    })();
+    storePath = path_1.resolve(__dirname, '../../../database_1st ok/railmark_store.json');
     // In-Memory Transactional Storage
     users = new Map();
     fittings = new Map();

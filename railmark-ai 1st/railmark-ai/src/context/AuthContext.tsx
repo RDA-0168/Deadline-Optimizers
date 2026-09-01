@@ -33,10 +33,6 @@ function mapBackendUserToFrontend(backendUser: any): User {
   };
 }
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL
-  ? String((import.meta as any).env.VITE_API_URL).replace(/\/$/, '')
-  : '';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
@@ -54,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Verify session on mount if token exists
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_BASE}/api/auth/me`, {
+    fetch('/api/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -74,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (emailOrUsername: string, password: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -42,45 +42,21 @@ function createApp() {
         customSiteTitle: 'RailMark AI — API Documentation',
         customCss: '.swagger-ui .topbar { display: none }',
     }));
+    // Base Route
+    app.get('/', (req, res) => {
+        res.status(200).json({
+            name: 'RailMark AI — Backend REST API',
+            version: '1.0.0',
+            description: 'AI-Assisted Laser QR Marking & Digital Traceability for Railway Track Fittings',
+            disclaimer: 'DEMO / PROTOTYPE DATA - NOT OFFICIAL INDIAN RAILWAYS DATA',
+            docsUrl: '/api-docs',
+            apiBaseUrl: '/api',
+            health: 'OK',
+            timestamp: new Date().toISOString(),
+        });
+    });
     // Mount API Endpoints
     app.use('/api', index_js_1.default);
-
-    // Serve Frontend Static Build if present
-    const path_1 = require("path");
-    const fs_1 = require("fs");
-    const possibleDistPaths = [
-        path_1.resolve(__dirname, '../../railmark-ai 1st/railmark-ai/dist'),
-        path_1.resolve(__dirname, '../public'),
-        path_1.resolve(process.cwd(), 'railmark-ai 1st/railmark-ai/dist'),
-        path_1.resolve(process.cwd(), 'public'),
-        path_1.resolve(process.cwd(), 'dist')
-    ];
-    let frontendDist = possibleDistPaths.find(p => fs_1.existsSync(path_1.join(p, 'index.html')));
-    if (frontendDist) {
-        console.log(`📦 [Frontend] Serving static React bundle from: ${frontendDist}`);
-        app.use(express_1.default.static(frontendDist));
-        app.get('*', (req, res, next) => {
-            if (req.path.startsWith('/api') || req.path.startsWith('/api-docs')) {
-                return next();
-            }
-            res.sendFile(path_1.join(frontendDist, 'index.html'));
-        });
-    } else {
-        // Base Route fallback
-        app.get('/', (req, res) => {
-            res.status(200).json({
-                name: 'RailMark AI — Backend REST API',
-                version: '1.0.0',
-                description: 'AI-Assisted Laser QR Marking & Digital Traceability for Railway Track Fittings',
-                disclaimer: 'DEMO / PROTOTYPE DATA - NOT OFFICIAL INDIAN RAILWAYS DATA',
-                docsUrl: '/api-docs',
-                apiBaseUrl: '/api',
-                health: 'OK',
-                timestamp: new Date().toISOString(),
-            });
-        });
-    }
-
     // Error Handling
     app.use(error_middleware_js_1.notFoundHandler);
     app.use(error_middleware_js_1.errorHandler);

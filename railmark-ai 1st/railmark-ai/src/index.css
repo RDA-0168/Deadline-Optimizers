@@ -184,3 +184,23 @@ html {
   scrollbar-width: thin;
   scrollbar-color: #1e3560 transparent;
 }
+
+/* HTML5 QR Code Scanner styling */
+#qr-camera-reader {
+  width: 100% !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+#qr-camera-reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 0.75rem !important;
+}
+
+#qr-camera-reader img[alt="Info icon"],
+#qr-camera-reader span {
+  display: none !important;
+}
+

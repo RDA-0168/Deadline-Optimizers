@@ -39,10 +39,6 @@ function fail<T>(error: string): ApiResponse<T> {
   return { data: null, error, success: false };
 }
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL
-  ? String((import.meta as any).env.VITE_API_URL).replace(/\/$/, '')
-  : '';
-
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('railmark_token');
   const headers: Record<string, string> = {
@@ -161,7 +157,7 @@ function mapBackendLifecycleToFrontend(l: any): LifecycleEntry {
 
 export async function getFittings(): Promise<ApiResponse<Fitting[]>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings?limit=100`, {
+    const res = await fetch('/api/fittings?limit=100', {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
@@ -178,7 +174,7 @@ export async function getFittings(): Promise<ApiResponse<Fitting[]>> {
 
 export async function getFittingById(id: string): Promise<ApiResponse<Fitting>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings/${id}`, {
+    const res = await fetch(`/api/fittings/${id}`, {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
@@ -214,7 +210,7 @@ export async function createFitting(
 
   try {
     const backendDto = mapFrontendFittingToBackend(fullFitting);
-    const res = await fetch(`${API_BASE}/api/fittings`, {
+    const res = await fetch('/api/fittings', {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(backendDto),
@@ -245,7 +241,7 @@ export async function updateFitting(
     if (data.material) backendDto.materialGrade = data.material;
     if (data.standardSpec) backendDto.standardSpec = data.standardSpec;
 
-    const res = await fetch(`${API_BASE}/api/fittings/${id}`, {
+    const res = await fetch(`/api/fittings/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(backendDto),
@@ -275,7 +271,7 @@ export async function getInspectionHistory(
   fittingId: string
 ): Promise<ApiResponse<InspectionRecord[]>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings/${fittingId}/inspections`, {
+    const res = await fetch(`/api/fittings/${fittingId}/inspections`, {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
@@ -296,7 +292,7 @@ export async function addInspection(
   data: Omit<InspectionRecord, 'id'>
 ): Promise<ApiResponse<InspectionRecord>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings/${data.fittingId}/inspections`, {
+    const res = await fetch(`/api/fittings/${data.fittingId}/inspections`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -357,7 +353,7 @@ export async function getMaintenanceHistory(
   fittingId: string
 ): Promise<ApiResponse<MaintenanceRecord[]>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings/${fittingId}/maintenance`, {
+    const res = await fetch(`/api/fittings/${fittingId}/maintenance`, {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
@@ -378,7 +374,7 @@ export async function addMaintenance(
   data: Omit<MaintenanceRecord, 'id'>
 ): Promise<ApiResponse<MaintenanceRecord>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings/${data.fittingId}/maintenance`, {
+    const res = await fetch(`/api/fittings/${data.fittingId}/maintenance`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -434,7 +430,7 @@ export async function getLifecycle(
   fittingId: string
 ): Promise<ApiResponse<LifecycleEntry[]>> {
   try {
-    const res = await fetch(`${API_BASE}/api/fittings/${fittingId}/lifecycle`, {
+    const res = await fetch(`/api/fittings/${fittingId}/lifecycle`, {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
@@ -457,7 +453,7 @@ export async function getLifecycle(
 
 export async function getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
   try {
-    const res = await fetch(`${API_BASE}/api/dashboard/stats`, {
+    const res = await fetch('/api/dashboard/stats', {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
@@ -520,11 +516,33 @@ export async function getDashboardStats(): Promise<ApiResponse<DashboardStats>> 
 export async function scanQrCode(
   qrValue: string
 ): Promise<ApiResponse<Fitting>> {
+  const raw = qrValue.trim();
+  if (!raw) {
+    return fail('Invalid QR code: content is empty.');
+  }
+
+  let cleaned = raw;
+  if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(cleaned);
+      cleaned = parsed.fittingId || parsed.qrId || parsed.id || cleaned;
+    } catch {
+      // ignore
+    }
+  }
+  if (cleaned.includes('/')) {
+    const parts = cleaned.split(/[/?#]/).filter(Boolean);
+    if (parts.length > 0) {
+      cleaned = parts[parts.length - 1];
+    }
+  }
+  cleaned = cleaned.trim().toUpperCase();
+
   try {
-    const res = await fetch(`${API_BASE}/api/qr/resolve`, {
+    const res = await fetch('/api/qr/resolve', {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ qrValue: qrValue.trim() }),
+      body: JSON.stringify({ qrValue: cleaned }),
     });
 
     if (res.ok) {
@@ -539,10 +557,10 @@ export async function scanQrCode(
 
   // Fallback search in fittings
   const fitting = MOCK_FITTINGS.find(
-    (f) => f.qrId === qrValue || f.id === qrValue
+    (f) => f.qrId?.toUpperCase() === cleaned || f.id?.toUpperCase() === cleaned || f.qrId?.toUpperCase() === raw.toUpperCase() || f.id?.toUpperCase() === raw.toUpperCase()
   );
   if (!fitting)
-    return fail(`No fitting found for QR code "${qrValue}". Verify the code and retry.`);
+    return fail(`No fitting found for QR code "${raw}". Verify the code and retry.`);
   return ok({ ...fitting });
 }
 
@@ -552,7 +570,7 @@ export async function scanQrCode(
 
 export async function searchFittings(query: string): Promise<ApiResponse<Fitting[]>> {
   try {
-    const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}`, {
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
       headers: getAuthHeaders(),
     });
     if (res.ok) {
