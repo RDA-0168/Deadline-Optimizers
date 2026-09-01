@@ -103,6 +103,11 @@ function mapFrontendFittingToBackend(f: Partial<Fitting>) {
 }
 
 function mapBackendInspectionToFrontend(i: any): InspectionRecord {
+  const rawConf = typeof i.aiConfidence === 'number'
+    ? (i.aiConfidence <= 1 ? Math.round(i.aiConfidence * 100) : i.aiConfidence)
+    : 95;
+  const clampedConfidence = Math.min(99, Math.max(50, rawConf));
+
   return {
     id: i.id || `INSP-${Date.now()}`,
     fittingId: i.fittingId,
@@ -116,9 +121,9 @@ function mapBackendInspectionToFrontend(i: any): InspectionRecord {
     deformation: i.deformation || 'None',
     wear: i.wear || 'Normal',
     notes: i.notes || i.details || '',
-    aiConfidence: i.aiConfidence || 95,
+    aiConfidence: clampedConfidence,
     aiCondition: (i.aiAssistanceResult as ConditionStatus) || i.condition || 'Good',
-    aiQrQuality: i.aiQrQuality || 92,
+    aiQrQuality: Math.min(99, i.aiQrQuality || 92),
     images: i.imageUrl ? [i.imageUrl] : [],
   };
 }

@@ -47,7 +47,12 @@ function mockAiAnalyse(form: FormState) {
     form.qrReadability === 'Fair' ? 72 :
     form.qrReadability === 'Poor' ? 45 : 10;
 
-  const confidence = Math.max(75, 99 - warnFactors * 8 + Math.floor(Math.random() * 6));
+  // Maximum AI confidence is strictly capped at 99%
+  const baseConfidence = warnFactors === 0
+    ? (Math.random() > 0.5 ? 99 : 98)
+    : (96 - warnFactors * 7 - Math.floor(Math.random() * 3));
+
+  const confidence = Math.min(99, Math.max(70, baseConfidence));
 
   return { aiCondition, aiQrQuality: qrScore, aiConfidence: confidence };
 }
@@ -229,12 +234,12 @@ export default function InspectionPage() {
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="text-gray-400">AI Confidence</span>
-                        <span className="font-bold text-purple-300">{aiResult.aiConfidence}%</span>
+                        <span className="font-bold text-purple-300">{Math.min(99, aiResult.aiConfidence)}%</span>
                       </div>
                       <div className="h-2 bg-navy-800 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-purple-700 to-purple-400 rounded-full transition-all duration-700"
-                          style={{ width: `${aiResult.aiConfidence}%` }}
+                          style={{ width: `${Math.min(99, Math.max(0, aiResult.aiConfidence))}%` }}
                         />
                       </div>
                     </div>
@@ -249,12 +254,12 @@ export default function InspectionPage() {
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="text-gray-400">QR Quality Score</span>
-                        <span className="font-bold text-cyan-accent-300">{aiResult.aiQrQuality}%</span>
+                        <span className="font-bold text-cyan-accent-300">{Math.min(99, aiResult.aiQrQuality)}%</span>
                       </div>
                       <div className="h-2 bg-navy-800 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-cyan-accent-700 to-cyan-accent-400 rounded-full transition-all duration-700"
-                          style={{ width: `${aiResult.aiQrQuality}%` }}
+                          style={{ width: `${Math.min(99, Math.max(0, aiResult.aiQrQuality))}%` }}
                         />
                       </div>
                     </div>

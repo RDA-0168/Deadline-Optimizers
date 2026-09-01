@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-08-29T06:41:34.918Z",
+  "updatedAt": "2026-09-01T16:03:53.754Z",
   "users": [
     {
       "id": "USR-001",
@@ -777,6 +777,24 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "AUD-1788278633753-WWVV",
+      "user": "admin_user",
+      "role": "ADMIN",
+      "action": "LOGIN",
+      "ipAddress": "::1",
+      "details": "User admin successfully authenticated (ADMIN)",
+      "timestamp": "2026-09-01T16:03:53.753Z"
+    },
+    {
+      "id": "AUD-1788278633741-K5II",
+      "user": "inspector_user",
+      "role": "INSPECTOR",
+      "action": "LOGIN",
+      "ipAddress": "::1",
+      "details": "User inspector successfully authenticated (INSPECTOR)",
+      "timestamp": "2026-09-01T16:03:53.741Z"
+    },
     {
       "id": "AUD-1787985694918-JKR6",
       "user": "Rajesh Sharma (Admin)",
