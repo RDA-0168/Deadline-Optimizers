@@ -47,12 +47,11 @@ function mockAiAnalyse(form: FormState) {
     form.qrReadability === 'Fair' ? 72 :
     form.qrReadability === 'Poor' ? 45 : 10;
 
-  // Maximum AI confidence is strictly capped at 99%
-  const baseConfidence = warnFactors === 0
-    ? (Math.random() > 0.5 ? 99 : 98)
-    : (96 - warnFactors * 7 - Math.floor(Math.random() * 3));
-
-  const confidence = Math.min(99, Math.max(70, baseConfidence));
+  // Deterministic AI confidence based on severity factors (Max: 99%)
+  const confidence =
+    warnFactors === 0 ? 99 :
+    warnFactors === 1 ? 92 :
+    warnFactors === 2 ? 85 : 78;
 
   return { aiCondition, aiQrQuality: qrScore, aiConfidence: confidence };
 }
