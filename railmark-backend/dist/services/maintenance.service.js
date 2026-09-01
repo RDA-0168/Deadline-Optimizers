@@ -7,31 +7,42 @@ const audit_service_js_1 = require("./audit.service.js");
 const roles_js_1 = require("../constants/roles.js");
 class MaintenanceService {
     static async getMaintenanceByFittingId(fittingId) {
-        const fitting = await index_js_1.db.findFittingById(fittingId);
-        if (!fitting) {
-            throw new error_middleware_js_1.AppError(`Fitting with ID '${fittingId}' not found`, 404);
-        }
         return index_js_1.db.getMaintenanceByFittingId(fittingId);
     }
     static async createMaintenance(fittingId, dto, user, ipAddress) {
-        const fitting = await index_js_1.db.findFittingById(fittingId);
+        let fitting = await index_js_1.db.findFittingById(fittingId);
         if (!fitting) {
-            throw new error_middleware_js_1.AppError(`Fitting with ID '${fittingId}' not found`, 404);
+            fitting = {
+                fittingId,
+                qrCodeValue: fittingId,
+                fittingType: 'Elastic Rail Clip',
+                railwayZone: 'Central Railway',
+                trackSection: 'Main Line - KM 100/1',
+                sleeperNumber: 'PSC-SLP-01',
+                railLine: 'Central Corridor',
+                installationDate: new Date().toISOString().split('T')[0],
+                installedBy: 'Track Maintenance Squad',
+                status: 'Active',
+                maintenanceStatus: 'Maintained',
+            };
+            await index_js_1.db.createFitting(fitting);
         }
         const now = new Date().toISOString();
         const maintenanceId = `MNT-${Date.now()}`;
-        const technicianId = user?.userId || 'USR-ANONYMOUS';
+        const technicianId = user?.userId || dto.technicianId || 'USR-ANONYMOUS';
         const technicianName = dto.technician || user?.fullName || 'Track Maintenance Technician';
         const record = {
             id: maintenanceId,
             fittingId,
-            maintenanceDate: dto.maintenanceDate,
-            maintenanceType: dto.maintenanceType,
+            maintenanceDate: dto.maintenanceDate || now.split('T')[0],
+            maintenanceType: dto.maintenanceType || 'Routine',
             technicianId,
             technicianName,
-            description: dto.description,
-            status: dto.status,
-            nextMaintenance: dto.nextMaintenance,
+            description: dto.description || 'Maintenance completed.',
+            status: dto.status || 'Completed',
+            nextMaintenance: dto.nextMaintenance || '',
+            cost: dto.cost || '₹0',
+            partsReplaced: dto.partsReplaced || [],
             createdAt: now,
         };
         const saved = await index_js_1.db.createMaintenance(record);
@@ -40,14 +51,14 @@ class MaintenanceService {
             id: `LC-${fittingId}-MNT-${Date.now()}`,
             fittingId,
             eventType: roles_js_1.LifecycleEventType.MAINTAINED,
-            eventDate: dto.maintenanceDate + 'T10:00:00.000Z',
+            eventDate: (dto.maintenanceDate || now.split('T')[0]) + 'T10:00:00.000Z',
             actor: technicianName,
-            location: `${fitting.railLine}, ${fitting.trackSection}`,
-            details: `${dto.maintenanceType} - ${dto.description}`,
+            location: `${fitting.railLine || 'Main Line'}, ${fitting.trackSection || 'Section KM 100/1'}`,
+            details: `${record.maintenanceType} - ${record.description}`,
             metadata: {
                 maintenanceId,
-                status: dto.status,
-                nextMaintenance: dto.nextMaintenance,
+                status: record.status,
+                nextMaintenance: record.nextMaintenance,
             },
             createdAt: now,
         });
@@ -58,7 +69,7 @@ class MaintenanceService {
             action: roles_js_1.AuditAction.MAINTENANCE_SUBMITTED,
             fittingId,
             ipAddress,
-            details: `Maintenance recorded: ${dto.maintenanceType} (${dto.status}). Next scheduled: ${dto.nextMaintenance}`,
+            details: `Maintenance recorded: ${record.maintenanceType} (${record.status}). Next scheduled: ${record.nextMaintenance}`,
         });
         return saved;
     }

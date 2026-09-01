@@ -293,14 +293,36 @@ export async function getInspectionHistory(
   return ok(records);
 }
 
+function getLocalItems<T>(key: string): T[] {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalItem<T extends { id: string }>(key: string, item: T) {
+  try {
+    const existing = getLocalItems<T>(key);
+    const filtered = existing.filter((x) => x.id !== item.id);
+    localStorage.setItem(key, JSON.stringify([item, ...filtered]));
+  } catch (err) {
+    console.warn(`Failed to save to ${key}:`, err);
+  }
+}
+
 export async function addInspection(
   data: Omit<InspectionRecord, 'id'>
 ): Promise<ApiResponse<InspectionRecord>> {
+  let createdRecord: InspectionRecord | null = null;
+
   try {
     const res = await fetch(`/api/fittings/${data.fittingId}/inspections`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
+        fittingId: data.fittingId,
         condition: data.condition,
         qrReadability: data.qrReadability,
         corrosion: data.corrosion,
@@ -318,36 +340,46 @@ export async function addInspection(
     if (res.ok) {
       const payload = await res.json();
       if (payload.success && payload.data) {
-        return ok(mapBackendInspectionToFrontend(payload.data));
+        createdRecord = mapBackendInspectionToFrontend(payload.data);
       }
     }
   } catch (err) {
     console.warn('API addInspection fallback:', err);
   }
 
-  const newRecord: InspectionRecord = {
-    ...data,
-    id: `INSP-${Date.now()}`,
-  };
-  return ok(newRecord);
+  if (!createdRecord) {
+    createdRecord = {
+      ...data,
+      id: `INSP-${Date.now()}`,
+    };
+  }
+
+  saveLocalItem<InspectionRecord>('railmark_local_inspections', createdRecord);
+  return ok(createdRecord);
 }
 
 export async function getAllInspections(): Promise<ApiResponse<InspectionRecord[]>> {
+  const localRecords = getLocalItems<InspectionRecord>('railmark_local_inspections');
+
   try {
-    // Fetch all fittings and gather inspections
-    const fittingsRes = await getFittings();
-    if (fittingsRes.data) {
-      const allInsp: InspectionRecord[] = [];
-      for (const f of fittingsRes.data.slice(0, 10)) {
-        const inspRes = await getInspectionHistory(f.id);
-        if (inspRes.data) allInsp.push(...inspRes.data);
+    const res = await fetch('/api/inspections', {
+      headers: getAuthHeaders(),
+    });
+    if (res.ok) {
+      const payload = await res.json();
+      if (payload.success && Array.isArray(payload.data) && payload.data.length > 0) {
+        const remote = payload.data.map(mapBackendInspectionToFrontend);
+        const seenIds = new Set(remote.map((r: InspectionRecord) => r.id));
+        const combined = [...remote, ...localRecords.filter((l) => !seenIds.has(l.id))];
+        return ok(combined);
       }
-      if (allInsp.length > 0) return ok(allInsp);
     }
   } catch (err) {
     console.warn('API getAllInspections fallback:', err);
   }
-  return ok([...MOCK_INSPECTIONS]);
+
+  const seenIds = new Set(MOCK_INSPECTIONS.map((r) => r.id));
+  return ok([...localRecords.filter((l) => !seenIds.has(l.id)), ...MOCK_INSPECTIONS]);
 }
 
 // ============================================================
@@ -357,6 +389,10 @@ export async function getAllInspections(): Promise<ApiResponse<InspectionRecord[
 export async function getMaintenanceHistory(
   fittingId: string
 ): Promise<ApiResponse<MaintenanceRecord[]>> {
+  const localRecords = getLocalItems<MaintenanceRecord>('railmark_local_maintenance').filter(
+    (m) => m.fittingId === fittingId
+  );
+
   try {
     const res = await fetch(`/api/fittings/${fittingId}/maintenance`, {
       headers: getAuthHeaders(),
@@ -364,31 +400,38 @@ export async function getMaintenanceHistory(
     if (res.ok) {
       const payload = await res.json();
       if (payload.success && Array.isArray(payload.data)) {
-        return ok(payload.data.map(mapBackendMaintenanceToFrontend));
+        const remote = payload.data.map(mapBackendMaintenanceToFrontend);
+        const seenIds = new Set(remote.map((r: MaintenanceRecord) => r.id));
+        return ok([...remote, ...localRecords.filter((l) => !seenIds.has(l.id))]);
       }
     }
   } catch (err) {
     console.warn(`API getMaintenanceHistory(${fittingId}) fallback:`, err);
   }
 
-  const records = MOCK_MAINTENANCE.filter((m) => m.fittingId === fittingId);
-  return ok(records);
+  const mockRecords = MOCK_MAINTENANCE.filter((m) => m.fittingId === fittingId);
+  const seenIds = new Set(mockRecords.map((m) => m.id));
+  return ok([...localRecords.filter((l) => !seenIds.has(l.id)), ...mockRecords]);
 }
 
 export async function addMaintenance(
   data: Omit<MaintenanceRecord, 'id'>
 ): Promise<ApiResponse<MaintenanceRecord>> {
+  let createdRecord: MaintenanceRecord | null = null;
+
   try {
     const res = await fetch(`/api/fittings/${data.fittingId}/maintenance`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
+        fittingId: data.fittingId,
         maintenanceType: data.maintenanceType,
         description: data.description,
         status: data.status,
         technician: data.technician,
-        nextMaintenance: data.nextMaintenance,
-        cost: data.cost,
+        technicianId: data.technicianId,
+        nextMaintenance: data.nextMaintenance || undefined,
+        cost: data.cost || undefined,
         maintenanceDate: data.maintenanceDate,
       }),
     });
@@ -396,35 +439,47 @@ export async function addMaintenance(
     if (res.ok) {
       const payload = await res.json();
       if (payload.success && payload.data) {
-        return ok(mapBackendMaintenanceToFrontend(payload.data));
+        createdRecord = mapBackendMaintenanceToFrontend(payload.data);
       }
     }
   } catch (err) {
     console.warn('API addMaintenance fallback:', err);
   }
 
-  const newRecord: MaintenanceRecord = {
-    ...data,
-    id: `MAINT-${Date.now()}`,
-  };
-  return ok(newRecord);
+  if (!createdRecord) {
+    createdRecord = {
+      ...data,
+      id: `MNT-${Date.now()}`,
+    };
+  }
+
+  saveLocalItem<MaintenanceRecord>('railmark_local_maintenance', createdRecord);
+  return ok(createdRecord);
 }
 
 export async function getAllMaintenance(): Promise<ApiResponse<MaintenanceRecord[]>> {
+  const localRecords = getLocalItems<MaintenanceRecord>('railmark_local_maintenance');
+
   try {
-    const fittingsRes = await getFittings();
-    if (fittingsRes.data) {
-      const allMaint: MaintenanceRecord[] = [];
-      for (const f of fittingsRes.data.slice(0, 10)) {
-        const mRes = await getMaintenanceHistory(f.id);
-        if (mRes.data) allMaint.push(...mRes.data);
+    const res = await fetch('/api/maintenance', {
+      headers: getAuthHeaders(),
+    });
+    if (res.ok) {
+      const payload = await res.json();
+      if (payload.success && Array.isArray(payload.data) && payload.data.length > 0) {
+        const remote = payload.data.map(mapBackendMaintenanceToFrontend);
+        const seenIds = new Set(remote.map((r: MaintenanceRecord) => r.id));
+        const combined = [...remote, ...localRecords.filter((l) => !seenIds.has(l.id))];
+        return ok(combined);
       }
-      if (allMaint.length > 0) return ok(allMaint);
     }
   } catch (err) {
     console.warn('API getAllMaintenance fallback:', err);
   }
-  return ok([...MOCK_MAINTENANCE]);
+
+  // Fallback to iterating fittings or mock data
+  const seenIds = new Set(MOCK_MAINTENANCE.map((r) => r.id));
+  return ok([...localRecords.filter((l) => !seenIds.has(l.id)), ...MOCK_MAINTENANCE]);
 }
 
 // ============================================================

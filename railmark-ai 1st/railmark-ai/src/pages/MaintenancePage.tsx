@@ -58,10 +58,24 @@ export default function MaintenancePage() {
       ...form,
       partsReplaced: [],
     });
-    if (res.data) setRecords((p) => [res.data!, ...p]);
+    if (res.data) {
+      const newRec = res.data;
+      setRecords((p) => [newRec, ...p.filter((x) => x.id !== newRec.id)]);
+    }
     setSubmitting(false);
     setSubmitted(true);
     setShowForm(false);
+    setForm({
+      fittingId: 'RM-FIT-0001',
+      maintenanceDate: today,
+      maintenanceType: 'Preventive',
+      technician: '',
+      technicianId: '',
+      description: '',
+      status: 'Scheduled',
+      nextMaintenance: '',
+      cost: '',
+    });
     setTimeout(() => setSubmitted(false), 3000);
   };
 

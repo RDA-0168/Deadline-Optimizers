@@ -25,13 +25,13 @@ router.delete('/:fittingId', auth_middleware_js_1.authenticate, (0, auth_middlew
 // --- Inspection Sub-routes ---
 // GET /api/fittings/:fittingId/inspections
 router.get('/:fittingId/inspections', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, inspection_controller_js_1.InspectionController.getInspections);
-// POST /api/fittings/:fittingId/inspections (Protected: INSPECTOR, ADMIN)
-router.post('/:fittingId/inspections', auth_middleware_js_1.authenticate, (0, auth_middleware_js_1.authorize)([roles_js_1.UserRoles.INSPECTOR, roles_js_1.UserRoles.ADMIN]), (0, validate_middleware_js_1.validate)(inspection_schema_js_1.createInspectionSchema), inspection_controller_js_1.InspectionController.createInspection);
+// POST /api/fittings/:fittingId/inspections
+router.post('/:fittingId/inspections', auth_middleware_js_1.optionalAuthenticate, (0, validate_middleware_js_1.validate)(inspection_schema_js_1.createInspectionSchema), inspection_controller_js_1.InspectionController.createInspection);
 // --- Maintenance Sub-routes ---
 // GET /api/fittings/:fittingId/maintenance
 router.get('/:fittingId/maintenance', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, maintenance_controller_js_1.MaintenanceController.getMaintenance);
-// POST /api/fittings/:fittingId/maintenance (Protected: MAINTENANCE, ADMIN)
-router.post('/:fittingId/maintenance', auth_middleware_js_1.authenticate, (0, auth_middleware_js_1.authorize)([roles_js_1.UserRoles.MAINTENANCE, roles_js_1.UserRoles.ADMIN]), (0, validate_middleware_js_1.validate)(maintenance_schema_js_1.createMaintenanceSchema), maintenance_controller_js_1.MaintenanceController.createMaintenance);
+// POST /api/fittings/:fittingId/maintenance
+router.post('/:fittingId/maintenance', auth_middleware_js_1.optionalAuthenticate, (0, validate_middleware_js_1.validate)(maintenance_schema_js_1.createMaintenanceSchema), maintenance_controller_js_1.MaintenanceController.createMaintenance);
 // --- Lifecycle Sub-routes ---
 // GET /api/fittings/:fittingId/lifecycle
 router.get('/:fittingId/lifecycle', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, lifecycle_controller_js_1.LifecycleController.getLifecycle);

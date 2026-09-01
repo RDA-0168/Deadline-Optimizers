@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-09-01T16:03:53.754Z",
+  "updatedAt": "2026-09-01T17:16:32.156Z",
   "users": [
     {
       "id": "USR-001",
@@ -488,6 +488,20 @@
       "status": "Completed",
       "nextMaintenance": "2026-08-18",
       "createdAt": "2026-02-18T10:00:00.000Z"
+    },
+    {
+      "id": "MNT-1788282992152",
+      "fittingId": "RM-FIT-0007",
+      "maintenanceDate": "2026-09-01",
+      "maintenanceType": "Preventive",
+      "technicianId": "USR-ANONYMOUS",
+      "technicianName": "Test Lead",
+      "description": "Test grease lubrication and torque tighten",
+      "status": "Completed",
+      "nextMaintenance": "",
+      "cost": "₹0",
+      "partsReplaced": [],
+      "createdAt": "2026-09-01T17:16:32.151Z"
     }
   ],
   "lifecycleEvents": [
@@ -774,9 +788,34 @@
         "decommissionReason": "Flange impact plastic deformation"
       },
       "createdAt": "2026-02-18T11:00:00.000Z"
+    },
+    {
+      "id": "LC-RM-FIT-0007-MNT-1788282992154",
+      "fittingId": "RM-FIT-0007",
+      "eventType": "Maintained",
+      "eventDate": "2026-09-01T10:00:00.000Z",
+      "actor": "Test Lead",
+      "location": "North Western Desert Section, Section KM 412/1 - Straight Run",
+      "details": "Preventive - Test grease lubrication and torque tighten",
+      "metadata": {
+        "maintenanceId": "MNT-1788282992152",
+        "status": "Completed",
+        "nextMaintenance": ""
+      },
+      "createdAt": "2026-09-01T17:16:32.151Z"
     }
   ],
   "auditLogs": [
+    {
+      "id": "AUD-1788282992155-KKBH",
+      "user": "Test Lead",
+      "role": "MAINTENANCE",
+      "action": "MAINTENANCE_SUBMITTED",
+      "fittingId": "RM-FIT-0007",
+      "ipAddress": "::1",
+      "details": "Maintenance recorded: Preventive (Completed). Next scheduled: ",
+      "timestamp": "2026-09-01T17:16:32.155Z"
+    },
     {
       "id": "AUD-1788278633753-WWVV",
       "user": "admin_user",
