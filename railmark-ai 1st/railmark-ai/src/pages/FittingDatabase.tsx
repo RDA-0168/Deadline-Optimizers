@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Database, Search, Filter, ChevronRight, Plus, X, CheckCircle2, Loader2 } from 'lucide-react';
+import { Database, Search, Filter, ChevronRight, Plus, X, CheckCircle2, Loader2, Maximize2 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { getFittings, createFitting } from '../services/api';
 import type { Fitting, FittingStatus } from '../types';
 import StatusBadge from '../components/UI/StatusBadge';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import QRCodeModal from '../components/UI/QRCodeModal';
 
 const ZONES = ['All Zones', 'Central Railway', 'North Central Railway', 'Southern Railway', 'Eastern Railway', 'Western Railway', 'South Central Railway', 'North Western Railway', 'East Central Railway', 'West Central Railway', 'North Eastern Railway', 'Northeast Frontier Railway'];
 const TYPES = ['All Types', 'Elastic Rail Clip (ERC MK-III)', 'Elastic Rail Clip (ERC MK-V)', 'GFN-66 Insulating Liner', 'Metal Liner (60kg)', 'Grooved Rubber Sole Plate (GRSP 6mm)', 'Rail Anchor', 'Fish Plate', 'PSC Sleeper Bolt', 'Tie Bar', 'Guard Rail'];
@@ -18,6 +20,8 @@ export default function FittingDatabase() {
   const [zone, setZone] = useState('All Zones');
   const [type, setType] = useState('All Types');
   const [status, setStatus] = useState<FittingStatus | 'All'>('All');
+
+  const [selectedQR, setSelectedQR] = useState<Fitting | null>(null);
 
   // Register Modal State
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -166,7 +170,7 @@ export default function FittingDatabase() {
           <table className="w-full">
             <thead className="bg-navy-800/60">
               <tr>
-                {['Fitting ID', 'Type', 'Manufacturer', 'Location', 'Zone', 'Status', 'Last Inspection', 'Maintenance', ''].map((h) => (
+                {['Fitting ID', 'QR Code', 'Type', 'Manufacturer', 'Location', 'Zone', 'Status', 'Last Inspection', 'Maintenance', ''].map((h) => (
                   <th key={h} className="table-header whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -174,7 +178,7 @@ export default function FittingDatabase() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-12 text-gray-500 text-sm">
+                  <td colSpan={10} className="text-center py-12 text-gray-500 text-sm">
                     No fittings match your filters.
                   </td>
                 </tr>
@@ -182,7 +186,31 @@ export default function FittingDatabase() {
                 filtered.map((f) => (
                   <tr key={f.id} className="hover:bg-navy-800/30 transition-colors">
                     <td className="table-cell">
-                      <span className="font-mono text-xs text-cyan-accent-400 font-semibold">{f.id}</span>
+                      <Link
+                        to={`/fittings/${f.id}`}
+                        className="font-mono text-xs text-cyan-accent-400 hover:text-cyan-accent-300 font-semibold hover:underline"
+                      >
+                        {f.id}
+                      </Link>
+                    </td>
+                    <td className="table-cell py-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQR(f)}
+                        className="group relative flex items-center justify-center w-11 h-11 bg-white p-1 rounded-lg shadow border border-navy-700 hover:border-cyan-accent-400 hover:shadow-[0_0_12px_rgba(0,184,230,0.4)] hover:scale-105 transition-all duration-200 cursor-pointer"
+                        title={`Click to preview & export QR Code for ${f.id}`}
+                      >
+                        <QRCodeSVG
+                          value={f.qrId || f.id}
+                          size={36}
+                          level="M"
+                          includeMargin={false}
+                          className="w-full h-full block"
+                        />
+                        <div className="absolute inset-0 bg-navy-950/70 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center transition-opacity text-cyan-accent-300">
+                          <Maximize2 size={13} />
+                        </div>
+                      </button>
                     </td>
                     <td className="table-cell whitespace-nowrap">{f.fittingType}</td>
                     <td className="table-cell whitespace-nowrap text-xs">{f.manufacturer}</td>
@@ -365,6 +393,14 @@ export default function FittingDatabase() {
             )}
           </div>
         </div>
+      )}
+
+      {/* QR Code Details / Export Modal */}
+      {selectedQR && (
+        <QRCodeModal
+          fitting={selectedQR}
+          onClose={() => setSelectedQR(null)}
+        />
       )}
     </div>
   );

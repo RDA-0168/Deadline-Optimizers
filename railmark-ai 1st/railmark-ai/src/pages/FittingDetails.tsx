@@ -3,12 +3,14 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, QrCode, MapPin, Wrench, ClipboardCheck,
   Package, Tag, Factory, Clock, ChevronRight,
-  CheckCircle2, Truck, Hammer, Shield, AlertTriangle,
+  CheckCircle2, Truck, Hammer, Shield, AlertTriangle, Maximize2,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { getFittingById, getInspectionHistory, getMaintenanceHistory, getLifecycle } from '../services/api';
 import type { Fitting, InspectionRecord, MaintenanceRecord, LifecycleEntry } from '../types';
 import StatusBadge from '../components/UI/StatusBadge';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import QRCodeModal from '../components/UI/QRCodeModal';
 
 const LIFECYCLE_ICONS: Record<string, React.ElementType> = {
   'Manufactured': Factory,
@@ -51,6 +53,7 @@ export default function FittingDetails() {
   const [lifecycle, setLifecycle] = useState<LifecycleEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showQRModal, setShowQRModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -110,21 +113,42 @@ export default function FittingDetails() {
       </div>
 
       {/* QR visual */}
-      <div className="card flex items-center gap-5">
-        <div className="relative w-20 h-20 flex-shrink-0">
-          <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-lg">
-            <QrCode size={52} className="text-navy-950" />
-          </div>
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-            <CheckCircle2 size={12} className="text-white" />
+      <div className="card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setShowQRModal(true)}
+            className="group relative w-20 h-20 bg-white p-2 rounded-xl flex items-center justify-center shadow-lg border border-navy-700 hover:border-cyan-accent-400 hover:shadow-[0_0_15px_rgba(0,184,230,0.4)] hover:scale-105 transition-all cursor-pointer flex-shrink-0"
+            title="Click to view full QR details and export"
+          >
+            <QRCodeSVG
+              value={fitting.qrId || fitting.id}
+              size={64}
+              level="H"
+              includeMargin={false}
+              className="w-full h-full block"
+            />
+            <div className="absolute inset-0 bg-navy-950/70 opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center transition-opacity text-cyan-accent-300">
+              <Maximize2 size={16} />
+            </div>
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow">
+              <CheckCircle2 size={12} className="text-white" />
+            </div>
+          </button>
+          <div className="min-w-0">
+            <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-1">Direct Part Marking (DPM) QR Code</div>
+            <div className="font-mono text-lg font-bold text-cyan-accent-400">{fitting.qrId || fitting.id}</div>
+            <div className="text-xs text-gray-400 mt-0.5">Laser marked · Optical 2D Data Matrix / QR · Permanent</div>
           </div>
         </div>
-        <div className="min-w-0">
-          <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-1">QR Code Value</div>
-          <div className="font-mono text-lg font-bold text-cyan-accent-400">{fitting.qrId}</div>
-          <div className="text-xs text-gray-400 mt-1">Scan to verify · Laser marked · Permanent</div>
-          <div className="demo-banner mt-2">⚠ DEMO — Simulated QR</div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowQRModal(true)}
+          className="btn-secondary text-xs flex items-center gap-2 self-stretch sm:self-auto justify-center"
+        >
+          <QrCode size={14} className="text-cyan-accent-400" />
+          Expand & Save QR
+        </button>
       </div>
 
       {/* Info sections */}
@@ -270,6 +294,14 @@ export default function FittingDetails() {
           Full Lifecycle
         </Link>
       </div>
+
+      {/* QR Code Details / Export Modal */}
+      {showQRModal && (
+        <QRCodeModal
+          fitting={fitting}
+          onClose={() => setShowQRModal(false)}
+        />
+      )}
     </div>
   );
 }
