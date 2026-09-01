@@ -113,7 +113,7 @@ exports.swaggerDocument = {
                 ],
                 properties: {
                     inspectionDate: { type: 'string', format: 'date-time', example: '2026-02-28T10:00:00.000Z' },
-                    inspector: { type: 'string', example: 'Ananya Verma' },
+                    inspector: { type: 'string', example: 'inspector_user' },
                     condition: { type: 'string', enum: ['Good', 'Moderate', 'Fair', 'Critical', 'Severe'], example: 'Good' },
                     qrReadability: { type: 'string', enum: ['High', 'Medium', 'Low', 'Unreadable'], example: 'High' },
                     corrosion: { type: 'string', enum: ['None', 'Light', 'Moderate', 'Severe'], example: 'None' },

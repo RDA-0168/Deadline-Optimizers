@@ -8,7 +8,7 @@
       "email": "admin@railmark.demo",
       "passwordHash": "$2b$10$1o.l3u0b84uFer5f59PpL.o6LB/HjjtEopn27UXfxMXkBbtXBHWE6",
       "role": "ADMIN",
-      "fullName": "Rajesh Sharma (Admin)",
+      "fullName": "admin_user",
       "badgeNumber": "RM-ADM-8801",
       "createdAt": "2026-01-10T08:00:00.000Z"
     },
@@ -18,7 +18,7 @@
       "email": "admin@railmark.ai",
       "passwordHash": "$2b$10$j2d60ed1cF2qLKbzlE.89eh1VicaYo91u2XBFBX4EE9AccpF1r58m",
       "role": "ADMIN",
-      "fullName": "Rajesh Sharma (Admin)",
+      "fullName": "admin_user",
       "badgeNumber": "RM-ADM-8801",
       "createdAt": "2026-01-10T08:00:00.000Z"
     },
@@ -28,7 +28,7 @@
       "email": "inspector@railmark.demo",
       "passwordHash": "$2b$10$uzT2r7A2AvZFbfPGG9CF7enPwQ1077zegY7grBbpqyNhrYr689dAm",
       "role": "INSPECTOR",
-      "fullName": "Ananya Verma (Senior Track Inspector)",
+      "fullName": "inspector_user",
       "badgeNumber": "RM-INS-4421",
       "createdAt": "2026-01-15T09:30:00.000Z"
     },
@@ -38,7 +38,7 @@
       "email": "inspector@railmark.ai",
       "passwordHash": "$2b$10$5TjvhERFArs3kW1BOAi3F.ZqgI/UQUmFzvSDuV3Gqi1qs9Y7si2IC",
       "role": "INSPECTOR",
-      "fullName": "Ananya Verma (Senior Track Inspector)",
+      "fullName": "inspector_user",
       "badgeNumber": "RM-INS-4421",
       "createdAt": "2026-01-15T09:30:00.000Z"
     },

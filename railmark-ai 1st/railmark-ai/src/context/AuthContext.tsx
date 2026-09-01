@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isDemoAdmin) {
       const fallbackAdmin: User = {
         id: 'USR-001',
-        name: 'Rajesh Sharma (Admin)',
+        name: 'admin_user',
         role: 'Admin',
         email: emailOrUsername,
         zone: 'Central Railway',
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isDemoInspector) {
       const fallbackInspector: User = {
         id: 'USR-002',
-        name: 'Ananya Verma (Inspector)',
+        name: 'inspector_user',
         role: 'Inspector',
         email: emailOrUsername,
         zone: 'Northern Railway',

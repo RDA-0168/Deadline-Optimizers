@@ -13,8 +13,8 @@
 -- maintenance@railmark.demo -> demo123 (or Maintenance@123 for maintenance@railmark.ai)
 -- -----------------------------------------------------------------------------
 INSERT INTO users (id, username, email, password_hash, role, full_name, badge_number, zone) VALUES
-('USR-001', 'admin', 'admin@railmark.demo', '$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/Y5p2h2H6j0a1xKzW6kXzK5E6v7G6', 'ADMIN', 'Rajesh Sharma (Admin)', 'RM-ADM-8801', 'Central Railway'),
-('USR-002', 'inspector', 'inspector@railmark.demo', '$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/Y5p2h2H6j0a1xKzW6kXzK5E6v7G6', 'INSPECTOR', 'Ananya Verma (Senior Inspector)', 'RM-INS-4421', 'Northern Railway'),
+('USR-001', 'admin', 'admin@railmark.demo', '$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/Y5p2h2H6j0a1xKzW6kXzK5E6v7G6', 'ADMIN', 'admin_user', 'RM-ADM-8801', 'Central Railway'),
+('USR-002', 'inspector', 'inspector@railmark.demo', '$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/Y5p2h2H6j0a1xKzW6kXzK5E6v7G6', 'INSPECTOR', 'inspector_user', 'RM-INS-4421', 'Northern Railway'),
 ('USR-003', 'maintenance', 'maintenance@railmark.demo', '$2a$10$7EqJtq98hPqEX7fNZaFWoO.8/Y5p2h2H6j0a1xKzW6kXzK5E6v7G6', 'MAINTENANCE', 'Vikram Singh (Track Maintenance Lead)', 'RM-MNT-9932', 'Western Railway')
 ON CONFLICT (id) DO NOTHING;
 
