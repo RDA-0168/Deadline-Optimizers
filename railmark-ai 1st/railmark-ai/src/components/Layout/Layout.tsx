@@ -125,9 +125,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <span className="tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-cyan-300 drop-shadow-[0_2px_8px_rgba(0,230,255,0.7)] font-black">
                       {label}
                     </span>
-                    <span className="ml-auto text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-cyan-400 to-rail-blue-500 text-navy-950 shadow-md shadow-cyan-500/40 tracking-wider animate-pulse">
-                      3D AI
-                    </span>
+                    {active && <ChevronRight size={14} className="ml-auto text-cyan-200" />}
                   </Link>
                 </div>
               );
