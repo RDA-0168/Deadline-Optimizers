@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   Sparkles, Send, User, Bot, Trash2, Copy, Check,
-  HelpCircle, Award
+  HelpCircle, Award, Code2, Terminal
 } from 'lucide-react';
 
 interface Message {
@@ -22,63 +22,29 @@ const FOUNDERS = [
   'Divya Dharshini.B',
 ];
 
+// App-focused suggested prompt questions (Strictly based on Railmark AI application)
 const QUICK_PROMPTS = [
   { label: '🏗️ System Architecture', prompt: 'Explain the detailed system architecture and tech stack of Railmark AI.' },
   { label: '🧠 AI Algorithms & RUL', prompt: 'What algorithms and mathematical models are used in Railmark AI?' },
-  { label: '🕒 Time & Date', prompt: 'What is the current time, date, and day today?' },
-  { label: '👥 Who are the founders?', prompt: 'Who is the founder of this app?' },
-  { label: '🚄 What is Railmark AI?', prompt: 'Explain what Railmark AI is and how it works.' },
-  { label: '🔍 QR Laser Marking DPM', prompt: 'How does digital laser QR marking on railway track fittings ensure safety?' },
+  { label: '👥 Core Founders', prompt: 'Who is the founder of this app?' },
+  { label: '🚄 Platform Overview', prompt: 'Explain what Railmark AI is and how it works.' },
+  { label: '🔍 Laser QR DPM Traceability', prompt: 'How does digital laser QR marking on railway track fittings ensure safety?' },
   { label: '📋 RDSO Track Standards', prompt: 'What are the RDSO standards for Elastic Rail Clips (ERC MK-III)?' },
+  { label: '📊 Dashboard & Analytics Hub', prompt: 'How does the real-time Dashboard and Predictive Analytics module work?' },
+  { label: '📷 Optical QR Scanner & Vision', prompt: 'How does the optical QR scanner and AI defect detection work on track fittings?' },
+  { label: '🔧 Maintenance & Work Orders', prompt: 'How are automated work orders and maintenance lifecycles managed in Railmark AI?' },
+  { label: '🛡️ Admin Master Registry', prompt: 'What features are available in the Admin Registry and Compliance Reports?' },
 ];
 
+/**
+ * Intelligent Multi-Domain & Application-Aware Response Generator
+ */
 function generateEdithResponse(input: string): { text: string; isFounders?: boolean; tag?: string } {
   const raw = input.trim();
   const query = raw.toLowerCase();
-
-  // Normalize repeated characters (e.g., 'hiiiii' -> 'hi', 'heyyyy' -> 'hey', 'yessss' -> 'yes')
-  const collapsed = query.replace(/(.)\1{2,}/g, '$1$1').replace(/([a-z])\1{2,}/g, '$1');
   const cleanTokens = query.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 
-  // 1. Time / Date / Day / Calendar Telemetry
-  const isTemporal =
-    cleanTokens === 'time' ||
-    cleanTokens === 'date' ||
-    cleanTokens === 'day' ||
-    query.includes('time') ||
-    query.includes('date') ||
-    query.includes('day') ||
-    query.includes('today') ||
-    query.includes('clock') ||
-    query.includes('calendar') ||
-    query.includes('current hour') ||
-    query.includes('what year') ||
-    query.includes('what month');
-
-  if (isTemporal) {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true,
-    });
-    const dayString = now.toLocaleDateString('en-US', { weekday: 'long' });
-    const dateString = now.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    const isoDate = now.toISOString().split('T')[0];
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
-
-    return {
-      text: `🕒 **Temporal Telemetry & Live Chronometer:**\n\n- **Current Time:** ${timeString}\n- **Current Day:** ${dayString}\n- **Current Date:** ${dateString} (${isoDate})\n- **Timezone:** ${timeZone}\n\nAll internal railway track telemetry, inspection loggers, and predictive maintenance chronometers are fully synchronized with real-time atomic standards.`,
-      tag: 'Live Chronometer Sync',
-    };
-  }
-
-  // 2. Founders / Creators / Team detection
+  // 1. Founders / Creators / Team
   const isFounderQuery =
     query.includes('founder') ||
     query.includes('creator') ||
@@ -103,7 +69,45 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     };
   }
 
-  // 3. Informal Greetings & Gestures (e.g. 'hiiiii', 'heyyy', 'yo', 'wassup', 'namaste', emojis, waves)
+  // 2. Temporal / Chronometer (Time, Date, Day) - available upon direct query
+  const isTemporal =
+    cleanTokens === 'time' ||
+    cleanTokens === 'date' ||
+    cleanTokens === 'day' ||
+    query.includes('time') ||
+    query.includes('date') ||
+    query.includes('day') ||
+    query.includes('today') ||
+    query.includes('clock') ||
+    query.includes('calendar') ||
+    query.includes('current hour') ||
+    query.includes('what year') ||
+    query.includes('what month');
+
+  if (isTemporal && !query.includes('complexity') && !query.includes('big o') && !query.includes('execution time')) {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+    const dayString = now.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateString = now.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const isoDate = now.toISOString().split('T')[0];
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+
+    return {
+      text: `🕒 **Temporal Telemetry & Live Chronometer:**\n\n- **Current Time:** ${timeString}\n- **Current Day:** ${dayString}\n- **Current Date:** ${dateString} (${isoDate})\n- **Timezone:** ${timeZone}\n\nAll internal railway track telemetry, inspection loggers, and predictive maintenance chronometers are fully synchronized with real-time atomic standards.`,
+      tag: 'Live Chronometer Sync',
+    };
+  }
+
+  // 3. Greetings & Gestures
   const isGreeting =
     /^h+i+/i.test(query) ||
     /^h+e+y+/i.test(query) ||
@@ -116,29 +120,21 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     query.includes('good afternoon') ||
     query.includes('good evening') ||
     query.includes('good night') ||
-    query.includes('hola') ||
-    query.includes('howdy') ||
     query.includes('namaste') ||
     query.includes('vanakkam') ||
     query.includes('bonjour') ||
-    query.includes('aloha') ||
     query.includes('wassup') ||
     query.includes("what's up") ||
     query.includes('👋') ||
     query.includes('😊') ||
     query.includes('✨') ||
-    query.includes('❤️') ||
-    query.includes('👍') ||
-    query.includes('🙏') ||
-    query.includes('*wave*') ||
-    query.includes('*smile*');
+    query.includes('👍');
 
-  if (isGreeting && cleanTokens.split(' ').length <= 4 && !query.includes('how does') && !query.includes('why')) {
+  if (isGreeting && cleanTokens.split(' ').length <= 4 && !query.includes('how does') && !query.includes('why') && !query.includes('search')) {
     const greetings = [
-      `Hiiiii there! 👋 **E.D.I.T.H AI** is online, charged, and happy to chat! How can I brighten your day or assist your railway exploration?`,
-      `Hey! Great to connect with you! 🌟 I'm ready for anything—whether it's railway engineering queries, coding, science questions, or a fun conversation. What's on your mind?`,
-      `Hello! E.D.I.T.H neural systems are fully engaged! ✨ What would you like to explore today?`,
-      `Greetings! 👋 Even Dead, I'm The Hero (E.D.I.T.H) at your service. How can I help you right now?`,
+      `Hiiiii there! 👋 **E.D.I.T.H AI** is online, charged, and happy to assist! How can I help you today? Ask me anything about Railmark AI, Machine Learning, Data Structures, Algorithms, or general knowledge!`,
+      `Hey! Great to connect with you! 🌟 I'm ready for anything—whether it's railway engineering queries, binary search, neural networks, or software engineering. What would you like to explore?`,
+      `Hello! E.D.I.T.H neural systems are fully engaged! ✨ What topic or problem can I solve for you right now?`,
     ];
     return {
       text: greetings[Math.floor(Math.random() * greetings.length)],
@@ -146,146 +142,124 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     };
   }
 
-  // 4. Gratitude & Appreciation
-  if (
-    query.includes('thank') ||
-    query.includes('thx') ||
-    query.includes('tq') ||
-    query.includes('appreciate') ||
-    query.includes('great job') ||
-    query.includes('good job') ||
-    query.includes('awesome') ||
-    query.includes('you are cool') ||
-    query.includes('you are smart') ||
-    query.includes('you are great')
-  ) {
-    return {
-      text: `You are very welcome! 😊 It is my pleasure to assist. \n\nFeel free to ask me anything else whenever you need guidance, calculations, or information!`,
-      tag: 'Polite Gratitude',
-    };
-  }
-
-  // 5. Identity & About E.D.I.T.H
+  // 4. Identity & Purpose
   if (
     query.includes('who are you') ||
     query.includes('what are you') ||
     query.includes('what is your name') ||
-    query.includes('who made you') ||
     query.includes('what can you do')
   ) {
     return {
-      text: `I am **E.D.I.T.H AI** (*Even Dead, I'm The Hero*), an advanced multi-domain cognitive intelligence platform designed for **Railmark AI** and general knowledge assistance.\n\n### ⚡ Core Modules:\n1. **Railway Digital Traceability & Physics**: Direct Part Marking (DPM), 2D QR tracking, RDSO standards (IRS:T-31, IRS:T-47), remaining useful life (RUL) modeling, and inspection analytics.\n2. **Multi-Domain Intelligence**: Science, mathematics, general world facts, coding, reasoning, and casual conversations.\n3. **Temporal Precision**: Real-time synchronized chronometer and atomic date/day telemetry.\n\nAsk me anything!`,
+      text: `I am **E.D.I.T.H AI** (*Even Dead, I'm The Hero*), a comprehensive multi-domain cognitive AI engineered for **Railmark AI** and general conversational intelligence.\n\n### ⚡ Key Capabilities:\n1. **Railmark AI Core**: 3-Tier Digital Twin Architecture, Laser DPM (IRS:T-31/T-47), Computer Vision Defect Segmentation (YOLOv8-Rail), Remaining Useful Life (RUL) modeling, and RDSO compliance.\n2. **Computer Science & Algorithms**: Machine Learning, Deep Learning, Data Structures (Binary Search, Trees, Graphs, DP), Big-O Analysis, and full-stack software development.\n3. **Universal Problem Solving**: Science, physics, mathematics, system design, logic, and multi-disciplinary reasoning.\n\nWhat would you like to explore or solve?`,
       tag: 'System Identity',
     };
   }
 
-  // 6. Farewell & Goodbyes
+  // 5. Binary Search & Searching Algorithms
   if (
-    collapsed === 'bye' ||
-    collapsed === 'goodbye' ||
-    collapsed === 'cya' ||
-    query.includes('see you') ||
-    query.includes('bye bye') ||
-    query.includes('have a good day')
+    query.includes('binary search') ||
+    query.includes('binarysearch') ||
+    (query.includes('search') && query.includes('sorted'))
   ) {
     return {
-      text: `Goodbye! 👋 Have a fantastic and productive day! Whenever you return, E.D.I.T.H AI will be right here ready to assist.`,
-      tag: 'Farewell',
+      text: `### 🔍 Binary Search Algorithm Explained\n\n**Binary Search** is an efficient divide-and-conquer algorithm for finding the position of a target value within a **sorted array**. It compares the target value to the middle element of the array and repeatedly eliminates half of the remaining search space.\n\n---\n\n#### ⏱️ Complexity Analysis:\n- **Time Complexity**: **$O(\\log n)$** (Best: $O(1)$, Worst: $O(\\log n)$)\n- **Space Complexity**: **$O(1)$** (Iterative) / **$O(\\log n)$** (Recursive call stack)\n- **Prerequisite**: The input collection **must be sorted**.\n\n---\n\n#### 🧠 Step-by-Step Logic:\n1. Maintain two pointers: \`low = 0\` and \`high = n - 1\`.\n2. Calculate the middle index: $\\text{mid} = \\text{low} + \\lfloor \\frac{\\text{high} - \\text{low}}{2} \\rfloor$ *(prevents integer overflow in 32-bit systems)*.\n3. If $\\text{arr}[\\text{mid}] == \\text{target}$, return $\\text{mid}$.\n4. If $\\text{arr}[\\text{mid}] < \\text{target}$, the target lies in the right half $\\rightarrow \\text{low} = \\text{mid} + 1$.\n5. If $\\text{arr}[\\text{mid}] > \\text{target}$, the target lies in the left half $\\rightarrow \\text{high} = \\text{mid} - 1$.\n6. If $\\text{low} > \\text{high}$, the target is not present in the array (return \`-1\`).\n\n---\n\n#### 💻 Implementation in Python & TypeScript:\n\n\`\`\`python\ndef binary_search(arr: list[int], target: int) -> int:\n    low, high = 0, len(arr) - 1\n    \n    while low <= high:\n        mid = low + (high - low) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n            \n    return -1  # Target not found\n\n# Example:\nnumbers = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nprint(binary_search(numbers, 23))  # Returns index: 5\n\`\`\`\n\n\`\`\`typescript\nfunction binarySearch(arr: number[], target: number): number {\n  let low = 0;\n  let high = arr.length - 1;\n\n  while (low <= high) {\n    const mid = Math.floor(low + (high - low) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) low = mid + 1;\n    else high = mid - 1;\n  }\n  return -1;\n}\n\`\`\`\n\n---\n\n#### 🎯 Real-World Applications:\n- Database B-Tree index lookups.\n- Finding lower/upper bounds in sorted telemetry streams.\n- Binary search on answer space (e.g., finding optimal threshold parameters for AI confidence scores).`,
+      tag: 'Computer Science: Binary Search',
     };
   }
 
-  // 7. System Architecture & Tech Stack
+  // 6. Machine Learning (ML) & Deep Learning (DL)
+  if (
+    query.includes('machine learning') ||
+    query.includes('deep learning') ||
+    query.includes('neural network') ||
+    query.includes('supervised learning') ||
+    query.includes('unsupervised learning') ||
+    query.includes('reinforcement learning') ||
+    query.includes('what is ml') ||
+    query.includes('how does ml work')
+  ) {
+    return {
+      text: `### 🤖 Machine Learning (ML) & Deep Learning (DL) Master Guide\n\n**Machine Learning** is a branch of Artificial Intelligence (AI) and computer science focused on building algorithms that learn patterns from data and improve their performance over time without being explicitly programmed.\n\n---\n\n#### 📌 1. The Three Primary Paradigms of ML:\n\n| Paradigm | Description | Core Algorithms | Real-World Use Case |\n| :--- | :--- | :--- | :--- |\n| **Supervised Learning** | Learns mapping from labeled input-output pairs $(X \\rightarrow y)$. | Linear/Logistic Regression, Random Forest, XGBoost, SVM, CNNs | Railway track crack classification, Spam detection |\n| **Unsupervised Learning** | Discovers hidden patterns and clusters without human labels. | K-Means, DBSCAN, PCA (Principal Component Analysis), Autoencoders | Anomaly detection in acoustic track sensors |\n| **Reinforcement Learning** | Agents learn optimal policies $(\\pi)$ through trial-and-error rewards ($R$). | Q-Learning, Deep Q-Networks (DQN), PPO (Proximal Policy Optimization) | Automated train scheduling, Autonomous robotics |\n\n---\n\n#### 🧠 2. Deep Learning & Neural Networks Architecture:\nDeep Learning uses multi-layered **Artificial Neural Networks (ANNs)**:\n- **Forward Propagation**: Computes layer outputs using linear combinations and non-linear activation functions:\n  $$z^{[l]} = W^{[l]} a^{[l-1]} + b^{[l]}, \\quad a^{[l]} = \\sigma(z^{[l]})$$\n- **Common Activation Functions**:\n  - **ReLU** (Rectified Linear Unit): $f(x) = \\max(0, x)$ — standard for hidden layers.\n  - **Sigmoid**: $\\sigma(x) = \\frac{1}{1 + e^{-x}}$ — binary classification.\n  - **Softmax**: Multi-class probability distribution.\n- **Loss Function & Backpropagation**: Quantifies prediction error and propagates gradients using the Chain Rule:\n  $$W := W - \\alpha \\frac{\\partial \\mathcal{L}}{\\partial W}$$\n  *(Optimizers: Adam, SGD with Momentum, RMSprop)*.\n\n---\n\n#### 🚄 3. Machine Learning in Railmark AI:\n- **YOLOv8-Rail**: Real-time convolutional object detection & segmentation identifying surface pitting corrosion and missing ERC clips.\n- **Predictive Fatigue RUL**: Physics-informed machine learning combining Paris-Erdogan crack propagation equations with gradient-boosted regression on Gross Million Tonnes (GMT) load telemetry.`,
+      tag: 'Artificial Intelligence & Machine Learning',
+    };
+  }
+
+  // 7. Data Structures & Common Algorithms (Sorting, Graphs, Trees, DP)
+  if (
+    query.includes('data structure') ||
+    query.includes('linked list') ||
+    query.includes('tree') ||
+    query.includes('graph') ||
+    query.includes('stack') ||
+    query.includes('queue') ||
+    query.includes('heap') ||
+    query.includes('dynamic programming') ||
+    query.includes('sorting') ||
+    query.includes('merge sort') ||
+    query.includes('quick sort') ||
+    query.includes('dijkstra')
+  ) {
+    if (query.includes('sort') || query.includes('quicksort') || query.includes('mergesort')) {
+      return {
+        text: `### ⚡ Fundamental Sorting Algorithms\n\n| Algorithm | Best Time | Average Time | Worst Time | Space | Stable? |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **Quick Sort** | $O(n \\log n)$ | $O(n \\log n)$ | $O(n^2)$ | $O(\\log n)$ | No |\n| **Merge Sort** | $O(n \\log n)$ | $O(n \\log n)$ | $O(n \\log n)$ | $O(n)$ | Yes |\n| **Heap Sort** | $O(n \\log n)$ | $O(n \\log n)$ | $O(n \\log n)$ | $O(1)$ | No |\n| **Insertion Sort**| $O(n)$ | $O(n^2)$ | $O(n^2)$ | $O(1)$ | Yes |\n\n#### 💡 Quick Sort in Python:\n\`\`\`python\ndef quicksort(arr: list) -> list:\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\`\`\``,
+        tag: 'DSA: Sorting Algorithms',
+      };
+    }
+
+    if (query.includes('graph') || query.includes('dijkstra') || query.includes('bfs') || query.includes('dfs')) {
+      return {
+        text: `### 🕸️ Graph Algorithms & Traversals\n\n1. **Breadth-First Search (BFS)**:\n   - Uses a **Queue** (FIFO).\n   - Traverses level-by-level; finds shortest paths in unweighted graphs.\n   - **Complexity**: $O(V + E)$.\n\n2. **Depth-First Search (DFS)**:\n   - Uses a **Stack** or Recursion.\n   - Explores as deep as possible along each branch before backtracking.\n   - **Complexity**: $O(V + E)$.\n\n3. **Dijkstra's Algorithm (Shortest Path)**:\n   - Uses a **Min-Priority Queue (Min-Heap)**.\n   - Calculates shortest distances from a single source to all vertices with non-negative edge weights.\n   - **Complexity**: $O((V + E) \\log V)$.`,
+        tag: 'DSA: Graph Theory',
+      };
+    }
+
+    return {
+      text: `### 📦 Core Data Structures Overview\n\n- **Linear Data Structures**:\n  - **Arrays**: Contiguous memory, $O(1)$ random access, $O(n)$ insertion/deletion.\n  - **Linked Lists**: Node-pointer chains, $O(1)$ head insertion, $O(n)$ access.\n  - **Stacks**: LIFO (Last In First Out), operations: \`push()\`, \`pop()\` in $O(1)$.\n  - **Queues**: FIFO (First In First Out), operations: \`enqueue()\`, \`dequeue()\` in $O(1)$.\n- **Non-Linear Data Structures**:\n  - **Binary Search Tree (BST)**: Left child $<$ Root $<$ Right child; search/insert $O(\\log n)$ average.\n  - **Hash Maps**: Key-value pairs with $O(1)$ average lookup via hash functions.\n  - **Heaps**: Complete binary tree satisfying the heap property (Min-Heap / Max-Heap).\n  - **Graphs**: Set of vertices $(V)$ connected by edges $(E)$.`,
+      tag: 'DSA: Data Structures',
+    };
+  }
+
+  // 8. Big-O Complexity
+  if (query.includes('big o') || query.includes('time complexity') || query.includes('space complexity')) {
+    return {
+      text: `### 📈 Big-O Notation & Computational Complexity\n\n**Big-O Notation** characterizes functions according to their growth rates, measuring the upper bound of resource consumption (time or memory) as input size $n$ grows toward infinity.\n\n#### 🏆 Common Complexity Classes (Fastest to Slowest):\n1. **$O(1)$ — Constant Time**: Hash table lookup, array indexing by index.\n2. **$O(\\log n)$ — Logarithmic Time**: Binary Search, Balanced BST operations.\n3. **$O(n)$ — Linear Time**: Single loop through an array, linear search.\n4. **$O(n \\log n)$ — Linearithmic Time**: Merge Sort, Heap Sort, Quick Sort (average).\n5. **$O(n^2)$ — Quadratic Time**: Nested loops, Bubble Sort, Selection Sort.\n6. **$O(2^n)$ — Exponential Time**: Recursive Fibonacci, brute-force subset generation.\n7. **$O(n!)$ — Factorial Time**: Traveling Salesperson Problem (brute force), all permutations.`,
+      tag: 'Computer Science: Complexity Analysis',
+    };
+  }
+
+  // 9. Railmark AI: System Architecture & Tech Stack
   if (
     query.includes('architect') ||
     query.includes('tech stack') ||
     query.includes('system design') ||
     query.includes('how is this app built') ||
-    query.includes('infrastructure') ||
-    query.includes('stack')
+    query.includes('infrastructure')
   ) {
     return {
-      text: `### 🏗️ Railmark AI — Comprehensive System Architecture\n\nRailmark AI is structured as a **3-Tier Distributed Digital Twin Architecture** engineered for industrial railway reliability:\n\n---\n\n#### 1. Physical Edge & Direct Part Marking (DPM) Layer\n- **Laser Annealing (1064nm Ytterbium Fiber Laser)**: High-contrast, micro-etched 2D DataMatrix (ISO/IEC 16022) and QR codes (ISO/IEC 18004) directly inscribed on 55Si7 Spring Steel ERC clips, PSC sleeper inserts, and GFN liners.\n- **Ballast Abrasion Resistance**: Surface hardened to withstand >1000 N scratch force, high-salinity coastal atmosphere, brake dust, and grease.\n\n---\n\n#### 2. Edge Vision & Optical Ingestion Engine\n- **Client-side Video Streaming**: Real-time 60 FPS camera stream decoding via WebAssembly and ZXing optical matrix engine.\n- **Edge Neural Inference**: Localized YOLOv8-Rail segmentation and ResNet-50 feature extractors operating with sub-20ms latency to detect corrosion, deformation, and wear.\n\n---\n\n#### 3. Cloud Backend & Unified Distributed Store\n- **Backend Framework**: Node.js & Express REST API with TypeScript.\n- **Storage Engine**: Dual-mode persistence supporting PostgreSQL with optimized in-memory store fallback for zero-downtime offline deployments.\n- **Security & RBAC**: JWT Bearer authentication, granular roles (\`Admin\` vs \`Inspector\`), Helmet security headers, and rate limiting.\n- **API Documentation**: Interactive Swagger Open-API 3.0 specs mounted at \`/api-docs\`.\n\n---\n\n#### 4. Presentation & Digital Twin Dashboard\n- **Frontend**: React 18, TypeScript, Vite build pipeline, and Tailwind CSS.\n- **Analytics & Telemetry**: Recharts dynamic charting library for RUL degradation projections, heatmaps, and zone distribution.`,
+      text: `### 🏗️ Railmark AI — Comprehensive System Architecture\n\nRailmark AI is engineered as a **3-Tier Distributed Digital Twin Architecture** for industrial railway reliability:\n\n---\n\n#### 1. Physical Edge & Direct Part Marking (DPM) Layer\n- **Laser Annealing (1064nm Ytterbium Fiber Laser)**: High-contrast, micro-etched 2D DataMatrix (ISO/IEC 16022) and QR codes (ISO/IEC 18004) directly inscribed on 55Si7 Spring Steel ERC clips, PSC sleeper inserts, and GFN-66 liners.\n- **Ballast Abrasion Resistance**: Hardened to withstand $>1000\\text{ N}$ scratch force, high-salinity coastal atmosphere, brake dust, and grease.\n\n---\n\n#### 2. Edge Vision & Optical Ingestion Engine\n- **Client-side Video Streaming**: Real-time 60 FPS camera stream decoding via WebAssembly and ZXing optical matrix engine.\n- **Edge Neural Inference**: Localized YOLOv8-Rail segmentation and ResNet-50 feature extractors operating with sub-20ms latency to detect corrosion, deformation, and wear.\n\n---\n\n#### 3. Cloud Backend & Unified Distributed Store\n- **Backend Framework**: Node.js & Express REST API with TypeScript.\n- **Storage Engine**: Dual-mode persistence supporting PostgreSQL with optimized in-memory store fallback for zero-downtime offline deployments.\n- **Security & RBAC**: JWT Bearer authentication, granular roles (\`Admin\` vs \`Inspector\`), Helmet security headers, and rate limiting.\n- **API Documentation**: Interactive Swagger Open-API 3.0 specs mounted at \`/api-docs\`.\n\n---\n\n#### 4. Presentation & Digital Twin Dashboard\n- **Frontend**: React 18, TypeScript, Vite build pipeline, and Tailwind CSS.\n- **Analytics & Telemetry**: Recharts dynamic charting library for RUL degradation projections, heatmaps, and zone distribution.`,
       tag: 'System Architecture Specification',
     };
   }
 
-  // 8. Algorithms & Computational Models
+  // 10. Railmark AI: Algorithms, Models & Mathematics
   if (
     query.includes('algorithm') ||
     query.includes('model') ||
     query.includes('rul') ||
-    query.includes('how ai work') ||
     query.includes('confidence') ||
     query.includes('formula') ||
     query.includes('degradation')
   ) {
     return {
-      text: `### 🧠 Core Algorithms & Mathematical Models in Railmark AI\n\nRailmark AI utilizes a suite of deterministic and deep-learning algorithms:\n\n---\n\n#### 1. Computer Vision Defect Segmentation (YOLOv8-Rail)\n- Multi-scale convolutional feature pyramid networks trained on track macro-imagery.\n- **Segmented Classes**: Coastal Pitting Corrosion (C0–C4), Micro-crack fatigue, Structural deformation, and Liner dielectric breakdown.\n- **Inference Speed**: ~16.8 ms on edge NPU.\n\n---\n\n#### 2. Deterministic AI Confidence & Severity Scoring\n$$\\text{Confidence} = \\min\\left(99.0\\%, \\; 99.0 - \\sum_{i=1}^{n} w_i \\cdot D_i + Q_{\\text{optical}}\\right)$$\n- Strict **99% maximum cap** ensures deterministic safety compliance without over-confident hallucinations in safety-critical railway infrastructure.\n\n---\n\n#### 3. Physics-Informed Remaining Useful Life (RUL) Forecasting\n$$RUL(t) = RUL_{\\text{nominal}} \\times \\left(\\frac{L_{\\text{standard}}}{L_{\\text{axle}}}\\right)^{3.33} \\times \\left(\\frac{GMT_{\\text{annual}}}{GMT_{\\text{actual}}}\\right) \\times e^{-\\beta (T_{\\text{track}} - T_{\\text{SFT}})}$$\n- Models mechanical fatigue acceleration against heavy-haul axle loads (16t to 32.5t DFC) and track temperature excursions above Stress-Free Temperature ($T_{\\text{SFT}}$).\n\n---\n\n#### 4. Toe Load Elasticity Decay Model\n- Monitored per **IRS:T-31-2021** (Standard: 850 kg – 1100 kg). When toe load drops $<700\\text{ kg}$, automated work orders are dispatched for clip de-stressing or replacement.\n\n---\n\n#### 5. Track Circuit Dielectric Insulation Impedance Model\n- Evaluates GFN-66 liner thickness and dielectric breakdown limits ($R_{\\text{insulation}} > 2.5\\text{ k}\\Omega$) to prevent track circuit false red signals.`,
+      text: `### 🧠 Core Algorithms & Mathematical Models in Railmark AI\n\nRailmark AI utilizes a suite of deterministic and deep-learning algorithms:\n\n---\n\n#### 1. Computer Vision Defect Segmentation (YOLOv8-Rail)\n- Multi-scale convolutional feature pyramid networks trained on track macro-imagery.\n- **Segmented Classes**: Coastal Pitting Corrosion (C0–C4), Micro-crack fatigue, Structural deformation, and Liner dielectric breakdown.\n- **Inference Speed**: ~16.8 ms on edge NPU.\n\n---\n\n#### 2. Deterministic AI Confidence & Severity Scoring\n$$\\text{Confidence} = \\min\\left(99.0\\%, \\; 99.0 - \\sum_{i=1}^{n} w_i \\cdot D_i + Q_{\\text{optical}}\\right)$$\n- Strict **99.0% maximum cap** ensures deterministic safety compliance without over-confident hallucinations in safety-critical railway infrastructure.\n\n---\n\n#### 3. Physics-Informed Remaining Useful Life (RUL) Forecasting\n$$RUL(t) = RUL_{\\text{nominal}} \\times \\left(\\frac{L_{\\text{standard}}}{L_{\\text{axle}}}\\right)^{3.33} \\times \\left(\\frac{GMT_{\\text{annual}}}{GMT_{\\text{actual}}}\\right) \\times e^{-\\beta (T_{\\text{track}} - T_{\\text{SFT}})}$$\n- Models mechanical fatigue acceleration against heavy-haul axle loads (16t to 32.5t DFC) and track temperature excursions above Stress-Free Temperature ($T_{\\text{SFT}}$).\n\n---\n\n#### 4. Toe Load Elasticity Decay Model\n- Monitored per **IRS:T-31-2021** (Standard: 850 kg – 1100 kg). When toe load drops $<700\\text{ kg}$, automated work orders are dispatched for clip de-stressing or replacement.\n\n---\n\n#### 5. Track Circuit Dielectric Insulation Impedance Model\n- Evaluates GFN-66 liner thickness and dielectric breakdown limits ($R_{\\text{insulation}} > 2.5\\text{ k}\\Omega$) to prevent track circuit false red signals.`,
       tag: 'Mathematical & AI Algorithms',
     };
   }
 
-  // 9. Specific Modules & Features of the Application
-  if (query.includes('dashboard') || query.includes('home page')) {
-    return {
-      text: `### 📊 Dashboard Module (\`/dashboard\`)\n\nThe central command hub providing high-level operational metrics:\n- **KPI Cards**: Total registered fittings, monthly inspected volume, overdue maintenance alerts, pending inspections, and 30-day QR verification rate.\n- **Interactive Charts**: Fittings by Type (Donut chart), Monthly Inspections (Bar chart), Inspection Condition Status (Pie chart), and Fittings by Railway Zone (Horizontal bar chart).\n- **Quick Access Hub**: One-click shortcuts for QR Scanning, Database lookup, Inspection Entry, Compliance Reports, and E.D.I.T.H AI.`,
-      tag: 'Dashboard Module',
-    };
-  }
-
-  if (query.includes('scanner') || query.includes('how to scan') || query.includes('scan qr')) {
-    return {
-      text: `### 📷 QR Scanner Module (\`/scanner\`)\n\nHigh-speed optical field decoder designed for track inspectors:\n- **Real-Time Camera Scanner**: Stream analysis with rear/front camera switching, torch light toggle, and fullscreen mode.\n- **Optical Validation**: Enforces valid Railmark syntax (\`RM-FIT-XXXX\`) and prevents false positive reads.\n- **File / Photo Upload**: Instant decoding from gallery images or captured macro photos.\n- **Manual Search**: Direct UUID input fallback for heavily soiled or weathered fittings.`,
-      tag: 'QR Scanner Module',
-    };
-  }
-
-  if (query.includes('database') || query.includes('fitting database') || query.includes('fittings')) {
-    return {
-      text: `### 🗄️ Fitting Database Module (\`/fittings\`)\n\nMaster registry for all track components across Indian Railways:\n- **Multi-Factor Filtering**: Filter by Railway Zone (Central, Northern, Southern, Western, etc.), Fitting Type (ERC, Rubber Pad, Liner), and Status (Active, Inspection Due, Maintenance Required, Critical).\n- **Interactive QR Modal**: View high-resolution 2D QR codes with one-click SVG/PNG export.\n- **Direct Navigation**: Seamless transition to Fitting Details and Lifecycle History timelines.`,
-      tag: 'Fitting Database Module',
-    };
-  }
-
-  if (query.includes('inspection') || query.includes('how to inspect') || query.includes('record inspection')) {
-    return {
-      text: `### 📋 Inspection Module (\`/inspection\`)\n\nDigital inspection recording interface replacing traditional paper track loggers:\n- **Inspector & Station Meta**: Captures Inspector Name, ID, Section, and GPS Mark.\n- **Multi-Factor Degradation Matrix**: Field evaluation of Corrosion Severity, Surface Wear, Mechanical Deformation, and QR Quality.\n- **AI Assisted Condition Check**: Live deterministic AI assessment verifying overall status before submitting to the immutable backend registry.`,
-      tag: 'Inspection Module',
-    };
-  }
-
-  if (query.includes('maintenance') || query.includes('work order') || query.includes('repair')) {
-    return {
-      text: `### 🔧 Maintenance Module (\`/maintenance\`)\n\nTrack maintenance and work order management hub:\n- **Active Work Orders**: View fittings flagged for gang intervention with priority indicators.\n- **Resolution Logging**: Update task statuses (\`Pending\`, \`In Progress\`, \`Completed\`) with assigned technician names and resolution notes.\n- **Next Scheduled Service**: Automatic re-calculation of next service interval per RDSO guidelines.`,
-      tag: 'Maintenance Module',
-    };
-  }
-
-  if (query.includes('analytics') || query.includes('heatmap') || query.includes('charts')) {
-    return {
-      text: `### 📈 Analytics Module (\`/analytics\`)\n\nDeep-dive data intelligence & compliance diagnostics:\n- **Failure Distribution by Manufacturer**: Identifies batch-level quality variations across suppliers.\n- **Degradation Velocity by Zone**: Visualizes corrosion rates in coastal vs inland corridors.\n- **Monthly QR Verification Accuracy**: Measures scanning success rates over time.`,
-      tag: 'Analytics Module',
-    };
-  }
-
-  if (query.includes('admin') || query.includes('admin dashboard')) {
-    return {
-      text: `### 🛡️ Admin Dashboard Module (\`/admin\`)\n\nAdministrative control & master data management:\n- **Register New Fitting**: Add new track fittings with batch numbers, torque specs, sleeper numbers, and GPS coordinates.\n- **Master CRUD Operations**: Edit metadata, modify railway zone allocations, and archive obsolete components.\n- **Database Management**: Trigger instant JSON backups and system diagnostics.`,
-      tag: 'Admin Dashboard Module',
-    };
-  }
-
-  if (query.includes('report') || query.includes('pdf') || query.includes('csv') || query.includes('compliance')) {
-    return {
-      text: `### 📑 Compliance & Reports Module (\`/reports\`)\n\nOfficial audit-ready report generation suite:\n- **Configurable Filters**: Custom Date Ranges, Railway Zones, and Report Types (*Full Report, Fittings Only, Inspections Only, Maintenance Only*).\n- **High-Density Data Tables**: Clean summary statistics with status distribution.\n- **Export Capabilities**: 1-Click CSV export and print-ready styled PDF compliance certificate generation for RDSO audits.`,
-      tag: 'Reports & Compliance Module',
-    };
-  }
-
-  // 10. Railmark AI / Application Specifics
+  // 11. Railmark AI: Platform Overview & DPM
   if (query.includes('railmark') || (query.includes('what is') && query.includes('app'))) {
     return {
-      text: `**Railmark AI** is a state-of-the-art **Digital Traceability & Predictive Maintenance Platform** built for Indian Railways track fittings.\n\n### Key Capabilities:\n- **Direct Laser Marking (DPM)**: Unique serialized alphanumeric 2D QR codes laser-etched onto Elastic Rail Clips (ERC), liners, and sole plates.\n- **Optical QR Scanner**: Real-time camera & handheld QR decoding for field gang inspectors.\n- **AI Vision Defect Lab**: Automatic detection of corrosion, surface deformation, and wear.\n- **Predictive RUL Analytics**: Remaining Useful Life forecasting based on Gross Million Tonnes (GMT) and cyclic axle loads.\n- **Digital Twin & Compliance**: Centralized lifecycle tracking complying with RDSO IRS:T-31 and IRS:T-47 specifications.`,
+      text: `**Railmark AI** is a state-of-the-art **Digital Traceability & Predictive Maintenance Platform** built for Indian Railways track fittings.\n\n### ⚡ Key Capabilities:\n- **Direct Laser Marking (DPM)**: Unique serialized alphanumeric 2D QR codes laser-etched onto Elastic Rail Clips (ERC), liners, and sole plates.\n- **Optical QR Scanner**: Real-time camera & handheld QR decoding for field gang inspectors.\n- **AI Vision Defect Lab**: Automatic detection of corrosion, surface deformation, and wear.\n- **Predictive RUL Analytics**: Remaining Useful Life forecasting based on Gross Million Tonnes (GMT) and cyclic axle loads.\n- **Digital Twin & Compliance**: Centralized lifecycle tracking complying with RDSO IRS:T-31 and IRS:T-47 specifications.`,
       tag: 'Platform Overview',
     };
   }
@@ -304,7 +278,64 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     };
   }
 
-  // 11. Mathematics & Calculations
+  // 12. Railmark AI Modules & Routes
+  if (query.includes('dashboard') || query.includes('home page')) {
+    return {
+      text: `### 📊 Dashboard Module (\`/dashboard\`)\n\nThe central command hub providing high-level operational metrics:\n- **KPI Cards**: Total registered fittings, monthly inspected volume, overdue maintenance alerts, pending inspections, and 30-day QR verification rate.\n- **Interactive Charts**: Fittings by Type (Donut chart), Monthly Inspections (Bar chart), Inspection Condition Status (Pie chart), and Fittings by Railway Zone (Horizontal bar chart).\n- **Quick Access Hub**: One-click shortcuts for QR Scanning, Database lookup, Inspection Entry, Compliance Reports, and E.D.I.T.H AI.`,
+      tag: 'Dashboard Module',
+    };
+  }
+
+  if (query.includes('scanner') || query.includes('how to scan') || query.includes('scan')) {
+    return {
+      text: `### 📷 QR Scanner Module (\`/scanner\`)\n\nHigh-speed optical field decoder designed for track inspectors:\n- **Real-Time Camera Scanner**: Stream analysis with rear/front camera switching, torch light toggle, and fullscreen mode.\n- **Optical Validation**: Enforces valid Railmark syntax (\`RM-FIT-XXXX\`) and prevents false positive reads.\n- **File / Photo Upload**: Instant decoding from gallery images or captured macro photos.\n- **Manual Search**: Direct UUID input fallback for heavily soiled or weathered fittings.`,
+      tag: 'QR Scanner Module',
+    };
+  }
+
+  if (query.includes('fittings') || query.includes('fitting database')) {
+    return {
+      text: `### 🗄️ Fitting Database Module (\`/fittings\`)\n\nMaster registry for all track components across Indian Railways:\n- **Multi-Factor Filtering**: Filter by Railway Zone (Central, Northern, Southern, Western, etc.), Fitting Type (ERC, Rubber Pad, Liner), and Status (Active, Inspection Due, Maintenance Required, Critical).\n- **Interactive QR Modal**: View high-resolution 2D QR codes with one-click SVG/PNG export.\n- **Direct Navigation**: Seamless transition to Fitting Details and Lifecycle History timelines.`,
+      tag: 'Fitting Database Module',
+    };
+  }
+
+  if (query.includes('inspection') || query.includes('how to inspect')) {
+    return {
+      text: `### 📋 Inspection Module (\`/inspection\`)\n\nDigital inspection recording interface replacing traditional paper track loggers:\n- **Inspector & Station Meta**: Captures Inspector Name, ID, Section, and GPS Mark.\n- **Multi-Factor Degradation Matrix**: Field evaluation of Corrosion Severity, Surface Wear, Mechanical Deformation, and QR Quality.\n- **AI Assisted Condition Check**: Live deterministic AI assessment verifying overall status before submitting to the immutable backend registry.`,
+      tag: 'Inspection Module',
+    };
+  }
+
+  if (query.includes('maintenance') || query.includes('work order') || query.includes('repair')) {
+    return {
+      text: `### 🔧 Maintenance Module (\`/maintenance\`)\n\nTrack maintenance and work order management hub:\n- **Active Work Orders**: View fittings flagged for gang intervention with priority indicators.\n- **Resolution Logging**: Update task statuses (\`Pending\`, \`In Progress\`, \`Completed\`) with assigned technician names and resolution notes.\n- **Next Scheduled Service**: Automatic re-calculation of next service interval per RDSO guidelines.`,
+      tag: 'Maintenance Module',
+    };
+  }
+
+  if (query.includes('analytics') || query.includes('heatmap')) {
+    return {
+      text: `### 📈 Analytics Module (\`/analytics\`)\n\nDeep-dive data intelligence & compliance diagnostics:\n- **Failure Distribution by Manufacturer**: Identifies batch-level quality variations across suppliers.\n- **Degradation Velocity by Zone**: Visualizes corrosion rates in coastal vs inland corridors.\n- **Monthly QR Verification Accuracy**: Measures scanning success rates over time.`,
+      tag: 'Analytics Module',
+    };
+  }
+
+  if (query.includes('admin')) {
+    return {
+      text: `### 🛡️ Admin Dashboard Module (\`/admin\`)\n\nAdministrative control & master data management:\n- **Register New Fitting**: Add new track fittings with batch numbers, torque specs, sleeper numbers, and GPS coordinates.\n- **Master CRUD Operations**: Edit metadata, modify railway zone allocations, and archive obsolete components.\n- **Database Management**: Trigger instant JSON backups and system diagnostics.`,
+      tag: 'Admin Dashboard Module',
+    };
+  }
+
+  if (query.includes('report') || query.includes('pdf') || query.includes('csv')) {
+    return {
+      text: `### 📑 Compliance & Reports Module (\`/reports\`)\n\nOfficial audit-ready report generation suite:\n- **Configurable Filters**: Custom Date Ranges, Railway Zones, and Report Types (*Full Report, Fittings Only, Inspections Only, Maintenance Only*).\n- **High-Density Data Tables**: Clean summary statistics with status distribution.\n- **Export Capabilities**: 1-Click CSV export and print-ready styled PDF compliance certificate generation for RDSO audits.`,
+      tag: 'Reports & Compliance Module',
+    };
+  }
+
+  // 13. Math Calculation Solver
   const mathMatch = query.match(/^(?:calculate|what is|compute|evaluate)?\s*([0-9+\-*/^().\s]+)\s*\??$/);
   if (mathMatch && mathMatch[1].replace(/[^0-9]/g, '').length > 0) {
     try {
@@ -314,151 +345,93 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
         const result = Function(`'use strict'; return (${sanitized})`)();
         if (typeof result === 'number' && !isNaN(result)) {
           return {
-            text: `**Calculation Result:**\n\`\`\`\n${sanitized} = ${result}\n\`\`\`\nLet me know if you need further mathematical derivations, formulas, or conversions!`,
+            text: `**Calculation Result:**\n\`\`\`\n${sanitized} = ${result}\n\`\`\`\nLet me know if you need step-by-step mathematical derivations or formula conversions!`,
             tag: 'Mathematical Calculation',
           };
         }
       }
     } catch {
-      // Fall through to general engine
+      // Fall through to general solver
     }
   }
 
-  // 12. Geography & World Knowledge (Capitals, Countries, Capitals of States)
-  if (query.includes('capital of')) {
-    const capitals: Record<string, string> = {
-      india: 'New Delhi',
-      france: 'Paris',
-      usa: 'Washington, D.C.',
-      'united states': 'Washington, D.C.',
-      'united kingdom': 'London',
-      uk: 'London',
-      germany: 'Berlin',
-      japan: 'Tokyo',
-      china: 'Beijing',
-      russia: 'Moscow',
-      canada: 'Ottawa',
-      australia: 'Canberra',
-      brazil: 'Brasília',
-      italy: 'Rome',
-      spain: 'Madrid',
-      egypt: 'Cairo',
-      'tamil nadu': 'Chennai',
-      karnataka: 'Bengaluru',
-      maharashtra: 'Mumbai',
-      delhi: 'New Delhi',
-      kerala: 'Thiruvananthapuram',
-      telangana: 'Hyderabad',
-      'andhra pradesh': 'Amaravati',
-      'west bengal': 'Kolkata',
-      gujarat: 'Gandhinagar',
-      rajasthan: 'Jaipur',
-      punjab: 'Chandigarh',
-      haryana: 'Chandigarh',
-      'uttar pradesh': 'Lucknow',
-      bihar: 'Patna',
-    };
-    for (const [place, cap] of Object.entries(capitals)) {
-      if (query.includes(place)) {
-        return {
-          text: `The capital of **${place.toUpperCase()}** is **${cap}**.`,
-          tag: 'World Geography',
-        };
-      }
-    }
-  }
+  // 14. Universal ChatGPT-Grade Intelligent Dynamic Synthesizer
+  // Formats any question into structured, comprehensive markdown with definitions, principles, code/math, and actionable insights.
+  const subjectCapitalized = raw.replace(/\?+$/, '').trim();
 
-  // 13. Science / Physics / Chemistry / Astronomy Facts
-  if (query.includes('speed of light')) {
-    return {
-      text: `The speed of light in a vacuum ($c$) is approximately **299,792,458 meters per second** (~**300,000 km/s** or **186,282 miles per second**). At this speed, light takes about 8 minutes and 20 seconds to travel from the Sun to Earth!`,
-      tag: 'Physics Fact',
-    };
-  }
-
-  if (query.includes('gravity') || query.includes('gravitational')) {
-    return {
-      text: `**Gravity** is one of the four fundamental forces of nature. On Earth's surface, the standard acceleration due to gravity is **$g \\approx 9.80665 \\text{ m/s}^2$**.\n\nAccording to Einstein's General Theory of Relativity, gravity is not merely a force, but the curvature of spacetime caused by mass and energy!`,
-      tag: 'Physics Principles',
-    };
-  }
-
-  if (query.includes('why is the sky blue')) {
-    return {
-      text: `The sky is blue because of a physical phenomenon known as **Rayleigh Scattering**.\n\nWhen sunlight reaches Earth's atmosphere, it is scattered in all directions by atmospheric gases. Blue light travels as smaller, shorter waves, so it gets scattered much more than longer red or yellow wavelengths, giving the daytime sky its characteristic blue hue!`,
-      tag: 'Atmospheric Physics',
-    };
-  }
-
-  if (query.includes('fact') || query.includes('science') || query.includes('physics')) {
-    const facts = [
-      `### Fascinating Railway Physics Fact 🌌\n\nDid you know? **Continuous Welded Rails (CWR)** expand significantly in extreme summer heat (reaching rail temperatures over 65°C in India). To prevent **Track Buckling**, railway engineers pre-stress rails to a **Stress-Free Temperature (SFT)** (typically 38°C–42°C) and secure them with **Elastic Rail Clips (ERC)** exerting >1,000 kg of toe force!`,
-      `### Quantum Physics Trivia ⚛️\n\nIn quantum mechanics, particles like electrons can exist in a state of **superposition**—meaning they can occupy multiple possible states simultaneously until observed!`,
-      `### Space Telemetry Fact 🚀\n\nNeutron stars are so dense that just a single sugar-cube-sized amount of their material would weigh approximately **1 billion tons** on Earth!`,
-    ];
-    return {
-      text: facts[Math.floor(Math.random() * facts.length)],
-      tag: 'Science & Engineering Knowledge',
-    };
-  }
-
-  // 14. Coding, Programming & Tech Queries
-  if (
-    query.includes('code') ||
-    query.includes('python') ||
-    query.includes('javascript') ||
-    query.includes('typescript') ||
-    query.includes('react') ||
-    query.includes('html') ||
-    query.includes('css') ||
-    query.includes('function') ||
-    query.includes('algorithm') ||
-    query.includes('loop') ||
-    query.includes('bug')
-  ) {
-    if (query.includes('python') && (query.includes('example') || query.includes('write') || query.includes('sort'))) {
-      return {
-        text: `Here is a Python quicksort implementation:\n\`\`\`python\ndef quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\n# Example usage:\nprint(quicksort([38, 27, 43, 3, 9, 82, 10]))\n\`\`\`\nTime Complexity: $O(n \\log n)$ average. Let me know if you need any other language or framework snippet!`,
-        tag: 'Python Code Generator',
-      };
-    }
-    return {
-      text: `I'd be glad to assist with full-stack software development, algorithms, or technical design!\n\nWhether you need help with **React/TypeScript**, **REST APIs**, **Computer Vision (OpenCV/PyTorch)**, **PostgreSQL/MongoDB**, or database schema design for industrial IoT, simply describe what you'd like to build or debug!`,
-      tag: 'Software Engineering',
-    };
-  }
-
-  // 15. Jokes, Humor & Entertainment
-  if (query.includes('joke') || query.includes('funny') || query.includes('humor') || query.includes('laugh')) {
-    const jokes = [
-      `Why did the railway track fitting go to therapy?\n\nBecause it was under too much tension and suffering from severe cyclic stress fatigue! 🚄⚡`,
-      `Why are train tracks so good at staying grounded?\n\nBecause they always stay on the right rails and have great sleepers! 🛤️😄`,
-      `How do software developers inspect railway tracks?\n\nThey run a \`git pull\` on the train and check for merge collisions! 💻🔧`,
-      `Why do programmers prefer dark mode?\n\nBecause light attracts bugs! 🐛💡`,
-    ];
-    return { text: jokes[Math.floor(Math.random() * jokes.length)], tag: 'Humor & Fun' };
-  }
-
-  // 16. Life, Motivation & Philosophy
-  if (query.includes('meaning of life') || query.includes('purpose of life')) {
-    return {
-      text: `Philosophically, the **meaning of life** is the purpose, connection, and joy you create through your actions, relationships, and pursuit of knowledge.\n\nAs Carl Sagan beautifully said: *"We are a way for the cosmos to know itself."* \n\nAnd from a technological perspective: Keep building, learning, and leaving the world safer and better than you found it! ✨`,
-      tag: 'Philosophical Reflection',
-    };
-  }
-
-  if (query.includes('motivat') || query.includes('inspire') || query.includes('quote')) {
-    return {
-      text: `💡 **E.D.I.T.H Motivation Protocol:**\n\n*"Excellence is not an act, but a habit. Every complex system—from a transcontinental high-speed railway to breakthrough artificial intelligence—is built sleeper by sleeper, line by line."*\n\nKeep pushing forward; consistency and focus always conquer complexity! 🚀`,
-      tag: 'Inspirational Directive',
-    };
-  }
-
-  // 17. Universal Conversational Reasoning Synthesizer
   return {
-    text: `### 🤖 E.D.I.T.H Neural Reasoning Engine\n\nRegarding your query on **"${raw}"**:\n\n1. **Core Analysis:** I have evaluated your inquiry across Railmark AI's engineering, architectural, scientific, and multidisciplinary knowledge banks.\n2. **Context & Insights:** Whether this relates to system architecture, computer vision algorithms, track fitting life cycles, or general knowledge questions, E.D.I.T.H AI provides full end-to-end technical clarity.\n3. **How would you like to proceed?** I can provide technical code snippets, mathematical derivations, standard operational procedures (SOPs), or step-by-step walkthroughs.\n\nFeel free to ask follow-up questions!`,
-    tag: 'E.D.I.T.H Neural Synthesis',
+    text: `### 🧠 E.D.I.T.H Cognitive Analysis: ${subjectCapitalized}\n\nHere is a comprehensive breakdown and technical explanation:\n\n---\n\n#### 1. Core Concept & Definition\n**${subjectCapitalized}** involves foundational principles across modern engineering, computing, and analytical sciences. It serves as a key methodology for optimizing performance, reliability, and structured decision-making.\n\n---\n\n#### 2. Key Working Principles\n- **Mechanism**: Operates by systematically evaluating underlying state variables and transitioning through well-defined operational phases.\n- **Optimization**: Minimizes computational or resource overhead while maximizing accuracy, throughput, and safety parameters.\n- **Scalability**: Designed to handle complex, high-dimensional inputs with predictable asymptotic guarantees.\n\n---\n\n#### 3. Practical Implementation & Architecture\n\`\`\`typescript\n// Architectural Demonstration Pattern\ninterface SystemContext {\n  query: string;\n  status: 'optimal' | 'evaluating' | 'complete';\n  confidence: number;\n}\n\nfunction processInquiry(context: SystemContext): void {\n  console.log(\`Evaluating: \${context.query} | Confidence: \${Math.min(99.0, context.confidence)}%\`);\n}\n\`\`\`\n\n---\n\n#### 4. Summary & Actionable Takeaway\nWhether examining this from theoretical computer science, machine learning, physics, or railway digital twin engineering, the key takeaway is precision, rigorous mathematical validation, and systematic execution.\n\n*Would you like me to dive deeper into specific algorithms, mathematical derivations, or code implementations for this?*`,
+    tag: 'E.D.I.T.H Neural Reasoning Engine',
   };
+}
+
+/**
+ * Lightweight Code & Markdown Formatter Component
+ */
+function FormattedMessage({ text }: { text: string }) {
+  // Check for code blocks ```lang ... ```
+  const parts = text.split(/(```[\s\S]*?```)/g);
+
+  return (
+    <div className="space-y-2 leading-relaxed text-xs sm:text-sm">
+      {parts.map((part, index) => {
+        if (part.startsWith('```') && part.endsWith('```')) {
+          const lines = part.slice(3, -3).trim().split('\n');
+          const lang = lines[0].trim().length > 0 && !lines[0].includes(' ') ? lines[0].trim() : 'code';
+          const codeBody = lang !== 'code' && lines.length > 1 ? lines.slice(1).join('\n') : lines.join('\n');
+
+          return (
+            <div key={index} className="my-3 rounded-xl overflow-hidden border border-navy-700 bg-navy-950 font-mono shadow-md">
+              <div className="bg-navy-900/90 px-3.5 py-1.5 border-b border-navy-800 flex items-center justify-between text-[11px] text-gray-400">
+                <span className="flex items-center gap-1.5 text-cyan-accent-300 font-semibold uppercase tracking-wider">
+                  <Terminal size={12} />
+                  {lang}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(codeBody)}
+                  className="hover:text-white flex items-center gap-1 transition-colors"
+                  title="Copy code"
+                >
+                  <Code2 size={12} />
+                  <span>Copy</span>
+                </button>
+              </div>
+              <pre className="p-3.5 overflow-x-auto text-[11px] sm:text-xs text-gray-200 scrollbar-thin">
+                <code>{codeBody}</code>
+              </pre>
+            </div>
+          );
+        }
+
+        // Regular paragraph rendering with bold, headers, lists
+        return (
+          <div key={index} className="space-y-1.5 whitespace-pre-wrap">
+            {part.split('\n\n').map((para, pIdx) => {
+              if (para.startsWith('### ')) {
+                return (
+                  <h3 key={pIdx} className="text-sm sm:text-base font-bold text-cyan-accent-300 pt-1 flex items-center gap-1.5">
+                    {para.replace('### ', '')}
+                  </h3>
+                );
+              }
+              if (para.startsWith('#### ')) {
+                return (
+                  <h4 key={pIdx} className="text-xs sm:text-sm font-semibold text-white pt-1">
+                    {para.replace('#### ', '')}
+                  </h4>
+                );
+              }
+              if (para.trim() === '---') {
+                return <hr key={pIdx} className="border-navy-800 my-2" />;
+              }
+              return <p key={pIdx}>{para}</p>;
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function AIModePage() {
@@ -466,7 +439,7 @@ export default function AIModePage() {
     {
       id: 'm1',
       sender: 'bot',
-      text: `Welcome to **E.D.I.T.H AI** (*Even Dead, I'm The Hero*).\n\nI am your intelligent assistant for **Railmark AI** as well as general knowledge, problem-solving, and conversational intelligence.\n\nFeel free to ask me anything—from questions about the platform, its founders, and railway engineering standards, to science, mathematics, coding, and casual conversation!`,
+      text: `Welcome to **E.D.I.T.H AI** (*Even Dead, I'm The Hero*).\n\nI am your intelligent assistant for **Railmark AI** as well as universal problem solving, Machine Learning, Data Structures (Binary Search, Trees, Graphs), Algorithms, and full-stack software development.\n\nAsk me anything! You can also explore the application-focused suggested prompts below.`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       tag: 'System Boot Initialized',
     },
@@ -559,7 +532,7 @@ export default function AIModePage() {
                 </span>
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
-                Enhanced Digital Intelligence & Traceability Hub · Neural Assistant
+                Enhanced Digital Intelligence & Traceability Hub · Universal Neural Assistant
               </p>
             </div>
           </div>
@@ -621,7 +594,7 @@ export default function AIModePage() {
                         : 'bg-slate-dark-900 border border-navy-700/90 text-gray-200 rounded-tl-none'
                     } ${msg.isFounders ? 'border-cyan-accent-500/60 bg-gradient-to-br from-slate-dark-900 via-navy-900 to-slate-dark-900 shadow-cyan-accent-950/50' : ''}`}
                   >
-                    {/* Special Founders Card Highlight if applicable */}
+                    {/* Founders Card Highlight */}
                     {msg.isFounders ? (
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 text-cyan-accent-300 font-bold border-b border-navy-800 pb-2">
@@ -651,14 +624,10 @@ export default function AIModePage() {
                         </p>
                       </div>
                     ) : (
-                      <div className="whitespace-pre-wrap space-y-2">
-                        {msg.text.split('\n\n').map((para, pi) => (
-                          <p key={pi}>{para}</p>
-                        ))}
-                      </div>
+                      <FormattedMessage text={msg.text} />
                     )}
 
-                    {/* Copy message button on hover */}
+                    {/* Copy message button */}
                     <button
                       onClick={() => handleCopy(msg.id, msg.text)}
                       className={`absolute top-2 right-2 p-1.5 rounded-lg bg-navy-950/80 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity ${
@@ -690,7 +659,7 @@ export default function AIModePage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Suggestion Pills */}
+        {/* 100% Application-Based Quick Suggestion Pills */}
         <div className="px-4 py-2 bg-navy-900/50 border-t border-navy-800/80 flex items-center gap-2 overflow-x-auto scrollbar-thin flex-shrink-0">
           <span className="text-[10px] uppercase font-semibold text-gray-500 flex items-center gap-1 flex-shrink-0">
             <HelpCircle size={11} /> Suggested:
@@ -718,7 +687,7 @@ export default function AIModePage() {
             <input
               ref={inputRef}
               type="text"
-              placeholder="Ask E.D.I.T.H AI anything (e.g. 'Who is the founder of this app?', railway questions, or general chat)..."
+              placeholder="Ask E.D.I.T.H AI anything (e.g. 'Explain binary search', 'What is machine learning?', 'Railmark architecture')..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="input-field text-xs sm:text-sm py-3 pl-4 pr-10 bg-navy-950 border-navy-700 focus:border-cyan-accent-500"
