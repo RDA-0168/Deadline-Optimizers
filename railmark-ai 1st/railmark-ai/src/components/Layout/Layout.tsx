@@ -102,19 +102,50 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 sidebar-scroll">
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-            <Link
-              key={to}
-              to={to}
-              onClick={() => setSidebarOpen(false)}
-              className={isActive(to) ? 'nav-link-active' : 'nav-link'}
-            >
-              <Icon size={17} />
-              <span>{label}</span>
-              {isActive(to) && <ChevronRight size={14} className="ml-auto" />}
-            </Link>
-          ))}
+        <nav className="flex-1 px-3 py-4 space-y-1 sidebar-scroll">
+          {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+            const isAi = to === '/ai-mode';
+            const active = isActive(to);
+
+            if (isAi) {
+              return (
+                <div key={to} className="pt-2">
+                  <Link
+                    to={to}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                      active
+                        ? 'ai-3d-glow-active text-white'
+                        : 'ai-3d-glow text-cyan-accent-300 hover:text-white'
+                    }`}
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-cyan-accent-500/20 border border-cyan-accent-400/60 flex items-center justify-center flex-shrink-0 shadow-inner">
+                      <Sparkles size={14} className="text-cyan-accent-300 animate-pulse" />
+                    </div>
+                    <span className="tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-cyan-300 drop-shadow-[0_2px_8px_rgba(0,230,255,0.7)] font-black">
+                      {label}
+                    </span>
+                    <span className="ml-auto text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-cyan-400 to-rail-blue-500 text-navy-950 shadow-md shadow-cyan-500/40 tracking-wider animate-pulse">
+                      3D AI
+                    </span>
+                  </Link>
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setSidebarOpen(false)}
+                className={active ? 'nav-link-active' : 'nav-link'}
+              >
+                <Icon size={17} />
+                <span>{label}</span>
+                {active && <ChevronRight size={14} className="ml-auto" />}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* User section */}

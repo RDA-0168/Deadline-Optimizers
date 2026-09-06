@@ -234,11 +234,21 @@ export default function Dashboard() {
           { to: '/fittings', label: 'Browse Fittings', icon: Database, color: 'text-blue-400' },
           { to: '/inspection', label: 'Add Inspection', icon: ClipboardCheck, color: 'text-emerald-400' },
           { to: '/reports', label: 'Generate Report', icon: TrendingUp, color: 'text-purple-400' },
-          { to: '/ai-mode', label: 'AI Mode', icon: Sparkles, color: 'text-cyan-accent-300' },
-        ].map(({ to, label, icon: Icon, color }) => (
-          <Link key={to} to={to} className="card hover:border-navy-600 transition-all duration-200 flex items-center gap-3 text-sm font-medium text-gray-300 hover:text-white">
-            <Icon size={18} className={color} />
-            {label}
+          { to: '/ai-mode', label: 'AI Mode', icon: Sparkles, color: 'text-cyan-accent-300', is3D: true },
+        ].map(({ to, label, icon: Icon, color, is3D }) => (
+          <Link
+            key={to}
+            to={to}
+            className={
+              is3D
+                ? 'ai-3d-glow p-4 flex items-center gap-3 text-sm font-bold text-white transition-all duration-200'
+                : 'card hover:border-navy-600 transition-all duration-200 flex items-center gap-3 text-sm font-medium text-gray-300 hover:text-white'
+            }
+          >
+            <Icon size={18} className={is3D ? 'text-cyan-accent-300 animate-pulse' : color} />
+            <span className={is3D ? 'bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-cyan-300 drop-shadow-[0_2px_8px_rgba(0,230,255,0.7)]' : ''}>
+              {label}
+            </span>
           </Link>
         ))}
       </div>
