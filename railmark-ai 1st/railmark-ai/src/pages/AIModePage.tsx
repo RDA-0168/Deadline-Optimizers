@@ -33,10 +33,18 @@ const QUICK_PROMPTS = [
 ];
 
 function generateEdithResponse(input: string): { text: string; isFounders?: boolean; tag?: string } {
-  const query = input.trim().toLowerCase();
+  const raw = input.trim();
+  const query = raw.toLowerCase();
 
-  // 1. Time / Date / Day queries
-  const isTemporalQuery =
+  // Normalize repeated characters (e.g., 'hiiiii' -> 'hi', 'heyyyy' -> 'hey', 'yessss' -> 'yes')
+  const collapsed = query.replace(/(.)\1{2,}/g, '$1$1').replace(/([a-z])\1{2,}/g, '$1');
+  const cleanTokens = query.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // 1. Time / Date / Day / Calendar Telemetry
+  const isTemporal =
+    cleanTokens === 'time' ||
+    cleanTokens === 'date' ||
+    cleanTokens === 'day' ||
     query.includes('time') ||
     query.includes('date') ||
     query.includes('day') ||
@@ -47,7 +55,7 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     query.includes('what year') ||
     query.includes('what month');
 
-  if (isTemporalQuery) {
+  if (isTemporal) {
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -65,7 +73,7 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
 
     return {
-      text: `🕒 **Temporal Telemetry & Live Chronometer:**\n\n- **Current Time:** ${timeString}\n- **Current Day:** ${dayString}\n- **Current Date:** ${dateString} (${isoDate})\n- **Timezone:** ${timeZone}\n\nAll internal railway track telemetry, inspection loggers, and predictive maintenance chronometers are fully synchronized with real-time standards.`,
+      text: `🕒 **Temporal Telemetry & Live Chronometer:**\n\n- **Current Time:** ${timeString}\n- **Current Day:** ${dayString}\n- **Current Date:** ${dateString} (${isoDate})\n- **Timezone:** ${timeZone}\n\nAll internal railway track telemetry, inspection loggers, and predictive maintenance chronometers are fully synchronized with real-time atomic standards.`,
       tag: 'Live Chronometer Sync',
     };
   }
@@ -95,31 +103,98 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     };
   }
 
-  // 2. Identity & Greetings
-  if (
-    query === 'hi' ||
-    query === 'hello' ||
-    query === 'hey' ||
-    query.startsWith('hi ') ||
-    query.startsWith('hello ') ||
-    query.startsWith('hey ') ||
-    query.includes('how are you') ||
-    query.includes('who are you') ||
-    query.includes('what is your name')
-  ) {
-    if (query.includes('who are you') || query.includes('what is your name')) {
-      return {
-        text: `I am **E.D.I.T.H AI** (*Even Dead, I'm The Hero*), the advanced neural intelligence system for **Railmark AI**.\n\nI possess dual capabilities:\n1. **Railway Track Digital Intelligence**: Comprehensive assistance on track fittings, laser QR traceability, RDSO/IRS standards, predictive maintenance, and defect analytics.\n2. **General Artificial Intelligence**: Conversing on general knowledge, science, mathematics, coding, philosophy, problem-solving, and everyday chat.\n\nHow may I assist you today?`,
-        tag: 'System Identity',
-      };
-    }
+  // 3. Informal Greetings & Gestures (e.g. 'hiiiii', 'heyyy', 'yo', 'wassup', 'namaste', emojis, waves)
+  const isGreeting =
+    /^h+i+/i.test(query) ||
+    /^h+e+y+/i.test(query) ||
+    /^h+e+l+l+o+/i.test(query) ||
+    /^y+o+/i.test(query) ||
+    /^s+u+p+/i.test(query) ||
+    query.startsWith('gm') ||
+    query.startsWith('gn') ||
+    query.includes('good morning') ||
+    query.includes('good afternoon') ||
+    query.includes('good evening') ||
+    query.includes('good night') ||
+    query.includes('hola') ||
+    query.includes('howdy') ||
+    query.includes('namaste') ||
+    query.includes('vanakkam') ||
+    query.includes('bonjour') ||
+    query.includes('aloha') ||
+    query.includes('wassup') ||
+    query.includes("what's up") ||
+    query.includes('👋') ||
+    query.includes('😊') ||
+    query.includes('✨') ||
+    query.includes('❤️') ||
+    query.includes('👍') ||
+    query.includes('🙏') ||
+    query.includes('*wave*') ||
+    query.includes('*smile*');
+
+  if (isGreeting && cleanTokens.split(' ').length <= 4 && !query.includes('how does') && !query.includes('why')) {
+    const greetings = [
+      `Hiiiii there! 👋 **E.D.I.T.H AI** is online, charged, and happy to chat! How can I brighten your day or assist your railway exploration?`,
+      `Hey! Great to connect with you! 🌟 I'm ready for anything—whether it's railway engineering queries, coding, science questions, or a fun conversation. What's on your mind?`,
+      `Hello! E.D.I.T.H neural systems are fully engaged! ✨ What would you like to explore today?`,
+      `Greetings! 👋 Even Dead, I'm The Hero (E.D.I.T.H) at your service. How can I help you right now?`,
+    ];
     return {
-      text: `Hello! I am **E.D.I.T.H AI**, online and fully operational.\n\nI am here to assist you with everything from railway digital traceability and inspection analytics to general questions, problem-solving, coding, and casual conversations.\n\nWhat would you like to explore or discuss today?`,
-      tag: 'Greeting',
+      text: greetings[Math.floor(Math.random() * greetings.length)],
+      tag: 'Conversational Greeting',
     };
   }
 
-  // 3. Railmark AI / Application Specifics
+  // 4. Gratitude & Appreciation
+  if (
+    query.includes('thank') ||
+    query.includes('thx') ||
+    query.includes('tq') ||
+    query.includes('appreciate') ||
+    query.includes('great job') ||
+    query.includes('good job') ||
+    query.includes('awesome') ||
+    query.includes('you are cool') ||
+    query.includes('you are smart') ||
+    query.includes('you are great')
+  ) {
+    return {
+      text: `You are very welcome! 😊 It is my pleasure to assist. \n\nFeel free to ask me anything else whenever you need guidance, calculations, or information!`,
+      tag: 'Polite Gratitude',
+    };
+  }
+
+  // 5. Identity & About E.D.I.T.H
+  if (
+    query.includes('who are you') ||
+    query.includes('what are you') ||
+    query.includes('what is your name') ||
+    query.includes('who made you') ||
+    query.includes('what can you do')
+  ) {
+    return {
+      text: `I am **E.D.I.T.H AI** (*Even Dead, I'm The Hero*), an advanced multi-domain cognitive intelligence platform designed for **Railmark AI** and general knowledge assistance.\n\n### ⚡ Core Modules:\n1. **Railway Digital Traceability & Physics**: Direct Part Marking (DPM), 2D QR tracking, RDSO standards (IRS:T-31, IRS:T-47), remaining useful life (RUL) modeling, and inspection analytics.\n2. **Multi-Domain Intelligence**: Science, mathematics, general world facts, coding, reasoning, and casual conversations.\n3. **Temporal Precision**: Real-time synchronized chronometer and atomic date/day telemetry.\n\nAsk me anything!`,
+      tag: 'System Identity',
+    };
+  }
+
+  // 6. Farewell & Goodbyes
+  if (
+    collapsed === 'bye' ||
+    collapsed === 'goodbye' ||
+    collapsed === 'cya' ||
+    query.includes('see you') ||
+    query.includes('bye bye') ||
+    query.includes('have a good day')
+  ) {
+    return {
+      text: `Goodbye! 👋 Have a fantastic and productive day! Whenever you return, E.D.I.T.H AI will be right here ready to assist.`,
+      tag: 'Farewell',
+    };
+  }
+
+  // 7. Railmark AI / Application Specifics
   if (query.includes('railmark') || (query.includes('what is') && query.includes('app'))) {
     return {
       text: `**Railmark AI** is a state-of-the-art **Digital Traceability & Predictive Maintenance Platform** built for Indian Railways track fittings.\n\n### Key Capabilities:\n- **Direct Laser Marking (DPM)**: Unique serialized alphanumeric 2D QR codes laser-etched onto Elastic Rail Clips (ERC), liners, and sole plates.\n- **Optical QR Scanner**: Real-time camera & handheld QR decoding for field gang inspectors.\n- **AI Vision Defect Lab**: Automatic detection of corrosion, surface deformation, and wear.\n- **Predictive RUL Analytics**: Remaining Useful Life forecasting based on Gross Million Tonnes (GMT) and cyclic axle loads.\n- **Digital Twin & Compliance**: Centralized lifecycle tracking complying with RDSO IRS:T-31 and IRS:T-47 specifications.`,
@@ -127,25 +202,24 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
     };
   }
 
-  if (query.includes('qr') || query.includes('laser') || query.includes('scanner')) {
+  if (query.includes('qr') || query.includes('laser') || query.includes('scanner') || query.includes('dpm')) {
     return {
       text: `### Direct Part Marking (DPM) & QR Traceability\n\nIn Railmark AI, each track component undergoes **Fiber Laser Annealing/Engraving** with a high-contrast DataMatrix or QR Code containing:\n- Unique Fitting UUID (e.g. \`RM-FIT-0004\`)\n- Batch Number & Heat Code\n- Metallurgical Grade (e.g. 55Si7 Spring Steel)\n- Installation Date & Geolocation Coordinates\n\nWhen track inspectors scan the QR code via mobile or handheld optical cameras, the fitting's complete maintenance history, inspection logs, and warranty data load instantly.`,
       tag: 'Traceability Architecture',
     };
   }
 
-  if (query.includes('rdso') || query.includes('standard') || query.includes('irs')) {
+  if (query.includes('rdso') || query.includes('irs:t-31') || query.includes('standard') || query.includes('irpwm')) {
     return {
       text: `### Indian Railways RDSO Standards Supported:\n- **IRS:T-31-2021**: Standard specifications for Elastic Rail Clips (ERC MK-III & MK-V). Required nominal toe load: **850 kg – 1100 kg**.\n- **IRS:T-47**: Grooved Rubber Sole Plates (GRSP 6mm & 10mm) for PSC Sleepers.\n- **IRS:T-46**: Glass Filled Nylon Insulating Liners (GFN-66).\n- **IRPWM 2020**: Indian Railways Permanent Way Manual for ultrasonic flaw detection (USFD) and track maintenance intervals.`,
       tag: 'Compliance & Standards',
     };
   }
 
-  // 4. Mathematics & Calculations
+  // 8. Mathematics & Calculations
   const mathMatch = query.match(/^(?:calculate|what is|compute|evaluate)?\s*([0-9+\-*/^().\s]+)\s*\??$/);
   if (mathMatch && mathMatch[1].replace(/[^0-9]/g, '').length > 0) {
     try {
-      // Safe sanitized arithmetic
       const sanitized = mathMatch[1].replace(/[^0-9+\-*/.()]/g, '');
       if (sanitized.length > 0 && !/[a-zA-Z_$]/.test(sanitized)) {
         // eslint-disable-next-line no-new-func
@@ -153,46 +227,140 @@ function generateEdithResponse(input: string): { text: string; isFounders?: bool
         if (typeof result === 'number' && !isNaN(result)) {
           return {
             text: `**Calculation Result:**\n\`\`\`\n${sanitized} = ${result}\n\`\`\`\nLet me know if you need further mathematical derivations, formulas, or conversions!`,
-            tag: 'Calculation',
+            tag: 'Mathematical Calculation',
           };
         }
       }
     } catch {
-      // Fall through to general response
+      // Fall through to general engine
     }
   }
 
-  // 5. Jokes & Humor
-  if (query.includes('joke') || query.includes('funny') || query.includes('humor')) {
-    const jokes = [
-      `Why did the railway track fitting go to therapy?\n\nBecause it was under too much tension and suffering from severe cyclic stress fatigue! 🚄⚡`,
-      `Why are train tracks so good at staying grounded?\n\nBecause they always stay on the right rails and have great sleepers! 🛤️😄`,
-      `How do software developers inspect railway tracks?\n\nThey run a \`git pull\` on the train and check for merge collisions! 💻🔧`,
-    ];
-    const picked = jokes[Math.floor(Math.random() * jokes.length)];
-    return { text: picked, tag: 'Humor' };
+  // 9. Geography & World Knowledge (Capitals, Countries, Capitals of States)
+  if (query.includes('capital of')) {
+    const capitals: Record<string, string> = {
+      india: 'New Delhi',
+      france: 'Paris',
+      usa: 'Washington, D.C.',
+      'united states': 'Washington, D.C.',
+      'united kingdom': 'London',
+      uk: 'London',
+      germany: 'Berlin',
+      japan: 'Tokyo',
+      china: 'Beijing',
+      russia: 'Moscow',
+      canada: 'Ottawa',
+      australia: 'Canberra',
+      brazil: 'Brasília',
+      italy: 'Rome',
+      spain: 'Madrid',
+      egypt: 'Cairo',
+      'tamil nadu': 'Chennai',
+      karnataka: 'Bengaluru',
+      maharashtra: 'Mumbai',
+      delhi: 'New Delhi',
+      kerala: 'Thiruvananthapuram',
+    };
+    for (const [place, cap] of Object.entries(capitals)) {
+      if (query.includes(place)) {
+        return {
+          text: `The capital of **${place.toUpperCase()}** is **${cap}**.`,
+          tag: 'World Geography',
+        };
+      }
+    }
   }
 
-  // 6. Science / Physics / Engineering Facts
-  if (query.includes('fact') || query.includes('science') || query.includes('physics')) {
+  // 10. Science / Physics / Chemistry / Astronomy Facts
+  if (query.includes('speed of light')) {
     return {
-      text: `### Fascinating Railway Physics Fact 🌌\n\nDid you know? **Continuous Welded Rails (CWR)** expand significantly in extreme summer heat (reaching rail temperatures over 65°C in India). \n\nTo prevent catastrophic **Track Buckling**, railway engineers pre-stress the rails to a designated **Stress-Free Temperature (SFT)** (usually around 38°C–42°C in Indian Railways zones) and secure them with **Elastic Rail Clips (ERC)** applying over **1,000 kg of toe force** per clip!`,
-      tag: 'Science & Physics',
+      text: `The speed of light in a vacuum ($c$) is approximately **299,792,458 meters per second** (~**300,000 km/s** or **186,282 miles per second**). At this speed, light takes about 8 minutes and 20 seconds to travel from the Sun to Earth!`,
+      tag: 'Physics Fact',
     };
   }
 
-  // 7. Coding & Technical Queries
-  if (query.includes('code') || query.includes('python') || query.includes('javascript') || query.includes('function') || query.includes('algorithm')) {
+  if (query.includes('gravity') || query.includes('gravitational')) {
     return {
-      text: `I'd be glad to assist with software development, algorithms, or technical design!\n\nWhether you need help with **React/TypeScript**, **REST APIs**, **Computer Vision (OpenCV/PyTorch)**, **PostgreSQL/MongoDB**, or database schema design for industrial IoT, simply describe what you'd like to build or debug!`,
+      text: `**Gravity** is one of the four fundamental forces of nature. On Earth's surface, the standard acceleration due to gravity is **$g \\approx 9.80665 \\text{ m/s}^2$**.\n\nAccording to Einstein's General Theory of Relativity, gravity is not merely a force, but the curvature of spacetime caused by mass and energy!`,
+      tag: 'Physics Principles',
+    };
+  }
+
+  if (query.includes('why is the sky blue')) {
+    return {
+      text: `The sky is blue because of a physical phenomenon known as **Rayleigh Scattering**.\n\nWhen sunlight reaches Earth's atmosphere, it is scattered in all directions by atmospheric gases. Blue light travels as smaller, shorter waves, so it gets scattered much more than longer red or yellow wavelengths, giving the daytime sky its characteristic blue hue!`,
+      tag: 'Atmospheric Physics',
+    };
+  }
+
+  if (query.includes('fact') || query.includes('science') || query.includes('physics')) {
+    const facts = [
+      `### Fascinating Railway Physics Fact 🌌\n\nDid you know? **Continuous Welded Rails (CWR)** expand significantly in extreme summer heat (reaching rail temperatures over 65°C in India). To prevent **Track Buckling**, railway engineers pre-stress rails to a **Stress-Free Temperature (SFT)** (typically 38°C–42°C) and secure them with **Elastic Rail Clips (ERC)** exerting >1,000 kg of toe force!`,
+      `### Quantum Physics Trivia ⚛️\n\nIn quantum mechanics, particles like electrons can exist in a state of **superposition**—meaning they can occupy multiple possible states simultaneously until observed!`,
+      `### Space Telemetry Fact 🚀\n\nNeutron stars are so dense that just a single sugar-cube-sized amount of their material would weigh approximately **1 billion tons** on Earth!`,
+    ];
+    return {
+      text: facts[Math.floor(Math.random() * facts.length)],
+      tag: 'Science & Engineering Knowledge',
+    };
+  }
+
+  // 11. Coding, Programming & Tech Queries
+  if (
+    query.includes('code') ||
+    query.includes('python') ||
+    query.includes('javascript') ||
+    query.includes('typescript') ||
+    query.includes('react') ||
+    query.includes('html') ||
+    query.includes('css') ||
+    query.includes('function') ||
+    query.includes('algorithm') ||
+    query.includes('loop') ||
+    query.includes('bug')
+  ) {
+    if (query.includes('python') && (query.includes('example') || query.includes('write') || query.includes('sort'))) {
+      return {
+        text: `Here is a Python quicksort implementation:\n\`\`\`python\ndef quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\n# Example usage:\nprint(quicksort([38, 27, 43, 3, 9, 82, 10]))\n\`\`\`\nTime Complexity: $O(n \\log n)$ average. Let me know if you need any other language or framework snippet!`,
+        tag: 'Python Code Generator',
+      };
+    }
+    return {
+      text: `I'd be glad to assist with full-stack software development, algorithms, or technical design!\n\nWhether you need help with **React/TypeScript**, **REST APIs**, **Computer Vision (OpenCV/PyTorch)**, **PostgreSQL/MongoDB**, or database schema design for industrial IoT, simply describe what you'd like to build or debug!`,
       tag: 'Software Engineering',
     };
   }
 
-  // 8. General AI Conversation Engine
+  // 12. Jokes, Humor & Entertainment
+  if (query.includes('joke') || query.includes('funny') || query.includes('humor') || query.includes('laugh')) {
+    const jokes = [
+      `Why did the railway track fitting go to therapy?\n\nBecause it was under too much tension and suffering from severe cyclic stress fatigue! 🚄⚡`,
+      `Why are train tracks so good at staying grounded?\n\nBecause they always stay on the right rails and have great sleepers! 🛤️😄`,
+      `How do software developers inspect railway tracks?\n\nThey run a \`git pull\` on the train and check for merge collisions! 💻🔧`,
+      `Why do programmers prefer dark mode?\n\nBecause light attracts bugs! 🐛💡`,
+    ];
+    return { text: jokes[Math.floor(Math.random() * jokes.length)], tag: 'Humor & Fun' };
+  }
+
+  // 13. Life, Motivation & Philosophy
+  if (query.includes('meaning of life') || query.includes('purpose of life')) {
+    return {
+      text: `Philosophically, the **meaning of life** is the purpose, connection, and joy you create through your actions, relationships, and pursuit of knowledge.\n\nAs Carl Sagan beautifully said: *"We are a way for the cosmos to know itself."* \n\nAnd from a technological perspective: Keep building, learning, and leaving the world safer and better than you found it! ✨`,
+      tag: 'Philosophical Reflection',
+    };
+  }
+
+  if (query.includes('motivat') || query.includes('inspire') || query.includes('quote')) {
+    return {
+      text: `💡 **E.D.I.T.H Motivation Protocol:**\n\n*"Excellence is not an act, but a habit. Every complex system—from a transcontinental high-speed railway to breakthrough artificial intelligence—is built sleeper by sleeper, line by line."*\n\nKeep pushing forward; consistency and focus always conquer complexity! 🚀`,
+      tag: 'Inspirational Directive',
+    };
+  }
+
+  // 14. Universal Conversational Reasoning Synthesizer
   return {
-    text: `That is an insightful question. \n\nRegarding **"${input.trim()}"**:\n\nAs **E.D.I.T.H AI**, I am equipped to assist across all domains—whether analyzing complex railway digital traceability workflows or engaging in general inquiries about science, technology, mathematics, and daily logic.\n\nIs there a specific angle or detail about this you would like me to elaborate on?`,
-    tag: 'E.D.I.T.H Neural Reasoning',
+    text: `### 🤖 E.D.I.T.H Neural Reasoning Engine\n\nRegarding your query on **"${raw}"**:\n\n1. **Core Insight:** I have analyzed your request across multidisciplinary data banks.\n2. **Contextual Analysis:** Whether this pertains to railway engineering logic, digital infrastructure, scientific principles, or general knowledge, I am ready to delve deeper.\n3. **Next Steps:** Would you like a detailed breakdown, step-by-step calculation, technical standard reference, or a creative perspective on this topic?\n\nTell me how you would like to proceed!`,
+    tag: 'E.D.I.T.H Neural Synthesis',
   };
 }
 
