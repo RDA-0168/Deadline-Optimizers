@@ -23,6 +23,7 @@ const FOUNDERS = [
 ];
 
 const QUICK_PROMPTS = [
+  { label: '🕒 What is the current time & date?', prompt: 'What is the current time, date, and day today?' },
   { label: '👥 Who are the founders of this app?', prompt: 'Who is the founder of this app?' },
   { label: '🚄 What is Railmark AI?', prompt: 'Explain what Railmark AI is and how it works.' },
   { label: '💬 General Conversation', prompt: 'Hello E.D.I.T.H! How are you doing today? What can you do?' },
@@ -34,7 +35,42 @@ const QUICK_PROMPTS = [
 function generateEdithResponse(input: string): { text: string; isFounders?: boolean; tag?: string } {
   const query = input.trim().toLowerCase();
 
-  // 1. Founders / Creators / Team detection
+  // 1. Time / Date / Day queries
+  const isTemporalQuery =
+    query.includes('time') ||
+    query.includes('date') ||
+    query.includes('day') ||
+    query.includes('today') ||
+    query.includes('clock') ||
+    query.includes('calendar') ||
+    query.includes('current hour') ||
+    query.includes('what year') ||
+    query.includes('what month');
+
+  if (isTemporalQuery) {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+    const dayString = now.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateString = now.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const isoDate = now.toISOString().split('T')[0];
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+
+    return {
+      text: `🕒 **Temporal Telemetry & Live Chronometer:**\n\n- **Current Time:** ${timeString}\n- **Current Day:** ${dayString}\n- **Current Date:** ${dateString} (${isoDate})\n- **Timezone:** ${timeZone}\n\nAll internal railway track telemetry, inspection loggers, and predictive maintenance chronometers are fully synchronized with real-time standards.`,
+      tag: 'Live Chronometer Sync',
+    };
+  }
+
+  // 2. Founders / Creators / Team detection
   const isFounderQuery =
     query.includes('founder') ||
     query.includes('creator') ||
