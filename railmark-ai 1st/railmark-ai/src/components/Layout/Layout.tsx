@@ -17,7 +17,7 @@ const NAV_ITEMS = [
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/admin', icon: ShieldCheck, label: 'Admin Dashboard' },
   { to: '/reports', icon: FileText, label: 'Reports' },
-  { to: '/ai-mode', icon: Sparkles, label: 'AI Mode' },
+  { to: '/ai-mode', icon: Sparkles, label: 'E.D.I.T.H.' },
 ];
 
 const NOTIFICATIONS = [

@@ -45,6 +45,7 @@ function AppRoutes() {
                 <Route path="admin" element={<AdminDashboard />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="ai-mode" element={<AIModePage />} />
+                <Route path="edith" element={<AIModePage />} />
                 <Route path="*" element={<Navigate to="dashboard" replace />} />
               </Routes>
             </Layout>
