@@ -13,6 +13,7 @@ import LifecycleHistory from './pages/LifecycleHistory';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ReportsPage from './pages/ReportsPage';
+import AIModePage from './pages/AIModePage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -43,6 +44,7 @@ function AppRoutes() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="admin" element={<AdminDashboard />} />
                 <Route path="reports" element={<ReportsPage />} />
+                <Route path="ai-mode" element={<AIModePage />} />
                 <Route path="*" element={<Navigate to="dashboard" replace />} />
               </Routes>
             </Layout>

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard, QrCode, Database, Search, ClipboardCheck,
-  Wrench, BarChart3, ShieldCheck, FileText,
+  Wrench, BarChart3, ShieldCheck, FileText, Sparkles,
   LogOut, Menu, X, ChevronRight, Bell, User,
   Zap, AlertTriangle, CheckCircle2,
 } from 'lucide-react';
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/admin', icon: ShieldCheck, label: 'Admin Dashboard' },
   { to: '/reports', icon: FileText, label: 'Reports' },
+  { to: '/ai-mode', icon: Sparkles, label: 'AI Mode' },
 ];
 
 const NOTIFICATIONS = [
