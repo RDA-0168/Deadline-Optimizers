@@ -209,21 +209,21 @@ export default function InspectionPage() {
               <div className="card border-purple-800/40">
                 <div className="flex items-center gap-2 mb-4">
                   <Brain size={16} className="text-purple-400" />
-                  <span className="text-sm font-bold text-white">AI Assistance</span>
-                  <span className="badge badge-info text-xs ml-auto">Beta</span>
+                  <span className="text-sm font-bold text-white">E.D.I.T.H AI</span>
+                  <span className="badge badge-info text-xs ml-auto">Active</span>
                 </div>
 
                 {!aiResult && !aiLoading && (
                   <div className="text-center py-6">
                     <Brain size={32} className="text-purple-900 mx-auto mb-3" />
-                    <p className="text-xs text-gray-500">Fill in assessment fields and click <strong className="text-purple-300">AI Analyse</strong> to get AI-assisted condition scoring.</p>
+                    <p className="text-xs text-gray-500">Fill in assessment fields and click <strong className="text-purple-300">AI Analyse</strong> to get E.D.I.T.H AI condition scoring.</p>
                   </div>
                 )}
 
                 {aiLoading && (
                   <div className="text-center py-6">
                     <Loader2 size={32} className="text-purple-400 mx-auto mb-3 animate-spin" />
-                    <p className="text-xs text-gray-400">Running AI analysis…</p>
+                    <p className="text-xs text-gray-400">E.D.I.T.H AI running analysis…</p>
                   </div>
                 )}
 
@@ -232,7 +232,7 @@ export default function InspectionPage() {
                     {/* Confidence meter */}
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
-                        <span className="text-gray-400">AI Confidence</span>
+                        <span className="text-gray-400">E.D.I.T.H Confidence</span>
                         <span className="font-bold text-purple-300">{Math.min(99, aiResult.aiConfidence)}%</span>
                       </div>
                       <div className="h-2 bg-navy-800 rounded-full overflow-hidden">
@@ -245,7 +245,7 @@ export default function InspectionPage() {
 
                     {/* AI Condition */}
                     <div>
-                      <div className="text-xs text-gray-400 mb-1">AI Assessed Condition</div>
+                      <div className="text-xs text-gray-400 mb-1">E.D.I.T.H Assessed Condition</div>
                       <StatusBadge status={aiResult.aiCondition} className="text-sm" />
                     </div>
 
@@ -267,7 +267,7 @@ export default function InspectionPage() {
                     <div className="flex items-start gap-2 bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-2.5">
                       <Info size={12} className="text-amber-400 flex-shrink-0 mt-0.5" />
                       <p className="text-xs text-amber-300 leading-relaxed">
-                        AI-assisted result — <strong>requires human verification</strong> before recording.
+                        E.D.I.T.H AI result — <strong>requires human verification</strong> before recording.
                       </p>
                     </div>
                   </div>
