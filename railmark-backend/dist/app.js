@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import apiRouter from './routes/index.js';
 import { errorHandler } from './middlewares/error.middleware.js';
@@ -51,6 +52,17 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     });
+});
+// SPA Client-Side Routing Fallback: serve index.html for all page routes
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/api-docs')) {
+        return next();
+    }
+    const indexPath = path.resolve(publicPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+    }
+    next();
 });
 // Centralized Error Handling
 app.use(errorHandler);
