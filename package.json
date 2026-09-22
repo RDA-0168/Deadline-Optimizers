@@ -5,8 +5,9 @@
   "main": "railmark-backend/dist/server.js",
   "type": "module",
   "scripts": {
-    "build:all": "npm --prefix railmark-backend install && npm --prefix railmark-backend run build && npm --prefix \"railmark-ai 1st/railmark-ai\" install && npm --prefix \"railmark-ai 1st/railmark-ai\" run build && node -e \"const fs=require('fs'); fs.cpSync('railmark-ai 1st/railmark-ai/dist', 'railmark-backend/public', {recursive: true, force: true}); fs.cpSync('railmark-ai 1st/railmark-ai/dist', 'public', {recursive: true, force: true});\"",
-    "build": "npm run build:all",
+    "postinstall": "npm --prefix railmark-backend install --omit=dev",
+    "build": "node build.js",
+    "build:all": "node build.js",
     "start": "node railmark-backend/dist/server.js",
     "dev": "npm --prefix railmark-backend run dev",
     "prisma:generate": "npm --prefix railmark-backend run prisma:generate",
