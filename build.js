@@ -7,7 +7,7 @@ console.log('🚀 [RailMark Build] Initializing Render cloud build...');
 // 1. Install dependencies for backend
 try {
   console.log('📦 [RailMark Build] Installing backend dependencies...');
-  execSync('npm --prefix railmark-backend install --omit=dev', { stdio: 'inherit' });
+  execSync('npm --prefix railmark-backend install', { stdio: 'inherit' });
 } catch (err) {
   console.warn('⚠️ [RailMark Build] Backend install note:', err.message);
 }
