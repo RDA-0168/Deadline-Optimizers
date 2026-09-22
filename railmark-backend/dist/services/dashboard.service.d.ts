@@ -12,14 +12,8 @@ export declare class DashboardService {
             fair: number;
             critical: number;
         };
-        fittingsByType: {
-            name: string;
-            value: number;
-        }[];
-        fittingsByZone: {
-            zone: string;
-            count: number;
-        }[];
+        fittingsByType?: undefined;
+        fittingsByZone?: undefined;
     } | {
         totalFittings: number;
         activeFittings: number;
@@ -33,8 +27,14 @@ export declare class DashboardService {
             fair: number;
             critical: number;
         };
-        fittingsByType?: undefined;
-        fittingsByZone?: undefined;
+        fittingsByType: {
+            name: string;
+            value: number;
+        }[];
+        fittingsByZone: {
+            zone: string;
+            count: number;
+        }[];
     }>;
 }
 export declare class QRService {

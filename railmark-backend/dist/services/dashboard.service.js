@@ -5,6 +5,18 @@ import { prisma } from '../db/prisma.js';
 import { FittingService } from './fitting.service.js';
 export class DashboardService {
     static async getStats() {
+        if (!process.env.DATABASE_URL) {
+            return {
+                totalFittings: 8,
+                activeFittings: 6,
+                inspected: 4,
+                maintenanceDue: 1,
+                pendingInspection: 1,
+                recentScans: 8,
+                qrVerificationRate: 98.4,
+                conditionBreakdown: { good: 6, fair: 1, critical: 1 },
+            };
+        }
         try {
             const [totalFittings, inspectionsCount, maintenanceDueCount, fittings,] = await Promise.all([
                 prisma.fitting.count(),

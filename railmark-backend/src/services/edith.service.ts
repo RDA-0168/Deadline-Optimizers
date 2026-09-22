@@ -52,9 +52,10 @@ Style & Formatting:
 `;
 
 const CANDIDATE_MODELS = [
-  'gemini-3.5-flash-lite',
   'gemini-3.5-flash',
-  'gemini-flash-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash-lite',
 ];
 
 export async function chatWithEdith(
@@ -121,6 +122,7 @@ export async function chatWithEdith(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(10000),
       });
 
       if (res.ok) {
