@@ -415,13 +415,59 @@ function generateEdithResponse(
 }
 
 /**
+ * Inline Markdown Tokenizer (Bold, Italic, Code, Math symbols)
+ */
+function renderInlineMarkdown(text: string): React.ReactNode {
+  // Clean LaTeX math symbols to clean Unicode equivalents
+  const clean = text
+    .replace(/\$\\ge\s*([^\$]+)\$/g, '≥ $1')
+    .replace(/\$\\le\s*([^\$]+)\$/g, '≤ $1')
+    .replace(/\$\\sigma_e\$/g, 'σ_e')
+    .replace(/\$\\times\$/g, '×')
+    .replace(/\$\\mathbf\{([^\}]+)\}\$/g, '$1')
+    .replace(/\$\\text\{([^\}]+)\}\$/g, '$1')
+    .replace(/\$([^\$]+)\$/g, '$1');
+
+  // Tokenize by inline code, bold, and italic patterns
+  const tokens = clean.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+
+  return tokens.map((token, i) => {
+    if (token.startsWith('`') && token.endsWith('`') && token.length > 2) {
+      return (
+        <code
+          key={i}
+          className="px-1.5 py-0.5 rounded bg-navy-950/90 text-cyan-accent-300 font-mono text-[11px] border border-cyan-500/20"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    if (token.startsWith('**') && token.endsWith('**') && token.length > 4) {
+      return (
+        <strong key={i} className="font-bold text-white tracking-wide">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (token.startsWith('*') && token.endsWith('*') && token.length > 2 && !token.startsWith('**')) {
+      return (
+        <em key={i} className="italic text-cyan-200">
+          {token.slice(1, -1)}
+        </em>
+      );
+    }
+    return token;
+  });
+}
+
+/**
  * Clean Code & Markdown Formatter
  */
 function FormattedMessage({ text }: { text: string }) {
   const parts = text.split(/(```[\s\S]*?```)/g);
 
   return (
-    <div className="space-y-2 leading-relaxed text-xs sm:text-sm">
+    <div className="space-y-2.5 leading-relaxed text-xs sm:text-sm">
       {parts.map((part, index) => {
         if (part.startsWith('```') && part.endsWith('```')) {
           const lines = part.slice(3, -3).trim().split('\n');
@@ -452,27 +498,59 @@ function FormattedMessage({ text }: { text: string }) {
           );
         }
 
+        const lines = part.split('\n');
         return (
-          <div key={index} className="space-y-1.5 whitespace-pre-wrap">
-            {part.split('\n\n').map((para, pIdx) => {
-              if (para.startsWith('### ')) {
+          <div key={index} className="space-y-1.5">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              if (!trimmed) return <div key={lIdx} className="h-1" />;
+
+              if (trimmed.startsWith('### ')) {
                 return (
-                  <h3 key={pIdx} className="text-sm sm:text-base font-bold text-cyan-accent-300 pt-1 flex items-center gap-1.5">
-                    {para.replace('### ', '')}
+                  <h3 key={lIdx} className="text-sm sm:text-base font-bold text-cyan-accent-300 pt-2 pb-0.5 flex items-center gap-1.5 border-b border-navy-800/60">
+                    {renderInlineMarkdown(trimmed.replace('### ', ''))}
                   </h3>
                 );
               }
-              if (para.startsWith('#### ')) {
+              if (trimmed.startsWith('#### ') || trimmed.startsWith('## ')) {
                 return (
-                  <h4 key={pIdx} className="text-xs sm:text-sm font-semibold text-white pt-1">
-                    {para.replace('#### ', '')}
+                  <h4 key={lIdx} className="text-xs sm:text-sm font-bold text-white pt-1.5 pb-0.5">
+                    {renderInlineMarkdown(trimmed.replace(/^#{2,4}\s+/, ''))}
                   </h4>
                 );
               }
-              if (para.trim() === '---') {
-                return <hr key={pIdx} className="border-navy-800 my-2" />;
+              if (trimmed === '---') {
+                return <hr key={lIdx} className="border-navy-800 my-2.5" />;
               }
-              return <p key={pIdx}>{para}</p>;
+              if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+                return (
+                  <div key={lIdx} className="flex items-start gap-2 pl-2">
+                    <span className="text-cyan-accent-400 mt-1 flex-shrink-0 text-[10px]">●</span>
+                    <div className="flex-1 text-gray-300">
+                      {renderInlineMarkdown(trimmed.slice(2))}
+                    </div>
+                  </div>
+                );
+              }
+              if (/^\d+\.\s+/.test(trimmed)) {
+                const match = trimmed.match(/^(\d+)\.\s+(.*)/);
+                return (
+                  <div key={lIdx} className="flex items-start gap-2 pl-1 pt-0.5">
+                    <span className="font-bold text-cyan-accent-300 text-xs mt-0.5 flex-shrink-0">
+                      {match?.[1]}.
+                    </span>
+                    <div className="flex-1 text-white font-medium">
+                      {renderInlineMarkdown(match?.[2] || '')}
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <p key={lIdx} className="text-gray-300 leading-relaxed">
+                  {renderInlineMarkdown(line)}
+                </p>
+              );
             })}
           </div>
         );

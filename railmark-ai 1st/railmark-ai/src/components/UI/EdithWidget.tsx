@@ -19,6 +19,44 @@ interface WidgetMessage {
   tag?: string;
 }
 
+function renderWidgetMarkdown(text: string): React.ReactNode {
+  const clean = text
+    .replace(/\$\\ge\s*([^\$]+)\$/g, '≥ $1')
+    .replace(/\$\\le\s*([^\$]+)\$/g, '≤ $1')
+    .replace(/\$\\sigma_e\$/g, 'σ_e')
+    .replace(/\$\\times\$/g, '×')
+    .replace(/\$\\mathbf\{([^\}]+)\}\$/g, '$1')
+    .replace(/\$\\text\{([^\}]+)\}\$/g, '$1')
+    .replace(/\$([^\$]+)\$/g, '$1');
+
+  const tokens = clean.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+
+  return tokens.map((token, i) => {
+    if (token.startsWith('`') && token.endsWith('`') && token.length > 2) {
+      return (
+        <code key={i} className="px-1 py-0.5 rounded bg-navy-950 text-cyan-accent-300 font-mono text-[10px]">
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    if (token.startsWith('**') && token.endsWith('**') && token.length > 4) {
+      return (
+        <strong key={i} className="font-bold text-white">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (token.startsWith('*') && token.endsWith('*') && token.length > 2 && !token.startsWith('**')) {
+      return (
+        <em key={i} className="italic text-cyan-200">
+          {token.slice(1, -1)}
+        </em>
+      );
+    }
+    return token;
+  });
+}
+
 const QUICK_PROMPTS = [
   'What is RAILMARK AI?',
   'Explain Track Fitting Traceability',
@@ -224,7 +262,7 @@ export default function EdithWidget() {
                             {msg.tag}
                           </div>
                         )}
-                        <div className="whitespace-pre-wrap">{msg.text}</div>
+                        <div className="whitespace-pre-wrap leading-relaxed">{renderWidgetMarkdown(msg.text)}</div>
 
                         {!isUser && (
                           <button
