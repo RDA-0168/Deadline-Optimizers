@@ -33,48 +33,29 @@ const QUICK_PROMPTS = [
   { label: '🚦 What is AI Block Planning?', prompt: 'What is AI block planning?' },
   { label: '🏗️ Project Architecture', prompt: 'Explain the project architecture of Railmark AI.' },
   { label: '⚡ Wire Damage vs Cable Fault', prompt: 'What is the difference between wire damage and cable fault?' },
-  { label: '🗣️ Railmark AI na enna?', prompt: 'Railmark AI na enna?' },
+  { label: '⚙️ ERC Mk-III Specs', prompt: 'What are the technical specifications of ERC Mk-III clips?' },
   { label: '👥 Who are the founders?', prompt: 'Who is the founder of this app?' },
 ];
 
 /**
- * Detects if the prompt is in Tanglish (Tamil in English script)
+ * Detects if the user has EXPLICITLY requested a Tanglish/Tamil response
  */
-function isTanglishQuery(text: string): boolean {
+function isTanglishRequested(text: string): boolean {
   const t = text.toLowerCase();
-  const tanglishPatterns = [
-    /\bna enna\b/,
-    /\benna\b/,
-    /\bepdi\b/,
-    /\beppadi\b/,
-    /\birukku\b/,
-    /\birukkum\b/,
-    /\bpannu\b/,
-    /\bpanna\b/,
-    /\bpannanum\b/,
-    /\bsolunga\b/,
-    /\bsollunga\b/,
-    /\bsolu\b/,
-    /\bsollu\b/,
-    /\bevlo\b/,
-    /\bevvallavu\b/,
-    /\benga\b/,
-    /\byaaru\b/,
-    /\byaru\b/,
-    /\btheriyuma\b/,
-    /\bpuriyala\b/,
-    /\bidhu\b/,
-    /\badhu\b/,
-    /\bunga\b/,
-    /\bnamakku\b/,
-    /\btheriyum\b/,
-    /\bvenum\b/,
-    /\bseiyum\b/,
-    /\baagum\b/,
-    /\bpaththi\b/,
-    /\bvachu\b/,
-  ];
-  return tanglishPatterns.some((pattern) => pattern.test(t));
+  return (
+    t.includes('in tanglish') ||
+    t.includes('tanglish la') ||
+    t.includes('tanglish-la') ||
+    t.includes('answer in tanglish') ||
+    t.includes('reply in tanglish') ||
+    t.includes('speak in tanglish') ||
+    t.includes('explain in tanglish') ||
+    t.includes('tell in tanglish') ||
+    t.includes('use tanglish') ||
+    t.includes('in tamil') ||
+    t.includes('tamil la') ||
+    t.includes('tamil-la')
+  );
 }
 
 /**
@@ -88,7 +69,7 @@ function generateEdithResponse(
   const raw = input.trim();
   const query = raw.toLowerCase();
   const cleanTokens = query.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  const isTanglish = isTanglishQuery(raw);
+  const isTanglish = isTanglishRequested(raw);
 
   // Identify previous context from conversation history
   const lastUserMsg = [...history].reverse().find((m) => m.sender === 'user')?.text.toLowerCase() || '';
@@ -127,60 +108,20 @@ function generateEdithResponse(
     };
   }
 
-  // ── 2. TANGLISH RESPONSES FOR CORE RAILWAY CONCEPTS ────────
+  // ── 2. TANGLISH RESPONSES (ONLY WHEN EXPLICITLY REQUESTED BY USER) ────────
   if (isTanglish) {
-    // Railmark AI na enna?
-    if (query.includes('railmark') && (query.includes('enna') || query.includes('paththi'))) {
+    // Railmark AI in Tanglish
+    if (query.includes('railmark')) {
       return {
-        text: `**RAILMARK AI** is a railway asset traceability system. \n\nIdhu railway track fittings (Elastic Rail Clips, Rubber Pads, Insulating Liners) and related asset information-a **identify, track, inspect and maintain** panna help pannum.\n\n### ⚡ Main Features:\n1. **Laser DPM QR Marking**: Fitting mela direct-a laser-la indestructible 2D QR code mark pannuvom.\n2. **Optical QR Scanner**: Track inspectors spot-laye phone camera or handheld scanner vachu fittings details check pannalam.\n3. **Inspection & Maintenance History**: Complete lifecycle data, corrosion level, and maintenance records cloud database-la store aagum.\n4. **AI Assisted Decision Support**: AI moolama track fitting health and future block planning analyze panna mudiyum.`,
+        text: `### 🚄 Railmark AI (Tanglish Explanation)\n\n**RAILMARK AI** is an advanced railway asset traceability system.\n\nIdhu railway track fittings (Elastic Rail Clips, Rubber Pads, Insulating Liners) and related asset information-a **identify, track, inspect and maintain** panna help pannum.\n\n### ⚡ Main Features:\n1. **Laser DPM QR Marking**: Fitting mela direct-a laser-la indestructible 2D QR code mark pannuvom.\n2. **Optical QR Scanner**: Track inspectors spot-laye phone camera or handheld scanner vachu fittings details check pannalam.\n3. **Inspection & Maintenance History**: Complete lifecycle data, corrosion level, and maintenance records cloud database-la store aagum.\n4. **AI Assisted Decision Support**: AI moolama track fitting health and future block planning analyze panna mudiyum.`,
         tag: 'Tanglish · Platform Overview',
       };
     }
 
-    // Track fitting traceability na enna?
-    if (query.includes('traceability') || (query.includes('fitting') && query.includes('enna'))) {
-      return {
-        text: `### 🛤️ Railway Track Fitting Traceability (Tanglish)\n\n**Track Fitting Traceability** nu solradhu railway tracks-la irukura each and every fitting-ku (ERC MK-III/V clips, liners, sole plates) oru **Unique Digital Identity** koduthu track panradhu.\n\n- **Problem**: Earlier, traditional paper inspection-la fittings manufacture aana date, batch number, corrosion rate track panna mudiyala.\n- **Railmark AI Solution**: Direct Part Marking (DPM) laser etching moolama each fitting-ku unique UUID & QR code generate pannuvom. Inspector scan pannina udane fitting installation date, railway zone, previous inspection history instant-a theriyum!`,
-        tag: 'Tanglish · Track Fitting Traceability',
-      };
-    }
-
-    // QR identification epdi work aagum?
-    if (query.includes('qr') || query.includes('laser') || query.includes('epdi') || query.includes('eppadi')) {
-      return {
-        text: `### 📱 QR Identification Epdi Work Aagum?\n\n1. **Laser Direct Part Marking (DPM)**: 1064nm Fiber Laser vachu spring steel ERC clip mela high-contrast 2D DataMatrix / QR Code etch pannuvom (ballast scratch and corrosion-ku thaangum).\n2. **Field Scanning**: Track inspector \`/scanner\` page open panni QR scan pannina, encrypted UUID (\`RM-FIT-XXXX\`) decode aagum.\n3. **Instant Cloud Fetch**: Backend database-la irundhu fitting-oda complete lifecycle, RDSO standard (IRS:T-31), inspection history, and maintenance due dates screen-la display aagum.`,
-        tag: 'Tanglish · QR Identification',
-      };
-    }
-
-    // Block planning na enna?
-    if (query.includes('block') || query.includes('planning')) {
-      return {
-        text: `### 🚦 AI Block Planning Na Enna? *(Planned / Proposed Extension)*\n\n**AI Block Planning** nu solradhu RAILMARK AI-oda planned future capability:\n\n- Railway-la maintenance panna track-la train movement-a stop pannanum (idhukku per **Traffic Block**).\n- AI Block Planner train timetable, passenger traffic, and corridor availability-a analyze panni, train delay aagama optimal **Maintenance Block Window** recommend pannum.\n- **Note**: Idhu oru *AI-assisted decision-support system*; official operational authority railway section controllers kitta dhaan irukkum.`,
-        tag: 'Tanglish · AI Block Planning (Proposed)',
-      };
-    }
-
-    // Machine learning na enna?
-    if (query.includes('machine learning') || query.includes('ml')) {
-      return {
-        text: `### 🤖 Machine Learning Na Enna?\n\n**Machine Learning (ML)** nu solradhu Artificial Intelligence (AI)-oda oru branch.\n\n- Explicit-a code eludha thevailla; computer large data-va analyze panni patterns-a thannola thaan learn pannikkum.\n- **Supervised Learning**: Input and output labels koduthu train panradhu (Example: Track crack photos vachu defect identify panradhu).\n- **Unsupervised Learning**: Labels illama data clusters kandupidikiradhu.\n- **Reinforcement Learning**: Trial and error reward system moolama learn panradhu.`,
-        tag: 'Tanglish · Machine Learning',
-      };
-    }
-
-    // Binary search na enna?
-    if (query.includes('binary search')) {
-      return {
-        text: `### 🔍 Binary Search Na Enna?\n\n**Binary Search** oru fast divide-and-conquer searching algorithm for **sorted arrays**:\n\n- Time Complexity: **$O(\\log n)$** (Linear search $O(n)$-oda romba fast).\n- **Epdi Work Aagum**: Middle element-a target kooda compare pannum. Target perusa irundha right half paarkum, chinatha irundha left half paarkum. Every step-la search space 50% reduce aagum!`,
-        tag: 'Tanglish · Binary Search',
-      };
-    }
-
-    // General Tanglish fallback
+    // General Tanglish response for any query when explicitly requested
     return {
-      text: `### 🤖 E.D.I.T.H AI Response (Tanglish)\n\nUngaloda question: **"${raw}"**.\n\nRAILMARK AI railway track fittings digital traceability, laser QR identification, and AI-assisted maintenance planning-kaga design pannirukkom. Ungalukku specific-a system architecture, algorithms, inspection reports, or general technical questions paththi enna doubt irundhalum kekkalam!`,
-      tag: 'Tanglish · General Assistance',
+      text: `### 🤖 E.D.I.T.H AI Response (Tanglish)\n\nUngaloda question: **"${raw}"**.\n\nRAILMARK AI railway track fittings digital traceability, laser QR identification (Direct Part Marking 1064nm fiber laser), and AI-assisted maintenance planning-kaga build pannirukkom. ERC Mk-III/V clips, RDSO IRS:T-31 standards, and live telemetry paththi enna doubt irundhalum kekkalam!`,
+      tag: 'Tanglish Response',
     };
   }
 
@@ -564,7 +505,7 @@ export default function AIModePage() {
     {
       id: 'm1',
       sender: 'bot',
-      text: `Welcome to **E.D.I.T.H.** (*Even Dead, I’m The Hero*).\n\nI am your intelligent assistant for **RAILMARK AI** (Railway Track Fitting Traceability) as well as planned extensions like AI Maintenance & Automatic Block Planning, Computer Science concepts, and general problem-solving.\n\nFeel free to ask questions in **English** or **Tanglish**, or choose one of the suggested prompts below!`,
+      text: `Welcome to **E.D.I.T.H.** (*Even Dead, I’m The Hero*).\n\nI am your intelligent tactical assistant for **RAILMARK AI** (Railway Track Fitting Traceability, Laser DPM, and Maintenance Diagnostics).\n\nFeel free to ask any technical questions, or choose one of the suggested prompts below!`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       tag: 'System Initialized',
     },

@@ -9,14 +9,17 @@ import { DashboardService } from '../services/dashboard.service.js';
 export const EdithController = {
   async chat(req: Request, res: Response) {
     try {
-      const { message, history } = req.body;
+      const rawMessage = req.body.message || req.body.prompt;
+      const { history } = req.body;
 
-      if (!message || typeof message !== 'string' || !message.trim()) {
+      if (!rawMessage || typeof rawMessage !== 'string' || !rawMessage.trim()) {
         return res.status(400).json({
           success: false,
           error: 'Prompt message is required.',
         });
       }
+
+      const message = rawMessage.trim();
 
       // Fetch live telemetry context from the dashboard service
       let statsContext = null;
