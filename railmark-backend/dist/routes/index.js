@@ -1,48 +1,56 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const auth_routes_js_1 = __importDefault(require("./auth.routes.js"));
-const fitting_routes_js_1 = __importDefault(require("./fitting.routes.js"));
-const qr_routes_js_1 = __importDefault(require("./qr.routes.js"));
-const search_routes_js_1 = __importDefault(require("./search.routes.js"));
-const dashboard_routes_js_1 = __importDefault(require("./dashboard.routes.js"));
-const audit_routes_js_1 = __importDefault(require("./audit.routes.js"));
-const maintenance_controller_js_1 = require("../controllers/maintenance.controller.js");
-const inspection_controller_js_1 = require("../controllers/inspection.controller.js");
-const auth_middleware_js_1 = require("../middlewares/auth.middleware.js");
-const apiRouter = (0, express_1.Router)();
-// Root API Health & Meta
+// =============================================================================
+// RailMark AI — Master API Router
+// =============================================================================
+import { Router } from 'express';
+import fittingRouter from './fitting.routes.js';
+import { authRouter, dashboardRouter, qrRouter, searchRouter, auditRouter } from './auth.routes.js';
+import { zoneRouter, aiRouter, mediaRouter } from './zone.routes.js';
+import { InspectionController } from '../controllers/inspection.controller.js';
+import { MaintenanceController } from '../controllers/maintenance.controller.js';
+import { optionalAuthenticate } from '../middlewares/auth.middleware.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { createInspectionSchema } from '../schemas/inspection.schema.js';
+import { createMaintenanceSchema } from '../schemas/maintenance.schema.js';
+import { EdithController } from '../controllers/edith.controller.js';
+const apiRouter = Router();
+// API Health Check & Info
 apiRouter.get('/', (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'RailMark AI API Gateway is active',
-        version: '1.0.0',
-        disclaimer: 'DEMO / PROTOTYPE DATA - NOT OFFICIAL INDIAN RAILWAYS DATA',
-        docs: '/api-docs',
+        message: 'RailMark AI PostgreSQL-backed REST API Gateway is active',
+        version: '2.0.0',
+        deployment: 'Render Production Ready',
+        disclaimer: 'Smart India Hackathon Prototype - Digital Traceability for Railway Track Fittings',
         endpoints: {
             auth: '/api/auth',
             fittings: '/api/fittings',
             inspections: '/api/inspections',
             maintenance: '/api/maintenance',
+            zones: '/api/zones',
+            aiAssessments: '/api/ai-assessments',
+            media: '/api/media',
             qr: '/api/qr',
-            search: '/api/search?q=',
             dashboard: '/api/dashboard/stats',
+            search: '/api/search?q=',
             auditLogs: '/api/audit-logs',
         },
     });
 });
-apiRouter.use('/auth', auth_routes_js_1.default);
-apiRouter.use('/fittings', fitting_routes_js_1.default);
-apiRouter.get('/maintenance', maintenance_controller_js_1.MaintenanceController.getAllMaintenance);
-apiRouter.post('/maintenance', auth_middleware_js_1.optionalAuthenticate, maintenance_controller_js_1.MaintenanceController.createMaintenance);
-apiRouter.get('/inspections', inspection_controller_js_1.InspectionController.getAllInspections);
-apiRouter.post('/inspections', auth_middleware_js_1.optionalAuthenticate, inspection_controller_js_1.InspectionController.createInspection);
-apiRouter.use('/qr', qr_routes_js_1.default);
-apiRouter.use('/search', search_routes_js_1.default);
-apiRouter.use('/dashboard', dashboard_routes_js_1.default);
-apiRouter.use('/audit-logs', audit_routes_js_1.default);
-exports.default = apiRouter;
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/fittings', fittingRouter);
+apiRouter.use('/zones', zoneRouter);
+apiRouter.use('/ai-assessments', aiRouter);
+apiRouter.use('/media', mediaRouter);
+apiRouter.get('/inspections', optionalAuthenticate, InspectionController.getAllInspections);
+apiRouter.post('/inspections', optionalAuthenticate, validate(createInspectionSchema), InspectionController.createInspection);
+apiRouter.get('/maintenance', optionalAuthenticate, MaintenanceController.getAllMaintenance);
+apiRouter.post('/maintenance', optionalAuthenticate, validate(createMaintenanceSchema), MaintenanceController.createMaintenance);
+apiRouter.use('/dashboard', dashboardRouter);
+apiRouter.use('/qr', qrRouter);
+apiRouter.use('/search', searchRouter);
+apiRouter.use('/audit-logs', auditRouter);
+// E.D.I.T.H AI Conversational Endpoints
+apiRouter.post('/edith/chat', optionalAuthenticate, EdithController.chat);
+apiRouter.post('/ai/chat', optionalAuthenticate, EdithController.chat);
+export default apiRouter;
 //# sourceMappingURL=index.js.map

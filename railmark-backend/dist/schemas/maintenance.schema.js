@@ -1,22 +1,19 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMaintenanceSchema = void 0;
-const zod_1 = require("zod");
-exports.createMaintenanceSchema = zod_1.z.object({
-    params: zod_1.z.object({
-        fittingId: zod_1.z.string().optional(),
-    }).optional(),
-    body: zod_1.z.object({
-        fittingId: zod_1.z.string().optional(),
-        maintenanceDate: zod_1.z.string().optional(),
-        maintenanceType: zod_1.z.string().min(1, 'Maintenance type is required'),
-        technician: zod_1.z.string().optional(),
-        technicianId: zod_1.z.string().optional(),
-        description: zod_1.z.string().min(1, 'Description is required'),
-        status: zod_1.z.string().default('Completed'),
-        nextMaintenance: zod_1.z.string().optional(),
-        cost: zod_1.z.string().optional(),
-        partsReplaced: zod_1.z.array(zod_1.z.string()).optional(),
+// =============================================================================
+// RailMark AI — Maintenance Zod Validation Schemas
+// =============================================================================
+import { z } from 'zod';
+export const createMaintenanceSchema = z.object({
+    body: z.object({
+        fittingId: z.string().min(1, 'Fitting ID is required'),
+        maintenanceType: z.string().default('Preventive'),
+        technician: z.string().optional().default('Track Maintenance Lead'),
+        technicianId: z.string().optional().default('RM-MNT-9932'),
+        description: z.string().min(3, 'Maintenance description is required'),
+        status: z.string().default('Scheduled'),
+        nextMaintenance: z.string().optional(),
+        cost: z.string().optional(),
+        partsReplaced: z.array(z.string()).optional().default([]),
+        maintenanceDate: z.string().optional(),
     }),
 });
 //# sourceMappingURL=maintenance.schema.js.map

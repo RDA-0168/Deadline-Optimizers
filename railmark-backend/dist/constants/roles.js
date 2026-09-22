@@ -1,34 +1,47 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuditAction = exports.LifecycleEventType = exports.FittingStatus = exports.UserRoles = void 0;
-exports.UserRoles = {
+// =============================================================================
+// RailMark AI — Role Constants & RBAC Definitions
+// =============================================================================
+export const UserRoles = {
     ADMIN: 'ADMIN',
     INSPECTOR: 'INSPECTOR',
     MAINTENANCE: 'MAINTENANCE',
+    VIEWER: 'VIEWER',
 };
-exports.FittingStatus = {
-    ACTIVE: 'Active',
-    MAINTENANCE_REQUIRED: 'Maintenance Required',
-    CRITICAL: 'Critical',
-    PENDING_INSPECTION: 'Pending Inspection',
-    REPLACED: 'Replaced',
-    DECOMMISSIONED: 'Decommissioned',
-};
-exports.LifecycleEventType = {
-    MANUFACTURED: 'Manufactured',
-    SUPPLIED: 'Supplied',
-    INSTALLED: 'Installed',
-    INSPECTED: 'Inspected',
-    MAINTAINED: 'Maintained',
-    REPLACED: 'Replaced',
-};
-exports.AuditAction = {
-    LOGIN: 'LOGIN',
-    CREATE_FITTING: 'CREATE_FITTING',
-    UPDATE_FITTING: 'UPDATE_FITTING',
-    DELETE_FITTING: 'DELETE_FITTING',
-    INSPECTION_SUBMITTED: 'INSPECTION_SUBMITTED',
-    MAINTENANCE_SUBMITTED: 'MAINTENANCE_SUBMITTED',
-    QR_SCANNED: 'QR_SCANNED',
+export const RolePermissions = {
+    [UserRoles.ADMIN]: [
+        'fittings:create',
+        'fittings:read',
+        'fittings:update',
+        'fittings:delete',
+        'inspections:create',
+        'inspections:read',
+        'maintenance:create',
+        'maintenance:read',
+        'maintenance:update',
+        'users:manage',
+        'zones:manage',
+        'reports:export',
+        'audit:read',
+    ],
+    [UserRoles.INSPECTOR]: [
+        'fittings:create',
+        'fittings:read',
+        'inspections:create',
+        'inspections:read',
+        'maintenance:read',
+        'reports:export',
+    ],
+    [UserRoles.MAINTENANCE]: [
+        'fittings:read',
+        'inspections:read',
+        'maintenance:create',
+        'maintenance:read',
+        'maintenance:update',
+    ],
+    [UserRoles.VIEWER]: [
+        'fittings:read',
+        'inspections:read',
+        'maintenance:read',
+    ],
 };
 //# sourceMappingURL=roles.js.map

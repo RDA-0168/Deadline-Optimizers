@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   QrCode, Camera, CameraOff, Search, AlertCircle, CheckCircle2,
   Keyboard, ChevronRight, Upload, Loader2, Sparkles, RefreshCw,
-  Info, ShieldAlert,
+  Info, ShieldAlert, WifiOff,
 } from 'lucide-react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { scanQrCode } from '../services/api';
+import { useOfflineSync } from '../context/OfflineSyncContext';
 import StatusBadge from '../components/UI/StatusBadge';
 import type { Fitting } from '../types';
 
@@ -29,6 +30,8 @@ export default function QRScanner() {
   const isProcessingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { isOnline, queueScan } = useOfflineSync();
+  const [offlineNotice, setOfflineNotice] = useState(false);
 
   const stopCamera = useCallback(async () => {
     if (scannerRef.current) {
@@ -56,6 +59,11 @@ export default function QRScanner() {
     setResult(null);
     setScannedCodeValue(trimmed);
 
+    if (!isOnline) {
+      queueScan(trimmed, { notes: 'Field optical QR capture (Offline)' });
+      setOfflineNotice(true);
+    }
+
     const res = await scanQrCode(trimmed);
     setSearching(false);
 
@@ -66,7 +74,7 @@ export default function QRScanner() {
         res.error ?? `QR code decoded as "${trimmed}", but no matching rail fitting was found in the database.`
       );
     }
-  }, []);
+  }, [isOnline, queueScan]);
 
   const startCamera = async () => {
     setError('');
@@ -237,6 +245,27 @@ export default function QRScanner() {
           {showSampleQRs ? 'Hide Test QRs' : 'Sample Test QRs'}
         </button>
       </div>
+
+      {/* Offline Alert Banner */}
+      {!isOnline && (
+        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3.5 flex items-center gap-3 text-rose-300 text-xs animate-slide-up">
+          <WifiOff size={18} className="text-rose-400 flex-shrink-0" />
+          <div>
+            <span className="font-semibold text-white">Remote Track Offline Mode Active:</span>{' '}
+            Scans and lookups will be cached locally on your device and automatically synchronized to PostgreSQL once internet connectivity returns.
+          </div>
+        </div>
+      )}
+
+      {offlineNotice && isOnline && (
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center justify-between text-emerald-300 text-xs animate-slide-up">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-400" />
+            <span>Scan saved in local offline queue. Synced to master registry.</span>
+          </div>
+          <button onClick={() => setOfflineNotice(false)} className="text-gray-400 hover:text-white text-xs">Dismiss</button>
+        </div>
+      )}
 
       {/* Sample QRs Helper Box */}
       {showSampleQRs && (

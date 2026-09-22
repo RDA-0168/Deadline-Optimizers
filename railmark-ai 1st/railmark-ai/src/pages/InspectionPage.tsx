@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import {
-  ClipboardCheck, Brain, CheckCircle2, AlertCircle, Loader2, Info,
+  ClipboardCheck, Brain, CheckCircle2, AlertCircle, Loader2, Info, WifiOff,
 } from 'lucide-react';
 import { addInspection } from '../services/api';
+import { useOfflineSync } from '../context/OfflineSyncContext';
 import StatusBadge from '../components/UI/StatusBadge';
 import type { ConditionStatus } from '../types';
 
@@ -58,6 +59,7 @@ function mockAiAnalyse(form: FormState) {
 
 export default function InspectionPage() {
   const today = new Date().toISOString().split('T')[0];
+  const { isOnline, queueInspection } = useOfflineSync();
 
   const [form, setForm] = useState<FormState>({
     fittingId: 'RM-FIT-0001',
@@ -77,6 +79,7 @@ export default function InspectionPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [wasOfflineSubmitted, setWasOfflineSubmitted] = useState(false);
 
   const set = (key: keyof FormState, val: string) => {
     setForm((p) => ({ ...p, [key]: val }));
@@ -94,7 +97,8 @@ export default function InspectionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    await addInspection({
+
+    const inspectionPayload = {
       ...form,
       condition: form.condition as ConditionStatus,
       qrReadability: form.qrReadability as 'Excellent' | 'Good' | 'Fair' | 'Poor' | 'Unreadable',
@@ -105,7 +109,16 @@ export default function InspectionPage() {
       aiConfidence: aiResult?.aiConfidence,
       aiCondition: aiResult?.aiCondition,
       aiQrQuality: aiResult?.aiQrQuality,
-    });
+    };
+
+    if (!isOnline) {
+      queueInspection(form.fittingId, inspectionPayload);
+      setWasOfflineSubmitted(true);
+    } else {
+      await addInspection(inspectionPayload);
+      setWasOfflineSubmitted(false);
+    }
+
     setSubmitting(false);
     setSubmitted(true);
   };
@@ -121,11 +134,23 @@ export default function InspectionPage() {
         <p className="text-gray-400 text-sm mt-0.5">Record a field inspection with AI-assisted assessment</p>
       </div>
 
+      {!isOnline && (
+        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 flex items-center gap-3 text-rose-300 text-xs">
+          <WifiOff size={16} className="text-rose-400 flex-shrink-0" />
+          <span>Offline Inspection Mode Active: Submissions will be safely cached and synced upon reconnecting.</span>
+        </div>
+      )}
+
       {submitted ? (
         <div className="card border-emerald-700/50 text-center py-12 space-y-4">
           <CheckCircle2 size={48} className="text-emerald-400 mx-auto" />
-          <div className="text-lg font-bold text-white">Inspection Recorded</div>
-          <p className="text-gray-400 text-sm">Record for <span className="font-mono text-cyan-accent-400">{form.fittingId}</span> saved successfully (mock).</p>
+          <div className="text-lg font-bold text-white">
+            {wasOfflineSubmitted ? 'Inspection Cached for Offline Sync' : 'Inspection Recorded & Synchronized'}
+          </div>
+          <p className="text-gray-400 text-sm">
+            Record for <span className="font-mono text-cyan-accent-400">{form.fittingId}</span>{' '}
+            {wasOfflineSubmitted ? 'has been saved to local offline queue.' : 'committed to PostgreSQL master database.'}
+          </p>
           <button onClick={() => { setSubmitted(false); setAiResult(null); }} className="btn-secondary mx-auto">
             Add Another Inspection
           </button>

@@ -1,6 +1,48 @@
-import { CreateMaintenanceDto, MaintenanceRecord } from '../types/maintenance.types.js';
-import { JwtPayload } from '../types/auth.types.js';
 export declare class MaintenanceService {
-    static getMaintenanceByFittingId(fittingId: string): Promise<MaintenanceRecord[]>;
-    static createMaintenance(fittingId: string, dto: CreateMaintenanceDto, user?: JwtPayload, ipAddress?: string): Promise<MaintenanceRecord>;
+    static getAllMaintenance(limit?: number): Promise<{
+        id: any;
+        fittingId: any;
+        maintenanceDate: string;
+        maintenanceType: any;
+        technician: any;
+        technicianName: any;
+        technicianId: any;
+        description: any;
+        status: any;
+        nextMaintenance: string;
+        cost: any;
+        partsReplaced: any;
+        createdAt: any;
+    }[]>;
+    static getMaintenanceByFittingId(fittingId: string): Promise<{
+        id: any;
+        fittingId: any;
+        maintenanceDate: string;
+        maintenanceType: any;
+        technician: any;
+        technicianName: any;
+        technicianId: any;
+        description: any;
+        status: any;
+        nextMaintenance: string;
+        cost: any;
+        partsReplaced: any;
+        createdAt: any;
+    }[]>;
+    static createMaintenance(data: any, technicianName?: string): Promise<{
+        id: any;
+        fittingId: any;
+        maintenanceDate: string;
+        maintenanceType: any;
+        technician: any;
+        technicianName: any;
+        technicianId: any;
+        description: any;
+        status: any;
+        nextMaintenance: string;
+        cost: any;
+        partsReplaced: any;
+        createdAt: any;
+    }>;
+    private static formatMaintenanceResponse;
 }

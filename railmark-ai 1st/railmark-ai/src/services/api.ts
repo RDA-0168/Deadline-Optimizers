@@ -25,6 +25,8 @@ import {
   MOCK_DASHBOARD_STATS,
 } from '../data/mockData';
 
+import { OfflineSyncService } from './offlineSync';
+
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
@@ -168,12 +170,16 @@ export async function getFittings(): Promise<ApiResponse<Fitting[]>> {
     if (res.ok) {
       const payload = await res.json();
       if (payload.success && Array.isArray(payload.data)) {
-        return ok(payload.data.map(mapBackendFittingToFrontend));
+        const mapped = payload.data.map(mapBackendFittingToFrontend);
+        OfflineSyncService.cacheFittings(mapped);
+        return ok(mapped);
       }
     }
   } catch (err) {
-    console.warn('API getFittings fallback to mock:', err);
+    console.warn('API getFittings fallback to mock/cache:', err);
   }
+
+  OfflineSyncService.cacheFittings(MOCK_FITTINGS);
   return ok([...MOCK_FITTINGS]);
 }
 
@@ -191,12 +197,18 @@ export async function getFittingById(id: string): Promise<ApiResponse<Fitting>> 
           ...(d.installationInfo || {}),
           ...(d.qrInfo || {}),
         };
-        return ok(mapBackendFittingToFrontend(flatData));
+        const mapped = mapBackendFittingToFrontend(flatData);
+        OfflineSyncService.cacheFittings([mapped]);
+        return ok(mapped);
       }
     }
   } catch (err) {
     console.warn(`API getFittingById(${id}) fallback:`, err);
   }
+
+  // Check offline cached store
+  const cached = OfflineSyncService.getCachedFitting(id);
+  if (cached) return ok(cached);
 
   const local = MOCK_FITTINGS.find((f) => f.id === id || f.qrId === id);
   if (local) return ok({ ...local });
@@ -613,9 +625,15 @@ export async function scanQrCode(
     }
   } catch (err) {
     console.warn(`API scanQrCode(${qrValue}) fallback:`, err);
+    // Queue offline scan
+    OfflineSyncService.queueScan(cleaned);
   }
 
-  // Fallback search in fittings
+  // Check offline cached store first
+  const cached = OfflineSyncService.getCachedFitting(cleaned) || OfflineSyncService.getCachedFitting(raw);
+  if (cached) return ok(cached);
+
+  // Fallback search in mock fittings
   const fitting = MOCK_FITTINGS.find(
     (f) => f.qrId?.toUpperCase() === cleaned || f.id?.toUpperCase() === cleaned || f.qrId?.toUpperCase() === raw.toUpperCase() || f.id?.toUpperCase() === raw.toUpperCase()
   );
@@ -668,3 +686,41 @@ export async function generateReport(params: {
     maintenance: mRes.data || MOCK_MAINTENANCE,
   });
 }
+
+// ============================================================
+// E.D.I.T.H AI COPILOT SERVICE
+// ============================================================
+
+export interface EdithResponseData {
+  text: string;
+  modelUsed?: string;
+  isFounders?: boolean;
+  tag?: string;
+}
+
+export async function sendEdithChatMessage(
+  message: string,
+  history: Array<{ sender: 'user' | 'bot'; text: string }> = []
+): Promise<ApiResponse<EdithResponseData>> {
+  try {
+    const res = await fetch('/api/edith/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ message, history }),
+    });
+    if (res.ok) {
+      const payload = await res.json();
+      if (payload.success && payload.data) {
+        return ok(payload.data);
+      }
+    }
+  } catch (err) {
+    console.warn('Backend /api/edith/chat call error:', err);
+  }
+
+  return fail('E.D.I.T.H AI engine is temporarily unreachable. Please ensure the backend is active and GEMINI_API_KEY is configured.');
+}
+

@@ -1,38 +1,30 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validate = validate;
-const zod_1 = require("zod");
-function validate(schema) {
-    return async (req, res, next) => {
+// =============================================================================
+// RailMark AI — Request Validation Middleware (Zod)
+// =============================================================================
+import { ZodError } from 'zod';
+export function validate(schema) {
+    return (req, res, next) => {
         try {
-            const parsed = await schema.parseAsync({
+            schema.parse({
                 body: req.body,
                 query: req.query,
                 params: req.params,
             });
-            // Attach parsed objects back to request
-            req.body = parsed.body ?? req.body;
-            req.query = parsed.query ?? req.query;
-            req.params = parsed.params ?? req.params;
             next();
         }
-        catch (error) {
-            if (error instanceof zod_1.ZodError) {
-                const errorMessages = error.errors.map((issue) => {
-                    const path = issue.path.join('.');
-                    return `${path}: ${issue.message}`;
-                });
+        catch (err) {
+            if (err instanceof ZodError) {
                 res.status(400).json({
                     success: false,
-                    message: 'Input validation failed',
-                    errors: errorMessages,
+                    error: 'Request validation failed',
+                    details: err.errors.map((e) => ({
+                        field: e.path.join('.'),
+                        message: e.message,
+                    })),
                 });
                 return;
             }
-            res.status(400).json({
-                success: false,
-                message: 'Malformed request data',
-            });
+            next(err);
         }
     };
 }

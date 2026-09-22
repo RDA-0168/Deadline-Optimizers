@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import SyncStatusBadge from '../UI/SyncStatusBadge';
+import EdithWidget from '../UI/EdithWidget';
 import {
   LayoutDashboard, QrCode, Database, Search, ClipboardCheck,
   Wrench, BarChart3, ShieldCheck, FileText, Sparkles,
@@ -17,7 +19,7 @@ const NAV_ITEMS = [
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/admin', icon: ShieldCheck, label: 'Admin Dashboard' },
   { to: '/reports', icon: FileText, label: 'Reports' },
-  { to: '/ai-mode', icon: Sparkles, label: 'AI Mode' },
+  { to: '/ai-mode', icon: Sparkles, label: 'E.D.I.T.H AI' },
 ];
 
 const NOTIFICATIONS = [
@@ -109,20 +111,20 @@ export default function Layout({ children }: { children: ReactNode }) {
 
             if (isAi) {
               return (
-                <div key={to} className="pt-2">
+                <div key={to} className="pt-1.5">
                   <Link
                     to={to}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       active
                         ? 'ai-3d-glow-active text-white'
                         : 'ai-3d-glow text-cyan-accent-300 hover:text-white'
                     }`}
                   >
-                    <div className="w-6 h-6 rounded-lg bg-cyan-accent-500/20 border border-cyan-accent-400/60 flex items-center justify-center flex-shrink-0 shadow-inner">
-                      <Sparkles size={14} className="text-cyan-accent-300 animate-pulse" />
+                    <div className="w-5 h-5 rounded-md bg-cyan-accent-500/15 border border-cyan-accent-400/30 flex items-center justify-center flex-shrink-0">
+                      <Sparkles size={13} className="text-cyan-accent-300" />
                     </div>
-                    <span className="tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-cyan-300 drop-shadow-[0_2px_8px_rgba(0,230,255,0.7)] font-black">
+                    <span className="tracking-wide text-cyan-100 font-medium">
                       {label}
                     </span>
                     {active && <ChevronRight size={14} className="ml-auto text-cyan-200" />}
@@ -186,7 +188,10 @@ export default function Layout({ children }: { children: ReactNode }) {
             </span>
           </div>
 
-          <div className="ml-auto flex items-center gap-2 relative">
+          <div className="ml-auto flex items-center gap-3 relative">
+            {/* Real-Time Offline / PostgreSQL Sync Status */}
+            <SyncStatusBadge />
+
             {/* Notification Bell */}
             <div className="relative">
               <button
@@ -259,6 +264,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* Floating E.D.I.T.H AI Tactical Copilot Widget */}
+      <EdithWidget />
     </div>
   );
 }

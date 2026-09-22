@@ -1,42 +1,40 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const app_js_1 = require("./app.js");
-const env_js_1 = require("./config/env.js");
-const index_js_1 = require("./db/index.js");
-async function startServer() {
-    try {
-        // Initialize Database
-        await index_js_1.db.init();
-        const app = (0, app_js_1.createApp)();
-        const server = app.listen(env_js_1.ENV.PORT, () => {
-            console.log(`=======================================================`);
-            console.log(`🚄  RailMark AI Backend REST API Server is RUNNING`);
-            console.log(`=======================================================`);
-            console.log(`📍 Port:             ${env_js_1.ENV.PORT}`);
-            console.log(`🌍 Environment:      ${env_js_1.ENV.NODE_ENV}`);
-            console.log(`📑 API Base:         http://localhost:${env_js_1.ENV.PORT}/api`);
-            console.log(`📖 Swagger Docs:     http://localhost:${env_js_1.ENV.PORT}/api-docs`);
-            console.log(`🛡️  Auth Endpoints:   http://localhost:${env_js_1.ENV.PORT}/api/auth/login`);
-            console.log(`🔍 Search:           http://localhost:${env_js_1.ENV.PORT}/api/search?q=`);
-            console.log(`📊 Dashboard Stats:  http://localhost:${env_js_1.ENV.PORT}/api/dashboard/stats`);
-            console.log(`⚠️  Disclaimer:       DEMO / PROTOTYPE DATA ONLY`);
-            console.log(`=======================================================`);
-        });
-        // Graceful Shutdown
-        const shutdown = () => {
-            console.log('\n🛑 Gracefully shutting down RailMark AI server...');
-            server.close(() => {
-                console.log('✅ HTTP server closed. Process terminated.');
-                process.exit(0);
-            });
-        };
-        process.on('SIGTERM', shutdown);
-        process.on('SIGINT', shutdown);
+// =============================================================================
+// RailMark AI — Server Startup & Lifecycle Management
+// =============================================================================
+import app from './app.js';
+import { ENV } from './config/env.js';
+import { prisma, checkPrismaConnection } from './db/prisma.js';
+const PORT = ENV.PORT || 5000;
+const server = app.listen(PORT, async () => {
+    console.log('================================================================');
+    console.log(`🚂 RailMark AI Backend API Gateway started on port ${PORT}`);
+    console.log(`🌐 Environment: ${ENV.NODE_ENV}`);
+    console.log(`📡 API Gateway: http://localhost:${PORT}/api`);
+    console.log(`📄 API Documentation: http://localhost:${PORT}/api-docs`);
+    console.log('================================================================');
+    const isConnected = await checkPrismaConnection();
+    if (isConnected) {
+        console.log('✅ Connected to PostgreSQL database via Prisma ORM.');
     }
-    catch (error) {
-        console.error('❌ Failed to start RailMark AI backend server:', error);
-        process.exit(1);
+    else {
+        console.log('⚠️ PostgreSQL database not reachable via DATABASE_URL. Running in high-availability fallback mode.');
     }
+});
+// Graceful Shutdown
+function gracefulShutdown(signal) {
+    console.log(`\nReceived ${signal}. Gracefully shutting down RailMark AI backend...`);
+    server.close(async () => {
+        try {
+            await prisma.$disconnect();
+            console.log('🔌 Prisma client disconnected.');
+        }
+        catch {
+            // Ignore
+        }
+        console.log('👋 RailMark API process terminated cleanly.');
+        process.exit(0);
+    });
 }
-startServer();
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 //# sourceMappingURL=server.js.map

@@ -1,67 +1,97 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.authenticate = authenticate;
-exports.optionalAuthenticate = optionalAuthenticate;
-exports.authorize = authorize;
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const env_js_1 = require("../config/env.js");
-function authenticate(req, res, next) {
+// =============================================================================
+// RailMark AI — Authentication & Role-Based Access Control (RBAC) Middleware
+// =============================================================================
+import jwt from 'jsonwebtoken';
+import { ENV } from '../config/env.js';
+export function authenticate(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({
             success: false,
-            message: 'Authentication required. Bearer token missing in Authorization header.',
+            error: 'Authentication token is missing. Please provide a valid Bearer token in the Authorization header.',
         });
         return;
     }
     const token = authHeader.split(' ')[1];
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, env_js_1.ENV.JWT_SECRET);
-        req.user = decoded;
+        const decoded = jwt.verify(token, ENV.JWT_SECRET);
+        req.user = {
+            id: decoded.id || decoded.userId || 'USR-001',
+            username: decoded.username || 'user',
+            email: decoded.email || '',
+            role: (decoded.role || 'INSPECTOR').toUpperCase(),
+            fullName: decoded.fullName || decoded.name || 'RailMark User',
+            badgeNumber: decoded.badgeNumber || 'RM-DEF-001',
+            zoneName: decoded.zone || decoded.zoneName || 'Central Railway',
+        };
         next();
     }
     catch (err) {
         res.status(401).json({
             success: false,
-            message: 'Invalid or expired authentication token.',
-            errors: err.message ? [err.message] : undefined,
+            error: 'Invalid or expired authentication token. Please re-authenticate.',
         });
     }
 }
-function optionalAuthenticate(req, res, next) {
+export function optionalAuthenticate(req, res, next) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.split(' ')[1];
         try {
-            const decoded = jsonwebtoken_1.default.verify(token, env_js_1.ENV.JWT_SECRET);
-            req.user = decoded;
+            const decoded = jwt.verify(token, ENV.JWT_SECRET);
+            req.user = {
+                id: decoded.id || decoded.userId || 'USR-001',
+                username: decoded.username || 'user',
+                email: decoded.email || '',
+                role: (decoded.role || 'INSPECTOR').toUpperCase(),
+                fullName: decoded.fullName || decoded.name || 'RailMark User',
+                badgeNumber: decoded.badgeNumber || 'RM-DEF-001',
+                zoneName: decoded.zone || decoded.zoneName || 'Central Railway',
+            };
         }
         catch {
-            // Ignore invalid optional token
+            // Ignore token failure in optional mode
         }
     }
     next();
 }
-function authorize(allowedRoles) {
+/**
+ * Enforces Role-Based Access Control (RBAC).
+ * Returns 403 Forbidden if the authenticated user's role is not in the allowed list.
+ */
+export function authorize(allowedRoles) {
     return (req, res, next) => {
         if (!req.user) {
             res.status(401).json({
                 success: false,
-                message: 'Authentication required before role verification.',
+                error: 'Unauthorized: User authentication required.',
             });
             return;
         }
-        if (!allowedRoles.includes(req.user.role)) {
+        const normalizedRole = req.user.role?.toUpperCase();
+        if (!allowedRoles.includes(normalizedRole)) {
             res.status(403).json({
                 success: false,
-                message: `Forbidden: Access restricted to roles: [${allowedRoles.join(', ')}]. Current role: ${req.user.role}`,
+                error: `Access Denied: Role '${req.user.role}' does not possess required privileges for this operation. Allowed roles: [${allowedRoles.join(', ')}]`,
             });
             return;
         }
         next();
     };
+}
+/**
+ * Enforces strict append-only immutability on lifecycle event records.
+ * Blocks any attempt to update or delete lifecycle records.
+ */
+export function denyLifecycleModification(req, res, next) {
+    const method = req.method.toUpperCase();
+    if (['PUT', 'PATCH', 'DELETE'].includes(method)) {
+        res.status(405).json({
+            success: false,
+            error: 'Method Not Allowed: Lifecycle events are strictly append-only and cannot be updated or deleted.',
+        });
+        return;
+    }
+    next();
 }
 //# sourceMappingURL=auth.middleware.js.map

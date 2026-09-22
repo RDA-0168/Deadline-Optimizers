@@ -1,3 +1,3 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject } from 'zod';
-export declare function validate(schema: AnyZodObject): (req: Request, res: Response, next: NextFunction) => Promise<void>;
+import { ZodSchema } from 'zod';
+export declare function validate(schema: ZodSchema<any>): (req: Request, res: Response, next: NextFunction) => void;

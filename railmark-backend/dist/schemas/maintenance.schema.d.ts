@@ -1,56 +1,63 @@
 import { z } from 'zod';
 export declare const createMaintenanceSchema: z.ZodObject<{
-    params: z.ZodObject<{
-        fittingId: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
-        fittingId: string;
-    }, {
-        fittingId: string;
-    }>;
     body: z.ZodObject<{
-        maintenanceDate: z.ZodString;
-        maintenanceType: z.ZodString;
-        technician: z.ZodOptional<z.ZodString>;
+        fittingId: z.ZodString;
+        maintenanceType: z.ZodDefault<z.ZodString>;
+        technician: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+        technicianId: z.ZodDefault<z.ZodOptional<z.ZodString>>;
         description: z.ZodString;
-        status: z.ZodEnum<["Completed", "In Progress", "Scheduled", "Deferred"]>;
-        nextMaintenance: z.ZodString;
+        status: z.ZodDefault<z.ZodString>;
+        nextMaintenance: z.ZodOptional<z.ZodString>;
+        cost: z.ZodOptional<z.ZodString>;
+        partsReplaced: z.ZodDefault<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
+        maintenanceDate: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        maintenanceDate: string;
-        maintenanceType: string;
+        fittingId: string;
+        status: string;
         description: string;
-        status: "Completed" | "In Progress" | "Scheduled" | "Deferred";
-        nextMaintenance: string;
-        technician?: string | undefined;
+        maintenanceType: string;
+        technician: string;
+        technicianId: string;
+        partsReplaced: string[];
+        maintenanceDate?: string | undefined;
+        nextMaintenance?: string | undefined;
+        cost?: string | undefined;
     }, {
-        maintenanceDate: string;
-        maintenanceType: string;
+        fittingId: string;
         description: string;
-        status: "Completed" | "In Progress" | "Scheduled" | "Deferred";
-        nextMaintenance: string;
+        status?: string | undefined;
+        maintenanceDate?: string | undefined;
+        maintenanceType?: string | undefined;
         technician?: string | undefined;
+        technicianId?: string | undefined;
+        nextMaintenance?: string | undefined;
+        cost?: string | undefined;
+        partsReplaced?: string[] | undefined;
     }>;
 }, "strip", z.ZodTypeAny, {
     body: {
-        maintenanceDate: string;
-        maintenanceType: string;
-        description: string;
-        status: "Completed" | "In Progress" | "Scheduled" | "Deferred";
-        nextMaintenance: string;
-        technician?: string | undefined;
-    };
-    params: {
         fittingId: string;
+        status: string;
+        description: string;
+        maintenanceType: string;
+        technician: string;
+        technicianId: string;
+        partsReplaced: string[];
+        maintenanceDate?: string | undefined;
+        nextMaintenance?: string | undefined;
+        cost?: string | undefined;
     };
 }, {
     body: {
-        maintenanceDate: string;
-        maintenanceType: string;
-        description: string;
-        status: "Completed" | "In Progress" | "Scheduled" | "Deferred";
-        nextMaintenance: string;
-        technician?: string | undefined;
-    };
-    params: {
         fittingId: string;
+        description: string;
+        status?: string | undefined;
+        maintenanceDate?: string | undefined;
+        maintenanceType?: string | undefined;
+        technician?: string | undefined;
+        technicianId?: string | undefined;
+        nextMaintenance?: string | undefined;
+        cost?: string | undefined;
+        partsReplaced?: string[] | undefined;
     };
 }>;

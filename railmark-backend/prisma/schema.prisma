@@ -1,0 +1,342 @@
+// =============================================================================
+// RailMark AI — Prisma PostgreSQL Schema
+// AI-Assisted Laser QR Marking & Digital Traceability for Railway Track Fittings
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// 1. ENUMS
+// -----------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  INSPECTOR
+  MAINTENANCE
+  VIEWER
+}
+
+enum FittingStatus {
+  Active
+  InspectionDue
+  MaintenanceRequired
+  Critical
+  Decommissioned
+  InTransit
+  UnderInspection
+}
+
+enum ConditionStatus {
+  Good
+  NeedsAttention
+  MaintenanceRequired
+  Critical
+}
+
+enum QRReadability {
+  Excellent
+  Good
+  Fair
+  Poor
+  Unreadable
+}
+
+enum QRVerificationStatus {
+  Verified
+  Unverified
+  Degraded
+}
+
+enum MaintenanceType {
+  Preventive
+  Corrective
+  Emergency
+  Routine
+}
+
+enum MaintenanceStatus {
+  Completed
+  Scheduled
+  Overdue
+  Pending
+}
+
+enum LifecycleEventType {
+  Manufactured
+  QualityChecked
+  Supplied
+  Installed
+  Inspected
+  Maintained
+  QRVerified
+  Decommissioned
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  SCAN_BLOB
+}
+
+// -----------------------------------------------------------------------------
+// 2. RAILWAY ZONES & DIVISIONS
+// -----------------------------------------------------------------------------
+
+model RailwayZone {
+  id           String    @id @default(uuid())
+  code         String    @unique @db.VarChar(16) // e.g. "NR", "CR", "WR", "SR"
+  name         String    @unique @db.VarChar(128) // e.g. "Northern Railway"
+  headquarters String    @db.VarChar(128) // e.g. "New Delhi"
+  divisions    String[]  // e.g. ["Delhi", "Ambala", "Firozpur", "Lucknow", "Moradabad"]
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  users        User[]
+  fittings     Fitting[]
+
+  @@map("railway_zones")
+}
+
+// -----------------------------------------------------------------------------
+// 3. USERS & ROLES
+// -----------------------------------------------------------------------------
+
+model User {
+  id           String       @id @default(uuid())
+  username     String       @unique @db.VarChar(50)
+  email        String       @unique @db.VarChar(255)
+  passwordHash String       @map("password_hash") @db.VarChar(255)
+  role         Role         @default(INSPECTOR)
+  fullName     String       @map("full_name") @db.VarChar(128)
+  badgeNumber  String       @map("badge_number") @db.VarChar(64)
+  zoneId       String?      @map("zone_id")
+  zoneName     String?      @default("Central Railway") @map("zone_name") @db.VarChar(128)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  zone         RailwayZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// 4. FITTINGS (Master Track Fitting Registry)
+// -----------------------------------------------------------------------------
+
+model Fitting {
+  id                   String               @id @db.VarChar(64) // e.g. "RM-FIT-0001"
+  qrCodeValue          String               @unique @map("qr_code_value") @db.VarChar(255) // UNIQUE QR ID
+  fittingType          String               @map("fitting_type") @db.VarChar(128)
+  manufacturer         String               @db.VarChar(128)
+  batchNumber          String               @map("batch_number") @db.VarChar(64)
+  manufacturingDate    DateTime             @map("manufacturing_date") @db.Date
+  materialGrade        String               @map("material_grade") @db.VarChar(128)
+  standardSpec         String               @map("standard_spec") @db.VarChar(128)
+  status               FittingStatus        @default(Active)
+
+  // Location & Track Details
+  railLine             String               @map("rail_line") @db.VarChar(128)
+  trackSection         String               @map("track_section") @db.VarChar(128)
+  sleeperNumber        String               @map("sleeper_number") @db.VarChar(64)
+  railwayZoneId        String?              @map("railway_zone_id")
+  railwayZoneName      String               @default("Northern Railway") @map("railway_zone_name") @db.VarChar(128)
+  division             String               @default("Delhi Division") @db.VarChar(128)
+  kmMark               String               @default("KM 142/4") @map("km_mark") @db.VarChar(64)
+  trackType            String               @default("Broad Gauge (1676mm)") @map("track_type") @db.VarChar(64)
+  gpsLatitude          Decimal              @map("gps_latitude") @db.Decimal(10, 7)
+  gpsLongitude         Decimal              @map("gps_longitude") @db.Decimal(10, 7)
+
+  // Installation Details
+  installedBy          String               @map("installed_by") @db.VarChar(128)
+  installationDate     DateTime             @map("installation_date") @db.Date
+  torqueSpecNm         Decimal              @map("torque_spec_nm") @db.Decimal(6, 2)
+
+  // QR Code & Laser Marking Details
+  laserMarkDate        DateTime             @default(now()) @map("laser_mark_date")
+  markingMachineId     String               @default("LM-RDSO-04") @map("marking_machine_id") @db.VarChar(64)
+  qrVerificationStatus QRVerificationStatus @default(Verified) @map("qr_verification_status")
+
+  // Inspection & Maintenance Schedules
+  lastInspectionDate   DateTime?            @map("last_inspection_date") @db.Date
+  nextInspectionDate   DateTime?            @map("next_inspection_date") @db.Date
+  maintenanceStatus    MaintenanceStatus    @default(Completed) @map("maintenance_status")
+
+  // Extra Meta
+  material             String?              @db.VarChar(128)
+  weight               String?              @db.VarChar(64)
+  description          String?              @db.Text
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+
+  // Relations
+  railwayZone          RailwayZone?         @relation(fields: [railwayZoneId], references: [id], onDelete: SetNull)
+  inspections          Inspection[]
+  maintenanceRecords   MaintenanceRecord[]
+  lifecycleEvents      LifecycleEvent[]
+  aiAssessments        AiAssessment[]
+  mediaMetadata        MediaMetadata[]
+
+  @@index([qrCodeValue])
+  @@index([status])
+  @@index([fittingType])
+  @@index([railwayZoneName])
+  @@index([railLine])
+  @@map("fittings")
+}
+
+// -----------------------------------------------------------------------------
+// 5. INSPECTIONS (Field Optical & Manual Inspections)
+// -----------------------------------------------------------------------------
+
+model Inspection {
+  id             String          @id @db.VarChar(64)
+  fittingId      String          @map("fitting_id") @db.VarChar(64)
+  inspectionDate DateTime        @default(now()) @map("inspection_date")
+  inspector      String          @db.VarChar(128)
+  inspectorId    String          @map("inspector_id") @db.VarChar(64)
+  condition      ConditionStatus @default(Good)
+  qrReadability  QRReadability   @default(Good) @map("qr_readability")
+  corrosion      String          @default("None") @db.VarChar(32)
+  surfaceDamage  String          @default("None") @map("surface_damage") @db.VarChar(32)
+  deformation    String          @default("None") @db.VarChar(32)
+  wear           String          @default("Normal") @db.VarChar(32)
+  notes          String?         @db.Text
+  imageUrl       String?         @map("image_url") @db.Text
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  fitting        Fitting         @relation(fields: [fittingId], references: [id], onDelete: Cascade)
+  aiAssessment   AiAssessment?
+  mediaMetadata  MediaMetadata[]
+
+  @@index([fittingId])
+  @@index([inspectionDate])
+  @@index([condition])
+  @@map("inspections")
+}
+
+// -----------------------------------------------------------------------------
+// 6. AI ASSESSMENTS (Computer Vision & Quality Verification)
+// -----------------------------------------------------------------------------
+
+model AiAssessment {
+  id                  String          @id @default(uuid()) @db.VarChar(64)
+  inspectionId        String?         @unique @map("inspection_id") @db.VarChar(64)
+  fittingId           String          @map("fitting_id") @db.VarChar(64)
+  confidence          Decimal         @default(95.0) @db.Decimal(5, 2)
+  conditionAssessment ConditionStatus @default(Good) @map("condition_assessment")
+  qrQuality           Decimal         @default(92.0) @map("qr_quality") @db.Decimal(5, 2)
+  defectDetected      Boolean         @default(false) @map("defect_detected")
+  defectType          String?         @map("defect_type") @db.VarChar(128)
+  recommendation      String?         @db.Text
+  imageUrl            String?         @map("image_url") @db.Text
+  metadata            Json?           // Bounding boxes, keypoints, OCR tokens
+  createdAt           DateTime        @default(now()) @map("created_at")
+
+  inspection          Inspection?     @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  fitting             Fitting         @relation(fields: [fittingId], references: [id], onDelete: Cascade)
+
+  @@index([fittingId])
+  @@index([inspectionId])
+  @@map("ai_assessments")
+}
+
+// -----------------------------------------------------------------------------
+// 7. LIFECYCLE EVENTS (Strictly Append-Only Audit Trail)
+// -----------------------------------------------------------------------------
+
+model LifecycleEvent {
+  id        String             @id @db.VarChar(64)
+  fittingId String             @map("fitting_id") @db.VarChar(64)
+  event     LifecycleEventType
+  eventDate DateTime           @default(now()) @map("event_date")
+  actor     String             @db.VarChar(128)
+  location  String             @db.VarChar(255)
+  notes     String?            @db.Text
+  metadata  Json?
+  createdAt DateTime           @default(now()) @map("created_at") // IMMUTABLE
+
+  fitting   Fitting            @relation(fields: [fittingId], references: [id], onDelete: Cascade)
+
+  @@index([fittingId])
+  @@index([eventDate])
+  @@map("lifecycle_events")
+}
+
+// -----------------------------------------------------------------------------
+// 8. MAINTENANCE RECORDS (Work Orders & Servicing)
+// -----------------------------------------------------------------------------
+
+model MaintenanceRecord {
+  id              String            @id @db.VarChar(64)
+  fittingId       String            @map("fitting_id") @db.VarChar(64)
+  maintenanceDate DateTime          @default(now()) @map("maintenance_date")
+  maintenanceType MaintenanceType   @default(Preventive) @map("maintenance_type")
+  technician      String            @db.VarChar(128)
+  technicianId    String            @map("technician_id") @db.VarChar(64)
+  description     String            @db.Text
+  status          MaintenanceStatus @default(Completed)
+  nextMaintenance DateTime?         @map("next_maintenance") @db.Date
+  cost            String?           @db.VarChar(64)
+  partsReplaced   String[]          @map("parts_replaced")
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  fitting         Fitting           @relation(fields: [fittingId], references: [id], onDelete: Cascade)
+
+  @@index([fittingId])
+  @@index([status])
+  @@map("maintenance_records")
+}
+
+// -----------------------------------------------------------------------------
+// 9. MEDIA METADATA (Images, Videos, Verification Scans)
+// -----------------------------------------------------------------------------
+
+model MediaMetadata {
+  id           String      @id @default(uuid()) @db.VarChar(64)
+  fittingId    String?     @map("fitting_id") @db.VarChar(64)
+  inspectionId String?     @map("inspection_id") @db.VarChar(64)
+  mediaType    MediaType   @default(IMAGE) @map("media_type")
+  fileName     String      @map("file_name") @db.VarChar(255)
+  url          String      @db.Text
+  mimeType     String      @default("image/jpeg") @map("mime_type") @db.VarChar(64)
+  fileSize     Int?        @map("file_size")
+  uploadedBy   String      @default("Inspector") @map("uploaded_by") @db.VarChar(128)
+  hashSha256   String?     @map("hash_sha256") @db.VarChar(64)
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  fitting      Fitting?    @relation(fields: [fittingId], references: [id], onDelete: Cascade)
+  inspection   Inspection? @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([fittingId])
+  @@index([inspectionId])
+  @@map("media_metadata")
+}
+
+// -----------------------------------------------------------------------------
+// 10. AUDIT LOGS (Security & Compliance Trail)
+// -----------------------------------------------------------------------------
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.VarChar(64)
+  action    String   @db.VarChar(64)
+  username  String   @db.VarChar(128)
+  fittingId String?  @map("fitting_id") @db.VarChar(64)
+  details   String?  @db.Text
+  ipAddress String?  @map("ip_address") @db.VarChar(64)
+  timestamp DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([fittingId])
+  @@map("audit_logs")
+}

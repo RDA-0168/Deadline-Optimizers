@@ -1,39 +1,46 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const fitting_controller_js_1 = require("../controllers/fitting.controller.js");
-const inspection_controller_js_1 = require("../controllers/inspection.controller.js");
-const maintenance_controller_js_1 = require("../controllers/maintenance.controller.js");
-const lifecycle_controller_js_1 = require("../controllers/lifecycle.controller.js");
-const validate_middleware_js_1 = require("../middlewares/validate.middleware.js");
-const fitting_schema_js_1 = require("../schemas/fitting.schema.js");
-const inspection_schema_js_1 = require("../schemas/inspection.schema.js");
-const maintenance_schema_js_1 = require("../schemas/maintenance.schema.js");
-const auth_middleware_js_1 = require("../middlewares/auth.middleware.js");
-const roles_js_1 = require("../constants/roles.js");
-const router = (0, express_1.Router)();
-// GET /api/fittings - List all fitting records
-router.get('/', auth_middleware_js_1.optionalAuthenticate, fitting_controller_js_1.FittingController.getAllFittings);
-// GET /api/fittings/:fittingId - Full composite record
-router.get('/:fittingId', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, fitting_controller_js_1.FittingController.getFittingById);
-// POST /api/fittings - Create fitting record (Protected: ADMIN, INSPECTOR)
-router.post('/', auth_middleware_js_1.authenticate, (0, auth_middleware_js_1.authorize)([roles_js_1.UserRoles.ADMIN, roles_js_1.UserRoles.INSPECTOR]), (0, validate_middleware_js_1.validate)(fitting_schema_js_1.createFittingSchema), fitting_controller_js_1.FittingController.createFitting);
-// PUT /api/fittings/:fittingId - Update fitting (Protected: ADMIN)
-router.put('/:fittingId', auth_middleware_js_1.authenticate, (0, auth_middleware_js_1.authorize)([roles_js_1.UserRoles.ADMIN]), (0, validate_middleware_js_1.validate)(fitting_schema_js_1.updateFittingSchema), fitting_controller_js_1.FittingController.updateFitting);
-// DELETE /api/fittings/:fittingId - Delete fitting (Protected: ADMIN)
-router.delete('/:fittingId', auth_middleware_js_1.authenticate, (0, auth_middleware_js_1.authorize)([roles_js_1.UserRoles.ADMIN]), (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), fitting_controller_js_1.FittingController.deleteFitting);
-// --- Inspection Sub-routes ---
-// GET /api/fittings/:fittingId/inspections
-router.get('/:fittingId/inspections', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, inspection_controller_js_1.InspectionController.getInspections);
-// POST /api/fittings/:fittingId/inspections
-router.post('/:fittingId/inspections', auth_middleware_js_1.optionalAuthenticate, (0, validate_middleware_js_1.validate)(inspection_schema_js_1.createInspectionSchema), inspection_controller_js_1.InspectionController.createInspection);
-// --- Maintenance Sub-routes ---
-// GET /api/fittings/:fittingId/maintenance
-router.get('/:fittingId/maintenance', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, maintenance_controller_js_1.MaintenanceController.getMaintenance);
-// POST /api/fittings/:fittingId/maintenance
-router.post('/:fittingId/maintenance', auth_middleware_js_1.optionalAuthenticate, (0, validate_middleware_js_1.validate)(maintenance_schema_js_1.createMaintenanceSchema), maintenance_controller_js_1.MaintenanceController.createMaintenance);
-// --- Lifecycle Sub-routes ---
+// =============================================================================
+// RailMark AI — Fitting Routes (RBAC & Append-Only Lifecycle Protected)
+// =============================================================================
+import { Router } from 'express';
+import { FittingController } from '../controllers/fitting.controller.js';
+import { InspectionController } from '../controllers/inspection.controller.js';
+import { MaintenanceController } from '../controllers/maintenance.controller.js';
+import { LifecycleController } from '../controllers/lifecycle.controller.js';
+import { AIAssessmentController, MediaController } from '../controllers/zone.controller.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import { createFittingSchema, updateFittingSchema, getFittingByIdSchema } from '../schemas/fitting.schema.js';
+import { createInspectionSchema } from '../schemas/inspection.schema.js';
+import { createMaintenanceSchema } from '../schemas/maintenance.schema.js';
+import { createLifecycleSchema } from '../schemas/lifecycle.schema.js';
+import { authenticate, optionalAuthenticate, authorize, denyLifecycleModification } from '../middlewares/auth.middleware.js';
+import { UserRoles } from '../constants/roles.js';
+const router = Router();
+// --- 1. Fitting Master CRUD ---
+// GET /api/fittings - List all fittings
+router.get('/', optionalAuthenticate, FittingController.getAllFittings);
+// GET /api/fittings/:fittingId - Get composite fitting details
+router.get('/:fittingId', validate(getFittingByIdSchema), optionalAuthenticate, FittingController.getFittingById);
+// POST /api/fittings - Create fitting (RBAC: ADMIN & INSPECTOR)
+router.post('/', authenticate, authorize([UserRoles.ADMIN, UserRoles.INSPECTOR]), validate(createFittingSchema), FittingController.createFitting);
+// PUT /api/fittings/:fittingId - Update fitting (RBAC: ADMIN only)
+router.put('/:fittingId', authenticate, authorize([UserRoles.ADMIN]), validate(updateFittingSchema), FittingController.updateFitting);
+// DELETE /api/fittings/:fittingId - Delete fitting (RBAC: ADMIN only)
+router.delete('/:fittingId', authenticate, authorize([UserRoles.ADMIN]), validate(getFittingByIdSchema), FittingController.deleteFitting);
+// --- 2. Inspection Sub-Routes ---
+router.get('/:fittingId/inspections', validate(getFittingByIdSchema), optionalAuthenticate, InspectionController.getInspections);
+router.post('/:fittingId/inspections', optionalAuthenticate, validate(createInspectionSchema), InspectionController.createInspection);
+// --- 3. Maintenance Sub-Routes ---
+router.get('/:fittingId/maintenance', validate(getFittingByIdSchema), optionalAuthenticate, MaintenanceController.getMaintenance);
+router.post('/:fittingId/maintenance', optionalAuthenticate, validate(createMaintenanceSchema), MaintenanceController.createMaintenance);
+// --- 4. Append-Only Lifecycle Sub-Routes ---
 // GET /api/fittings/:fittingId/lifecycle
-router.get('/:fittingId/lifecycle', (0, validate_middleware_js_1.validate)(fitting_schema_js_1.getFittingByIdSchema), auth_middleware_js_1.optionalAuthenticate, lifecycle_controller_js_1.LifecycleController.getLifecycle);
-exports.default = router;
+router.get('/:fittingId/lifecycle', validate(getFittingByIdSchema), optionalAuthenticate, LifecycleController.getLifecycle);
+// POST /api/fittings/:fittingId/lifecycle - Append new immutable event
+router.post('/:fittingId/lifecycle', optionalAuthenticate, validate(createLifecycleSchema), LifecycleController.appendLifecycle);
+// Block any mutation/deletion of lifecycle records (Strict Immutability)
+router.all('/:fittingId/lifecycle', denyLifecycleModification);
+// --- 5. AI Vision & Media Sub-Routes ---
+router.get('/:fittingId/ai-assessments', validate(getFittingByIdSchema), optionalAuthenticate, AIAssessmentController.getForFitting);
+router.get('/:fittingId/media', validate(getFittingByIdSchema), optionalAuthenticate, MediaController.getForFitting);
+export default router;
 //# sourceMappingURL=fitting.routes.js.map

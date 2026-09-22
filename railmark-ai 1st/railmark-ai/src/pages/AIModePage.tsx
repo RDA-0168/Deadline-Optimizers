@@ -3,7 +3,7 @@ import {
   Sparkles, Send, User, Bot, Trash2, Copy, Check,
   HelpCircle, Award, Code2, Terminal, RefreshCw,
 } from 'lucide-react';
-import { getDashboardStats } from '../services/api';
+import { getDashboardStats, sendEdithChatMessage } from '../services/api';
 import type { DashboardStats } from '../types';
 
 interface Message {
@@ -514,7 +514,7 @@ export default function AIModePage() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const rawText = textToSend !== undefined ? textToSend : input;
     if (!rawText.trim() || isTyping) return;
 
@@ -529,19 +529,37 @@ export default function AIModePage() {
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const { text, isFounders, tag } = generateEdithResponse(rawText, messages, stats);
-      const botMsg: Message = {
-        id: `bot-${Date.now()}`,
-        sender: 'bot',
-        text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isFounders,
-        tag,
-      };
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-    }, 450);
+    try {
+      const apiRes = await sendEdithChatMessage(rawText.trim(), [...messages, userMsg]);
+      if (apiRes.success && apiRes.data && apiRes.data.text) {
+        const botMsg: Message = {
+          id: `bot-${Date.now()}`,
+          sender: 'bot',
+          text: apiRes.data.text,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isFounders: apiRes.data.isFounders,
+          tag: apiRes.data.tag || 'Gemini 3.5 AI',
+        };
+        setMessages((prev) => [...prev, botMsg]);
+        setIsTyping(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('API chat error, falling back to local engine:', err);
+    }
+
+    // Local cognitive fallback if offline/disconnected
+    const { text, isFounders, tag } = generateEdithResponse(rawText, messages, stats);
+    const botMsg: Message = {
+      id: `bot-${Date.now()}`,
+      sender: 'bot',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isFounders,
+      tag: tag || 'Local E.D.I.T.H Engine',
+    };
+    setMessages((prev) => [...prev, botMsg]);
+    setIsTyping(false);
   };
 
   const handleClearChat = () => {

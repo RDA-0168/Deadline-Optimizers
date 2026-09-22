@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { OfflineSyncProvider } from './context/OfflineSyncContext';
 import Layout from './components/Layout/Layout';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
@@ -60,8 +61,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <OfflineSyncProvider>
+          <AppRoutes />
+        </OfflineSyncProvider>
       </AuthProvider>
     </BrowserRouter>
   );
 }
+

@@ -1,49 +1,57 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InspectionController = void 0;
-const inspection_service_js_1 = require("../services/inspection.service.js");
-const index_js_1 = require("../db/index.js");
-class InspectionController {
-    static async getAllInspections(req, res, next) {
+// =============================================================================
+// RailMark AI — Inspection Controller
+// =============================================================================
+import { InspectionService } from '../services/inspection.service.js';
+import { AuditService } from '../services/dashboard.service.js';
+export class InspectionController {
+    static async getAllInspections(req, res) {
         try {
-            const results = await index_js_1.db.getAllInspections();
+            const limit = parseInt(req.query.limit || '100', 10);
+            const inspections = await InspectionService.getAllInspections(limit);
             res.status(200).json({
                 success: true,
-                data: results,
+                data: inspections,
+                count: inspections.length,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
-    static async getInspections(req, res, next) {
+    static async getInspections(req, res) {
         try {
-            const fittingId = req.params.fittingId;
-            const results = await inspection_service_js_1.InspectionService.getInspectionsByFittingId(fittingId);
+            const fittingId = String(req.params.fittingId);
+            const inspections = await InspectionService.getInspectionsByFittingId(fittingId);
             res.status(200).json({
                 success: true,
-                data: results,
+                data: inspections,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
-    static async createInspection(req, res, next) {
+    static async createInspection(req, res) {
         try {
-            const fittingId = req.params.fittingId || req.body.fittingId || 'RM-FIT-0001';
-            const ipAddress = req.ip || req.socket.remoteAddress;
-            const created = await inspection_service_js_1.InspectionService.createInspection(fittingId, req.body, req.user, ipAddress);
+            const fittingId = String(req.params.fittingId || req.body.fittingId);
+            const inspectorName = req.user?.fullName || req.user?.username || req.body.inspector || 'Senior Track Inspector';
+            const inspection = await InspectionService.createInspection({ ...req.body, fittingId }, inspectorName);
+            await AuditService.logAction({
+                action: 'SUBMIT_INSPECTION',
+                username: req.user?.username || 'inspector',
+                fittingId,
+                details: `Logged inspection ${inspection.id}: Condition ${inspection.condition}`,
+                ipAddress: req.ip,
+            });
             res.status(201).json({
                 success: true,
-                message: 'Track inspection record submitted successfully',
-                data: created,
+                message: 'Inspection recorded and appended to immutable lifecycle.',
+                data: inspection,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(400).json({ success: false, error: err.message });
         }
     }
 }
-exports.InspectionController = InspectionController;
 //# sourceMappingURL=inspection.controller.js.map

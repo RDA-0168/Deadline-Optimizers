@@ -1,78 +1,101 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MaintenanceService = void 0;
-const index_js_1 = require("../db/index.js");
-const error_middleware_js_1 = require("../middlewares/error.middleware.js");
-const audit_service_js_1 = require("./audit.service.js");
-const roles_js_1 = require("../constants/roles.js");
-class MaintenanceService {
-    static async getMaintenanceByFittingId(fittingId) {
-        return index_js_1.db.getMaintenanceByFittingId(fittingId);
-    }
-    static async createMaintenance(fittingId, dto, user, ipAddress) {
-        let fitting = await index_js_1.db.findFittingById(fittingId);
-        if (!fitting) {
-            fitting = {
-                fittingId,
-                qrCodeValue: fittingId,
-                fittingType: 'Elastic Rail Clip',
-                railwayZone: 'Central Railway',
-                trackSection: 'Main Line - KM 100/1',
-                sleeperNumber: 'PSC-SLP-01',
-                railLine: 'Central Corridor',
-                installationDate: new Date().toISOString().split('T')[0],
-                installedBy: 'Track Maintenance Squad',
-                status: 'Active',
-                maintenanceStatus: 'Maintained',
-            };
-            await index_js_1.db.createFitting(fitting);
+// =============================================================================
+// RailMark AI — Maintenance Service (PostgreSQL + Lifecycle Integration)
+// =============================================================================
+import { prisma } from '../db/prisma.js';
+import { LifecycleService } from './lifecycle.service.js';
+export class MaintenanceService {
+    static async getAllMaintenance(limit = 100) {
+        try {
+            const records = await prisma.maintenanceRecord.findMany({
+                take: limit,
+                orderBy: { maintenanceDate: 'desc' },
+                include: {
+                    fitting: {
+                        select: {
+                            id: true,
+                            qrCodeValue: true,
+                            fittingType: true,
+                            railwayZoneName: true,
+                            trackSection: true,
+                        },
+                    },
+                },
+            });
+            return records.map(this.formatMaintenanceResponse);
         }
-        const now = new Date().toISOString();
-        const maintenanceId = `MNT-${Date.now()}`;
-        const technicianId = user?.userId || dto.technicianId || 'USR-ANONYMOUS';
-        const technicianName = dto.technician || user?.fullName || 'Track Maintenance Technician';
-        const record = {
-            id: maintenanceId,
-            fittingId,
-            maintenanceDate: dto.maintenanceDate || now.split('T')[0],
-            maintenanceType: dto.maintenanceType || 'Routine',
-            technicianId,
-            technicianName,
-            description: dto.description || 'Maintenance completed.',
-            status: dto.status || 'Completed',
-            nextMaintenance: dto.nextMaintenance || '',
-            cost: dto.cost || '₹0',
-            partsReplaced: dto.partsReplaced || [],
-            createdAt: now,
-        };
-        const saved = await index_js_1.db.createMaintenance(record);
-        // Auto-record lifecycle event: Maintained
-        await index_js_1.db.createLifecycleEvent({
-            id: `LC-${fittingId}-MNT-${Date.now()}`,
-            fittingId,
-            eventType: roles_js_1.LifecycleEventType.MAINTAINED,
-            eventDate: (dto.maintenanceDate || now.split('T')[0]) + 'T10:00:00.000Z',
-            actor: technicianName,
-            location: `${fitting.railLine || 'Main Line'}, ${fitting.trackSection || 'Section KM 100/1'}`,
-            details: `${record.maintenanceType} - ${record.description}`,
-            metadata: {
-                maintenanceId,
-                status: record.status,
-                nextMaintenance: record.nextMaintenance,
+        catch {
+            return [];
+        }
+    }
+    static async getMaintenanceByFittingId(fittingId) {
+        try {
+            const records = await prisma.maintenanceRecord.findMany({
+                where: { fittingId },
+                orderBy: { maintenanceDate: 'desc' },
+            });
+            return records.map(this.formatMaintenanceResponse);
+        }
+        catch {
+            return [];
+        }
+    }
+    static async createMaintenance(data, technicianName) {
+        const maintenanceId = data.id || `MNT-${Date.now()}`;
+        const tech = technicianName || data.technician || 'Track Maintenance Lead';
+        const created = await prisma.maintenanceRecord.create({
+            data: {
+                id: maintenanceId,
+                fittingId: data.fittingId,
+                maintenanceDate: data.maintenanceDate ? new Date(data.maintenanceDate) : new Date(),
+                maintenanceType: data.maintenanceType || 'Preventive',
+                technician: tech,
+                technicianId: data.technicianId || 'RM-MNT-9932',
+                description: data.description || 'Maintenance service logged.',
+                status: data.status || 'Completed',
+                nextMaintenance: data.nextMaintenance ? new Date(data.nextMaintenance) : undefined,
+                cost: data.cost || '₹ 350',
+                partsReplaced: data.partsReplaced || [],
             },
-            createdAt: now,
         });
-        // Record audit log
-        await audit_service_js_1.AuditService.logAction({
-            user: technicianName,
-            role: user?.role || 'MAINTENANCE',
-            action: roles_js_1.AuditAction.MAINTENANCE_SUBMITTED,
-            fittingId,
-            ipAddress,
-            details: `Maintenance recorded: ${record.maintenanceType} (${record.status}). Next scheduled: ${record.nextMaintenance}`,
+        // Update fitting maintenance status
+        try {
+            await prisma.fitting.update({
+                where: { id: data.fittingId },
+                data: {
+                    maintenanceStatus: data.status || 'Completed',
+                    nextInspectionDate: data.nextMaintenance ? new Date(data.nextMaintenance) : undefined,
+                },
+            });
+        }
+        catch {
+            // Ignore in standalone demo mode
+        }
+        // Append Immutable Lifecycle Event
+        await LifecycleService.appendEvent({
+            fittingId: data.fittingId,
+            event: 'Maintained',
+            actor: tech,
+            location: data.location || 'Track Maintenance Division',
+            notes: `${data.maintenanceType || 'Routine'} maintenance: ${data.description}. Status: ${data.status || 'Completed'}.`,
         });
-        return saved;
+        return this.formatMaintenanceResponse(created);
+    }
+    static formatMaintenanceResponse(m) {
+        return {
+            id: m.id,
+            fittingId: m.fittingId,
+            maintenanceDate: m.maintenanceDate ? new Date(m.maintenanceDate).toISOString().split('T')[0] : '',
+            maintenanceType: m.maintenanceType,
+            technician: m.technician,
+            technicianName: m.technician,
+            technicianId: m.technicianId,
+            description: m.description,
+            status: m.status,
+            nextMaintenance: m.nextMaintenance ? new Date(m.nextMaintenance).toISOString().split('T')[0] : '',
+            cost: m.cost,
+            partsReplaced: m.partsReplaced || [],
+            createdAt: m.createdAt,
+        };
     }
 }
-exports.MaintenanceService = MaintenanceService;
 //# sourceMappingURL=maintenance.service.js.map

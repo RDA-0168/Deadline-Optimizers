@@ -1,91 +1,109 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FittingController = void 0;
-const fitting_service_js_1 = require("../services/fitting.service.js");
-class FittingController {
-    static async getAllFittings(req, res, next) {
+// =============================================================================
+// RailMark AI — Fitting Controller
+// =============================================================================
+import { FittingService } from '../services/fitting.service.js';
+import { AuditService } from '../services/dashboard.service.js';
+export class FittingController {
+    static async getAllFittings(req, res) {
         try {
-            const { status, fittingType, manufacturer, railLine, page, limit } = req.query;
-            const result = await fitting_service_js_1.FittingService.getAllFittings({
-                status: status,
-                fittingType: fittingType,
-                manufacturer: manufacturer,
-                railLine: railLine,
-                page: page ? parseInt(page, 10) : undefined,
-                limit: limit ? parseInt(limit, 10) : undefined,
-            });
+            const status = req.query.status;
+            const zone = req.query.zone;
+            const type = req.query.type;
+            const limit = parseInt(req.query.limit || '100', 10);
+            const offset = parseInt(req.query.offset || '0', 10);
+            const fittings = await FittingService.getAllFittings({ status, zone, type, limit, offset });
             res.status(200).json({
                 success: true,
-                data: result.items,
-                meta: {
-                    total: result.total,
-                    page: result.page,
-                    limit: result.limit,
-                    totalPages: result.totalPages,
-                    timestamp: new Date().toISOString(),
-                },
+                data: fittings,
+                count: fittings.length,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
-    static async getFittingById(req, res, next) {
+    static async getFittingById(req, res) {
         try {
-            const fittingId = req.params.fittingId;
-            const result = await fitting_service_js_1.FittingService.getFittingFullDetails(fittingId);
+            const fittingId = String(req.params.fittingId);
+            const composite = await FittingService.getFittingById(fittingId);
+            if (!composite) {
+                res.status(404).json({
+                    success: false,
+                    error: `Fitting with ID/QR "${fittingId}" was not found.`,
+                });
+                return;
+            }
             res.status(200).json({
                 success: true,
-                data: result,
+                data: composite,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
-    static async createFitting(req, res, next) {
+    static async createFitting(req, res) {
         try {
-            const ipAddress = req.ip || req.socket.remoteAddress;
-            const created = await fitting_service_js_1.FittingService.createFitting(req.body, req.user, ipAddress);
+            const actorName = req.user?.fullName || req.user?.username || 'Admin';
+            const created = await FittingService.createFitting(req.body, actorName);
+            await AuditService.logAction({
+                action: 'CREATE_FITTING',
+                username: req.user?.username || 'admin',
+                fittingId: created.id,
+                details: `Created fitting ${created.id} with QR code ${created.qrCodeValue}`,
+                ipAddress: req.ip,
+            });
             res.status(201).json({
                 success: true,
-                message: 'Railway fitting record created successfully',
+                message: `Fitting ${created.id} registered with unique QR code.`,
                 data: created,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            const status = err.statusCode || 400;
+            res.status(status).json({ success: false, error: err.message });
         }
     }
-    static async updateFitting(req, res, next) {
+    static async updateFitting(req, res) {
         try {
-            const fittingId = req.params.fittingId;
-            const ipAddress = req.ip || req.socket.remoteAddress;
-            const updated = await fitting_service_js_1.FittingService.updateFitting(fittingId, req.body, req.user, ipAddress);
+            const fittingId = String(req.params.fittingId);
+            const updated = await FittingService.updateFitting(fittingId, req.body);
+            await AuditService.logAction({
+                action: 'UPDATE_FITTING',
+                username: req.user?.username || 'admin',
+                fittingId,
+                details: `Updated attributes for fitting ${fittingId}`,
+                ipAddress: req.ip,
+            });
             res.status(200).json({
                 success: true,
-                message: `Fitting ${fittingId} updated successfully`,
+                message: `Fitting ${fittingId} updated successfully.`,
                 data: updated,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(400).json({ success: false, error: err.message });
         }
     }
-    static async deleteFitting(req, res, next) {
+    static async deleteFitting(req, res) {
         try {
-            const fittingId = req.params.fittingId;
-            const ipAddress = req.ip || req.socket.remoteAddress;
-            await fitting_service_js_1.FittingService.deleteFitting(fittingId, req.user, ipAddress);
+            const fittingId = String(req.params.fittingId);
+            await FittingService.deleteFitting(fittingId);
+            await AuditService.logAction({
+                action: 'DELETE_FITTING',
+                username: req.user?.username || 'admin',
+                fittingId,
+                details: `Deleted fitting ${fittingId}`,
+                ipAddress: req.ip,
+            });
             res.status(200).json({
                 success: true,
-                message: `Fitting ${fittingId} deleted successfully from prototype database`,
+                message: `Fitting ${fittingId} permanently removed.`,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(400).json({ success: false, error: err.message });
         }
     }
 }
-exports.FittingController = FittingController;
 //# sourceMappingURL=fitting.controller.js.map

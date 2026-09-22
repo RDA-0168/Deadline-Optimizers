@@ -1,49 +1,57 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MaintenanceController = void 0;
-const maintenance_service_js_1 = require("../services/maintenance.service.js");
-const index_js_1 = require("../db/index.js");
-class MaintenanceController {
-    static async getAllMaintenance(req, res, next) {
+// =============================================================================
+// RailMark AI — Maintenance Controller
+// =============================================================================
+import { MaintenanceService } from '../services/maintenance.service.js';
+import { AuditService } from '../services/dashboard.service.js';
+export class MaintenanceController {
+    static async getAllMaintenance(req, res) {
         try {
-            const results = await index_js_1.db.getAllMaintenance();
+            const limit = parseInt(req.query.limit || '100', 10);
+            const records = await MaintenanceService.getAllMaintenance(limit);
             res.status(200).json({
                 success: true,
-                data: results,
+                data: records,
+                count: records.length,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
-    static async getMaintenance(req, res, next) {
+    static async getMaintenance(req, res) {
         try {
-            const fittingId = req.params.fittingId;
-            const results = await maintenance_service_js_1.MaintenanceService.getMaintenanceByFittingId(fittingId);
+            const fittingId = String(req.params.fittingId);
+            const records = await MaintenanceService.getMaintenanceByFittingId(fittingId);
             res.status(200).json({
                 success: true,
-                data: results,
+                data: records,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(500).json({ success: false, error: err.message });
         }
     }
-    static async createMaintenance(req, res, next) {
+    static async createMaintenance(req, res) {
         try {
-            const fittingId = req.params.fittingId || req.body.fittingId || 'RM-FIT-0001';
-            const ipAddress = req.ip || req.socket.remoteAddress;
-            const created = await maintenance_service_js_1.MaintenanceService.createMaintenance(fittingId, req.body, req.user, ipAddress);
+            const fittingId = String(req.params.fittingId || req.body.fittingId);
+            const technicianName = req.user?.fullName || req.user?.username || req.body.technician || 'Track Maintenance Lead';
+            const maintenance = await MaintenanceService.createMaintenance({ ...req.body, fittingId }, technicianName);
+            await AuditService.logAction({
+                action: 'SUBMIT_MAINTENANCE',
+                username: req.user?.username || 'technician',
+                fittingId,
+                details: `Logged maintenance ${maintenance.id}: ${maintenance.maintenanceType} - ${maintenance.description}`,
+                ipAddress: req.ip,
+            });
             res.status(201).json({
                 success: true,
-                message: 'Maintenance activity recorded successfully',
-                data: created,
+                message: 'Maintenance action recorded and appended to immutable lifecycle.',
+                data: maintenance,
             });
         }
-        catch (error) {
-            next(error);
+        catch (err) {
+            res.status(400).json({ success: false, error: err.message });
         }
     }
 }
-exports.MaintenanceController = MaintenanceController;
 //# sourceMappingURL=maintenance.controller.js.map

@@ -1,16 +1,27 @@
+databases:
+  - name: railmark-postgres
+    databaseName: railmark
+    user: railmark_admin
+    plan: free
+
 services:
   - type: web
     name: railmark-ai
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm run build:all
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_TYPE
-        value: memory
+      - key: DATABASE_URL
+        fromDatabase:
+          name: railmark-postgres
+          property: connectionString
       - key: JWT_SECRET
         value: railmark_secure_sih_prototype_jwt_secret_key_2026!
+      - key: GEMINI_API_KEY
+        sync: false
       - key: CORS_ORIGIN
         value: "*"
+

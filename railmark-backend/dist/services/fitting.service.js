@@ -1,179 +1,250 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FittingService = void 0;
-const index_js_1 = require("../db/index.js");
-const error_middleware_js_1 = require("../middlewares/error.middleware.js");
-const audit_service_js_1 = require("./audit.service.js");
-const roles_js_1 = require("../constants/roles.js");
-class FittingService {
-    static async getAllFittings(query) {
-        let list = await index_js_1.db.getAllFittings();
-        if (query?.status) {
-            list = list.filter((f) => f.status.toLowerCase() === query.status.toLowerCase());
+// =============================================================================
+// RailMark AI — Fitting Service (PostgreSQL & Unique QR Code Handling)
+// =============================================================================
+import { prisma } from '../db/prisma.js';
+import { LifecycleService } from './lifecycle.service.js';
+export class FittingService {
+    static async getAllFittings(options = {}) {
+        const limit = options.limit || 100;
+        const offset = options.offset || 0;
+        try {
+            const where = {};
+            if (options.status && options.status !== 'All') {
+                where.status = options.status.replace(/\s+/g, '');
+            }
+            if (options.zone && options.zone !== 'All') {
+                where.railwayZoneName = { contains: options.zone, mode: 'insensitive' };
+            }
+            if (options.type && options.type !== 'All') {
+                where.fittingType = { contains: options.type, mode: 'insensitive' };
+            }
+            const fittings = await prisma.fitting.findMany({
+                where,
+                take: limit,
+                skip: offset,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    railwayZone: true,
+                    inspections: {
+                        take: 3,
+                        orderBy: { inspectionDate: 'desc' },
+                        include: { aiAssessment: true },
+                    },
+                    maintenanceRecords: {
+                        take: 3,
+                        orderBy: { maintenanceDate: 'desc' },
+                    },
+                    lifecycleEvents: {
+                        orderBy: { eventDate: 'desc' },
+                    },
+                },
+            });
+            return fittings.map(this.formatFittingResponse);
         }
-        if (query?.fittingType) {
-            list = list.filter((f) => f.fittingType.toLowerCase().includes(query.fittingType.toLowerCase()));
+        catch {
+            // Fallback
+            return [];
         }
-        if (query?.manufacturer) {
-            list = list.filter((f) => f.manufacturer.toLowerCase().includes(query.manufacturer.toLowerCase()));
-        }
-        if (query?.railLine) {
-            list = list.filter((f) => f.railLine.toLowerCase().includes(query.railLine.toLowerCase()));
-        }
-        const total = list.length;
-        const page = query?.page && query.page > 0 ? query.page : 1;
-        const limit = query?.limit && query.limit > 0 ? query.limit : 50;
-        const start = (page - 1) * limit;
-        const items = list.slice(start, start + limit);
-        const totalPages = Math.ceil(total / limit) || 1;
-        return { items, total, page, limit, totalPages };
     }
-    static async getFittingFullDetails(fittingId) {
-        const fitting = await index_js_1.db.findFittingById(fittingId);
-        if (!fitting) {
-            throw new error_middleware_js_1.AppError(`Fitting with ID '${fittingId}' not found`, 404);
+    static async getFittingById(id) {
+        try {
+            const fitting = await prisma.fitting.findFirst({
+                where: {
+                    OR: [
+                        { id: id },
+                        { qrCodeValue: id },
+                    ],
+                },
+                include: {
+                    railwayZone: true,
+                    inspections: {
+                        orderBy: { inspectionDate: 'desc' },
+                        include: {
+                            aiAssessment: true,
+                            mediaMetadata: true,
+                        },
+                    },
+                    maintenanceRecords: {
+                        orderBy: { maintenanceDate: 'desc' },
+                    },
+                    lifecycleEvents: {
+                        orderBy: { eventDate: 'desc' },
+                    },
+                    aiAssessments: {
+                        orderBy: { createdAt: 'desc' },
+                    },
+                    mediaMetadata: {
+                        orderBy: { createdAt: 'desc' },
+                    },
+                },
+            });
+            if (!fitting)
+                return null;
+            return this.formatFittingComposite(fitting);
         }
-        const [inspections, maintenance, lifecycle] = await Promise.all([
-            index_js_1.db.getInspectionsByFittingId(fittingId),
-            index_js_1.db.getMaintenanceByFittingId(fittingId),
-            index_js_1.db.getLifecycleByFittingId(fittingId),
-        ]);
-        return {
-            basicInfo: {
-                fittingId: fitting.fittingId,
-                fittingType: fitting.fittingType,
-                manufacturer: fitting.manufacturer,
-                batchNumber: fitting.batchNumber,
-                manufacturingDate: fitting.manufacturingDate,
-                materialGrade: fitting.materialGrade,
-                standardSpec: fitting.standardSpec,
-                status: fitting.status,
+        catch {
+            return null;
+        }
+    }
+    static async createFitting(data, actorName = 'System Admin') {
+        const fittingId = data.fittingId || data.id || `RM-FIT-${String(Date.now()).slice(-4)}`;
+        const qrCodeValue = data.qrCodeValue || data.qrId || fittingId;
+        // Check unique QR code constraint
+        const existingQr = await prisma.fitting.findFirst({
+            where: {
+                OR: [{ id: fittingId }, { qrCodeValue: qrCodeValue }],
             },
+        });
+        if (existingQr) {
+            const err = new Error(`A fitting with QR Code / ID "${qrCodeValue}" already exists. QR IDs must be unique across the railway network.`);
+            err.statusCode = 409;
+            throw err;
+        }
+        const created = await prisma.fitting.create({
+            data: {
+                id: fittingId,
+                qrCodeValue: qrCodeValue,
+                fittingType: data.fittingType || 'Elastic Rail Clip (ERC MK-III)',
+                manufacturer: data.manufacturer || 'Standard Track Systems',
+                batchNumber: data.batchNumber || `BATCH-${new Date().getFullYear()}-001`,
+                manufacturingDate: new Date(data.manufacturingDate || Date.now()),
+                materialGrade: data.materialGrade || data.material || 'Spring Steel 55Si7',
+                standardSpec: data.standardSpec || 'IRS:T-31-2021',
+                status: data.status?.replace(/\s+/g, '') || 'Active',
+                railLine: data.railLine || data.railwayZone || 'Northern High-Density Corridor',
+                trackSection: data.trackSection || data.location || 'Section KM 142/4 - Up Main Line',
+                sleeperNumber: data.sleeperNumber || 'PSC-SLP-01',
+                railwayZoneName: data.railwayZoneName || data.railwayZone || 'Northern Railway',
+                division: data.division || 'Delhi Division',
+                kmMark: data.kmMark || 'KM 142/4',
+                trackType: data.trackType || 'Broad Gauge (1676mm)',
+                gpsLatitude: data.gpsLatitude || 28.6139,
+                gpsLongitude: data.gpsLongitude || 77.2090,
+                installedBy: data.installedBy || actorName,
+                installationDate: new Date(data.installationDate || Date.now()),
+                torqueSpecNm: data.torqueSpecNm || 110.0,
+                laserMarkDate: data.laserMarkDate ? new Date(data.laserMarkDate) : new Date(),
+                markingMachineId: data.markingMachineId || 'LM-RDSO-04',
+                qrVerificationStatus: data.qrVerificationStatus || 'Verified',
+                lastInspectionDate: data.lastInspectionDate ? new Date(data.lastInspectionDate) : new Date(),
+                nextInspectionDate: data.nextInspectionDate ? new Date(data.nextInspectionDate) : undefined,
+                maintenanceStatus: data.maintenanceStatus || 'Completed',
+                material: data.material || data.materialGrade || 'Spring Steel',
+                weight: data.weight || '0.92 kg',
+                description: data.description || `${data.fittingType} with unique laser etched QR code.`,
+            },
+        });
+        // Append-Only Lifecycle Event: Created & QR Verified
+        await LifecycleService.appendEvent({
+            fittingId: created.id,
+            event: 'QRVerified',
+            actor: actorName,
+            location: created.trackSection,
+            notes: `Direct Part Marking laser QR (${created.qrCodeValue}) registered in master database.`,
+        });
+        return this.formatFittingResponse(created);
+    }
+    static async updateFitting(id, data) {
+        const updateData = {};
+        if (data.status)
+            updateData.status = data.status.replace(/\s+/g, '');
+        if (data.fittingType)
+            updateData.fittingType = data.fittingType;
+        if (data.trackSection || data.location)
+            updateData.trackSection = data.trackSection || data.location;
+        if (data.materialGrade || data.material)
+            updateData.materialGrade = data.materialGrade || data.material;
+        if (data.standardSpec)
+            updateData.standardSpec = data.standardSpec;
+        if (data.torqueSpecNm !== undefined)
+            updateData.torqueSpecNm = data.torqueSpecNm;
+        if (data.qrVerificationStatus)
+            updateData.qrVerificationStatus = data.qrVerificationStatus;
+        if (data.maintenanceStatus)
+            updateData.maintenanceStatus = data.maintenanceStatus;
+        if (data.lastInspectionDate)
+            updateData.lastInspectionDate = new Date(data.lastInspectionDate);
+        if (data.nextInspectionDate)
+            updateData.nextInspectionDate = new Date(data.nextInspectionDate);
+        if (data.description)
+            updateData.description = data.description;
+        const updated = await prisma.fitting.update({
+            where: { id },
+            data: updateData,
+        });
+        return this.formatFittingResponse(updated);
+    }
+    static async deleteFitting(id) {
+        return await prisma.fitting.delete({
+            where: { id },
+        });
+    }
+    static formatFittingResponse(f) {
+        return {
+            fittingId: f.id,
+            id: f.id,
+            qrCodeValue: f.qrCodeValue,
+            qrId: f.qrCodeValue,
+            fittingType: f.fittingType,
+            manufacturer: f.manufacturer,
+            batchNumber: f.batchNumber,
+            manufacturingDate: f.manufacturingDate ? new Date(f.manufacturingDate).toISOString().split('T')[0] : '',
+            materialGrade: f.materialGrade,
+            standardSpec: f.standardSpec,
+            status: f.status,
+            railLine: f.railLine,
+            trackSection: f.trackSection,
+            location: f.trackSection,
+            sleeperNumber: f.sleeperNumber,
+            railwayZone: f.railwayZoneName || f.railwayZone?.name || 'Northern Railway',
+            railwayZoneName: f.railwayZoneName || f.railwayZone?.name || 'Northern Railway',
+            division: f.division,
+            kmMark: f.kmMark,
+            trackType: f.trackType,
+            gpsLatitude: Number(f.gpsLatitude),
+            gpsLongitude: Number(f.gpsLongitude),
+            installedBy: f.installedBy,
+            installationDate: f.installationDate ? new Date(f.installationDate).toISOString().split('T')[0] : '',
+            torqueSpecNm: Number(f.torqueSpecNm),
+            laserMarkDate: f.laserMarkDate,
+            markingMachineId: f.markingMachineId,
+            qrVerificationStatus: f.qrVerificationStatus,
+            lastInspectionDate: f.lastInspectionDate ? new Date(f.lastInspectionDate).toISOString().split('T')[0] : '',
+            nextInspectionDate: f.nextInspectionDate ? new Date(f.nextInspectionDate).toISOString().split('T')[0] : '',
+            maintenanceStatus: f.maintenanceStatus,
+            material: f.material || f.materialGrade,
+            weight: f.weight,
+            description: f.description,
+            createdAt: f.createdAt,
+            updatedAt: f.updatedAt,
+        };
+    }
+    static formatFittingComposite(f) {
+        const formatted = this.formatFittingResponse(f);
+        return {
+            basicInfo: formatted,
             installationInfo: {
-                railLine: fitting.railLine,
-                trackSection: fitting.trackSection,
-                sleeperNumber: fitting.sleeperNumber,
-                gpsLatitude: fitting.gpsLatitude,
-                gpsLongitude: fitting.gpsLongitude,
-                installedBy: fitting.installedBy,
-                installationDate: fitting.installationDate,
-                torqueSpecNm: fitting.torqueSpecNm,
+                railLine: f.railLine,
+                trackSection: f.trackSection,
+                sleeperNumber: f.sleeperNumber,
+                installedBy: f.installedBy,
+                installationDate: formatted.installationDate,
+                torqueSpecNm: formatted.torqueSpecNm,
+                gpsLatitude: formatted.gpsLatitude,
+                gpsLongitude: formatted.gpsLongitude,
             },
             qrInfo: {
-                qrCodeValue: fitting.qrCodeValue,
-                laserMarkDate: fitting.laserMarkDate,
-                markingMachineId: fitting.markingMachineId,
-                qrVerificationStatus: fitting.qrVerificationStatus,
+                qrCodeValue: f.qrCodeValue,
+                laserMarkDate: f.laserMarkDate,
+                markingMachineId: f.markingMachineId,
+                qrVerificationStatus: f.qrVerificationStatus,
             },
-            inspections,
-            maintenance,
-            lifecycle,
+            inspections: f.inspections || [],
+            maintenance: f.maintenanceRecords || [],
+            lifecycle: f.lifecycleEvents || [],
+            aiAssessments: f.aiAssessments || [],
+            media: f.mediaMetadata || [],
         };
-    }
-    static async createFitting(dto, user, ipAddress) {
-        const existing = await index_js_1.db.findFittingById(dto.fittingId);
-        if (existing) {
-            throw new error_middleware_js_1.AppError(`Fitting with ID '${dto.fittingId}' already exists`, 400);
-        }
-        const now = new Date().toISOString();
-        const qrValue = dto.qrCodeValue || dto.fittingId;
-        const markingMachineId = dto.markingMachineId || 'LASER-ENG-DEFAULT';
-        const fitting = {
-            fittingId: dto.fittingId,
-            fittingType: dto.fittingType,
-            manufacturer: dto.manufacturer,
-            batchNumber: dto.batchNumber,
-            manufacturingDate: dto.manufacturingDate,
-            materialGrade: dto.materialGrade,
-            standardSpec: dto.standardSpec,
-            status: dto.status || 'Active',
-            railLine: dto.railLine,
-            trackSection: dto.trackSection,
-            sleeperNumber: dto.sleeperNumber,
-            gpsLatitude: dto.gpsLatitude,
-            gpsLongitude: dto.gpsLongitude,
-            installedBy: dto.installedBy,
-            installationDate: dto.installationDate,
-            torqueSpecNm: dto.torqueSpecNm,
-            qrCodeValue: qrValue,
-            laserMarkDate: now,
-            markingMachineId,
-            qrVerificationStatus: 'Verified',
-            createdAt: now,
-            updatedAt: now,
-        };
-        const saved = await index_js_1.db.createFitting(fitting);
-        // Automatically create initial lifecycle events
-        await index_js_1.db.createLifecycleEvent({
-            id: `LC-${dto.fittingId}-MFR`,
-            fittingId: dto.fittingId,
-            eventType: roles_js_1.LifecycleEventType.MANUFACTURED,
-            eventDate: dto.manufacturingDate + 'T09:00:00.000Z',
-            actor: dto.manufacturer,
-            location: `Plant: ${dto.manufacturer}`,
-            details: `Manufactured according to specification ${dto.standardSpec}, material grade ${dto.materialGrade}.`,
-            metadata: { batchNumber: dto.batchNumber },
-            createdAt: now,
-        });
-        await index_js_1.db.createLifecycleEvent({
-            id: `LC-${dto.fittingId}-INST`,
-            fittingId: dto.fittingId,
-            eventType: roles_js_1.LifecycleEventType.INSTALLED,
-            eventDate: dto.installationDate + 'T10:00:00.000Z',
-            actor: dto.installedBy,
-            location: `${dto.railLine}, ${dto.trackSection} (Sleeper ${dto.sleeperNumber})`,
-            details: `Installed with torque rating ${dto.torqueSpecNm} Nm.`,
-            metadata: { gpsLat: dto.gpsLatitude, gpsLng: dto.gpsLongitude },
-            createdAt: now,
-        });
-        // Audit log
-        await audit_service_js_1.AuditService.logAction({
-            user: user?.fullName || 'ANONYMOUS',
-            role: user?.role || 'ANONYMOUS',
-            action: roles_js_1.AuditAction.CREATE_FITTING,
-            fittingId: dto.fittingId,
-            ipAddress,
-            details: `Created new fitting ${dto.fittingId} (${dto.fittingType})`,
-        });
-        return saved;
-    }
-    static async updateFitting(fittingId, dto, user, ipAddress) {
-        const existing = await index_js_1.db.findFittingById(fittingId);
-        if (!existing) {
-            throw new error_middleware_js_1.AppError(`Fitting with ID '${fittingId}' not found`, 404);
-        }
-        const updated = await index_js_1.db.updateFitting(fittingId, dto);
-        if (!updated) {
-            throw new error_middleware_js_1.AppError('Failed to update fitting record', 500);
-        }
-        await audit_service_js_1.AuditService.logAction({
-            user: user?.fullName || 'ANONYMOUS',
-            role: user?.role || 'ANONYMOUS',
-            action: roles_js_1.AuditAction.UPDATE_FITTING,
-            fittingId,
-            ipAddress,
-            details: `Updated fitting ${fittingId}: ${Object.keys(dto).join(', ')}`,
-        });
-        return updated;
-    }
-    static async deleteFitting(fittingId, user, ipAddress) {
-        const existing = await index_js_1.db.findFittingById(fittingId);
-        if (!existing) {
-            throw new error_middleware_js_1.AppError(`Fitting with ID '${fittingId}' not found`, 404);
-        }
-        const deleted = await index_js_1.db.deleteFitting(fittingId);
-        if (!deleted) {
-            throw new error_middleware_js_1.AppError('Failed to delete fitting record', 500);
-        }
-        await audit_service_js_1.AuditService.logAction({
-            user: user?.fullName || 'ADMIN',
-            role: user?.role || 'ADMIN',
-            action: roles_js_1.AuditAction.DELETE_FITTING,
-            fittingId,
-            ipAddress,
-            details: `Deleted prototype fitting record ${fittingId}`,
-        });
     }
 }
-exports.FittingService = FittingService;
 //# sourceMappingURL=fitting.service.js.map

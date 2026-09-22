@@ -41,10 +41,7 @@ export default function LandingPage() {
             <div className="w-9 h-9 bg-rail-blue-600 rounded-lg flex items-center justify-center">
               <Zap size={18} className="text-white" />
             </div>
-            <div>
-              <span className="font-bold text-white text-sm sm:text-base tracking-wide">RAILMARK AI</span>
-              <div className="text-gray-500 text-xs hidden sm:block">SIH 2026 Prototype</div>
-            </div>
+            <span className="font-bold text-white text-sm sm:text-base tracking-wide">RAILMARK AI</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="demo-banner hidden sm:inline-flex">⚠ DEMO</span>

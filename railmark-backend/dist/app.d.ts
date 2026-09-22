@@ -1,2 +1,2 @@
-import { Express } from 'express';
-export declare function createApp(): Express;
+export declare const app: import("express-serve-static-core").Express;
+export default app;
