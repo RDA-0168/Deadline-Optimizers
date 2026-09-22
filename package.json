@@ -5,10 +5,9 @@
   "main": "railmark-backend/dist/server.js",
   "type": "module",
   "scripts": {
-    "postinstall": "npm --prefix railmark-backend install --omit=dev",
     "build": "node build.js",
     "build:all": "node build.js",
-    "start": "node railmark-backend/dist/server.js",
+    "start": "node start.js",
     "dev": "npm --prefix railmark-backend run dev",
     "prisma:generate": "npm --prefix railmark-backend run prisma:generate",
     "prisma:push": "npm --prefix railmark-backend run prisma:push",

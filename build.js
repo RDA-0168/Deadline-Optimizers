@@ -4,7 +4,15 @@ import { execSync } from 'child_process';
 
 console.log('🚀 [RailMark Build] Initializing Render cloud build...');
 
-// 1. Generate Prisma client
+// 1. Install dependencies for backend
+try {
+  console.log('📦 [RailMark Build] Installing backend dependencies...');
+  execSync('npm --prefix railmark-backend install --omit=dev', { stdio: 'inherit' });
+} catch (err) {
+  console.warn('⚠️ [RailMark Build] Backend install note:', err.message);
+}
+
+// 2. Generate Prisma client
 try {
   console.log('📦 [RailMark Build] Generating Prisma client...');
   execSync('npm --prefix railmark-backend run prisma:generate', { stdio: 'inherit' });
