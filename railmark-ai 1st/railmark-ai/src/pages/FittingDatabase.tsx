@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Database, Search, Filter, ChevronRight, Plus, X, CheckCircle2, Loader2, Maximize2 } from 'lucide-react';
+import { Database, Search, Filter, ChevronRight, Plus, X, CheckCircle2, Loader2, Maximize2, RefreshCw } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { getFittings, createFitting } from '../services/api';
+import { getFittings, createFitting, syncDatabaseSeed } from '../services/api';
 import type { Fitting, FittingStatus } from '../types';
 import StatusBadge from '../components/UI/StatusBadge';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -16,6 +16,8 @@ export default function FittingDatabase() {
   const [fittings, setFittings] = useState<Fitting[]>([]);
   const [filtered, setFiltered] = useState<Fitting[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncSuccessMsg, setSyncSuccessMsg] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [zone, setZone] = useState('All Zones');
   const [type, setType] = useState('All Types');
@@ -55,6 +57,15 @@ export default function FittingDatabase() {
       }
       setLoading(false);
     });
+  };
+
+  const handleSyncSeed = async () => {
+    setSyncing(true);
+    const res = await syncDatabaseSeed(true);
+    await loadData();
+    setSyncing(false);
+    setSyncSuccessMsg(res.data?.message || '12 track fittings synchronized successfully!');
+    setTimeout(() => setSyncSuccessMsg(null), 3000);
   };
 
   useEffect(() => {
@@ -126,14 +137,32 @@ export default function FittingDatabase() {
             {filtered.length} of {fittings.length} records · <span className="demo-banner inline-flex py-0">LIVE DATABASE</span>
           </p>
         </div>
-        <button
-          onClick={() => setShowRegisterModal(true)}
-          className="btn-primary text-xs self-start sm:self-auto"
-        >
-          <Plus size={14} />
-          Register Fitting
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={handleSyncSeed}
+            disabled={syncing}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-cyan-accent-500/10 text-cyan-accent-300 border border-cyan-500/30 hover:bg-cyan-accent-500/20 transition-all cursor-pointer disabled:opacity-50"
+            title="Sync all 12 master fittings with the backend database"
+          >
+            <RefreshCw size={13} className={syncing ? 'animate-spin text-cyan-accent-400' : 'text-cyan-accent-400'} />
+            <span>{syncing ? 'Syncing...' : 'Sync 12 Fittings'}</span>
+          </button>
+          <button
+            onClick={() => setShowRegisterModal(true)}
+            className="btn-primary text-xs"
+          >
+            <Plus size={14} />
+            Register Fitting
+          </button>
+        </div>
       </div>
+
+      {syncSuccessMsg && (
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2 animate-fade-in">
+          <CheckCircle2 size={15} className="text-emerald-400 flex-shrink-0" />
+          <span>{syncSuccessMsg}</span>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="card space-y-3">

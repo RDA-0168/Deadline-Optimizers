@@ -55,13 +55,14 @@ export declare const createAIAssessmentSchema: z.ZodObject<{
         qrQuality: number;
         defectDetected: boolean;
         metadata?: Record<string, any> | undefined;
+        imageUrl?: string | undefined;
         inspectionId?: string | undefined;
         defectType?: string | undefined;
         recommendation?: string | undefined;
-        imageUrl?: string | undefined;
     }, {
         fittingId: string;
         metadata?: Record<string, any> | undefined;
+        imageUrl?: string | undefined;
         inspectionId?: string | undefined;
         confidence?: number | undefined;
         conditionAssessment?: string | undefined;
@@ -69,7 +70,6 @@ export declare const createAIAssessmentSchema: z.ZodObject<{
         defectDetected?: boolean | undefined;
         defectType?: string | undefined;
         recommendation?: string | undefined;
-        imageUrl?: string | undefined;
     }>;
 }, "strip", z.ZodTypeAny, {
     body: {
@@ -79,15 +79,16 @@ export declare const createAIAssessmentSchema: z.ZodObject<{
         qrQuality: number;
         defectDetected: boolean;
         metadata?: Record<string, any> | undefined;
+        imageUrl?: string | undefined;
         inspectionId?: string | undefined;
         defectType?: string | undefined;
         recommendation?: string | undefined;
-        imageUrl?: string | undefined;
     };
 }, {
     body: {
         fittingId: string;
         metadata?: Record<string, any> | undefined;
+        imageUrl?: string | undefined;
         inspectionId?: string | undefined;
         confidence?: number | undefined;
         conditionAssessment?: string | undefined;
@@ -95,7 +96,6 @@ export declare const createAIAssessmentSchema: z.ZodObject<{
         defectDetected?: boolean | undefined;
         defectType?: string | undefined;
         recommendation?: string | undefined;
-        imageUrl?: string | undefined;
     };
 }>;
 export declare const createMediaMetadataSchema: z.ZodObject<{

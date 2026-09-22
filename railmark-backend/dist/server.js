@@ -4,6 +4,7 @@
 import app from './app.js';
 import { ENV } from './config/env.js';
 import { prisma, checkPrismaConnection } from './db/prisma.js';
+import { SeedService } from './services/seed.service.js';
 const PORT = ENV.PORT || 5000;
 const server = app.listen(PORT, async () => {
     console.log('================================================================');
@@ -15,6 +16,13 @@ const server = app.listen(PORT, async () => {
     const isConnected = await checkPrismaConnection();
     if (isConnected) {
         console.log('✅ Connected to PostgreSQL database via Prisma ORM.');
+        // Auto-seed if database is currently empty
+        try {
+            await SeedService.seedDatabase(false);
+        }
+        catch (seedErr) {
+            console.warn('⚠️ Auto-seed check failed:', seedErr);
+        }
     }
     else {
         console.log('⚠️ PostgreSQL database not reachable via DATABASE_URL. Running in high-availability fallback mode.');

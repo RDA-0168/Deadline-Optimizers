@@ -13,10 +13,10 @@ export declare const createMaintenanceSchema: z.ZodObject<{
         maintenanceDate: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         fittingId: string;
+        technician: string;
         status: string;
         description: string;
         maintenanceType: string;
-        technician: string;
         technicianId: string;
         partsReplaced: string[];
         maintenanceDate?: string | undefined;
@@ -25,10 +25,10 @@ export declare const createMaintenanceSchema: z.ZodObject<{
     }, {
         fittingId: string;
         description: string;
+        technician?: string | undefined;
         status?: string | undefined;
         maintenanceDate?: string | undefined;
         maintenanceType?: string | undefined;
-        technician?: string | undefined;
         technicianId?: string | undefined;
         nextMaintenance?: string | undefined;
         cost?: string | undefined;
@@ -37,10 +37,10 @@ export declare const createMaintenanceSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     body: {
         fittingId: string;
+        technician: string;
         status: string;
         description: string;
         maintenanceType: string;
-        technician: string;
         technicianId: string;
         partsReplaced: string[];
         maintenanceDate?: string | undefined;
@@ -51,10 +51,10 @@ export declare const createMaintenanceSchema: z.ZodObject<{
     body: {
         fittingId: string;
         description: string;
+        technician?: string | undefined;
         status?: string | undefined;
         maintenanceDate?: string | undefined;
         maintenanceType?: string | undefined;
-        technician?: string | undefined;
         technicianId?: string | undefined;
         nextMaintenance?: string | undefined;
         cost?: string | undefined;

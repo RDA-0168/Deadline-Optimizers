@@ -34,16 +34,16 @@ export declare const registerSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         role: "ADMIN" | "INSPECTOR" | "MAINTENANCE" | "VIEWER";
         username: string;
-        fullName: string;
         email: string;
+        fullName: string;
         badgeNumber: string;
         password: string;
         zoneId?: string | undefined;
         zoneName?: string | undefined;
     }, {
         username: string;
-        fullName: string;
         email: string;
+        fullName: string;
         badgeNumber: string;
         password: string;
         role?: "ADMIN" | "INSPECTOR" | "MAINTENANCE" | "VIEWER" | undefined;
@@ -54,8 +54,8 @@ export declare const registerSchema: z.ZodObject<{
     body: {
         role: "ADMIN" | "INSPECTOR" | "MAINTENANCE" | "VIEWER";
         username: string;
-        fullName: string;
         email: string;
+        fullName: string;
         badgeNumber: string;
         password: string;
         zoneId?: string | undefined;
@@ -64,8 +64,8 @@ export declare const registerSchema: z.ZodObject<{
 }, {
     body: {
         username: string;
-        fullName: string;
         email: string;
+        fullName: string;
         badgeNumber: string;
         password: string;
         role?: "ADMIN" | "INSPECTOR" | "MAINTENANCE" | "VIEWER" | undefined;
@@ -117,12 +117,12 @@ export declare const searchSchema: z.ZodObject<{
         limit: string;
         offset: string;
         q: string;
-        status?: string | undefined;
         zone?: string | undefined;
+        status?: string | undefined;
         type?: string | undefined;
     }, {
-        status?: string | undefined;
         zone?: string | undefined;
+        status?: string | undefined;
         type?: string | undefined;
         limit?: string | undefined;
         offset?: string | undefined;
@@ -133,14 +133,14 @@ export declare const searchSchema: z.ZodObject<{
         limit: string;
         offset: string;
         q: string;
-        status?: string | undefined;
         zone?: string | undefined;
+        status?: string | undefined;
         type?: string | undefined;
     };
 }, {
     query: {
-        status?: string | undefined;
         zone?: string | undefined;
+        status?: string | undefined;
         type?: string | undefined;
         limit?: string | undefined;
         offset?: string | undefined;

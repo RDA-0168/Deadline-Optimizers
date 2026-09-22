@@ -1,18 +1,18 @@
 export declare class ZoneService {
     static getAllZones(): Promise<({
         _count: {
-            fittings: number;
             users: number;
+            fittings: number;
         };
     } & {
         id: string;
         createdAt: Date;
         name: string;
-        updatedAt: Date;
         code: string;
         headquarters: string;
         divisions: string[];
         active: boolean;
+        updatedAt: Date;
     })[] | {
         id: string;
         code: string;
@@ -25,6 +25,7 @@ export declare class ZoneService {
         fittings: {
             id: string;
             createdAt: Date;
+            updatedAt: Date;
             qrCodeValue: string;
             fittingType: string;
             manufacturer: string;
@@ -55,17 +56,16 @@ export declare class ZoneService {
             material: string | null;
             weight: string | null;
             description: string | null;
-            updatedAt: Date;
         }[];
     } & {
         id: string;
         createdAt: Date;
         name: string;
-        updatedAt: Date;
         code: string;
         headquarters: string;
         divisions: string[];
         active: boolean;
+        updatedAt: Date;
     }) | null>;
     static createZone(data: {
         code: string;
@@ -77,10 +77,10 @@ export declare class ZoneService {
         id: string;
         createdAt: Date;
         name: string;
-        updatedAt: Date;
         code: string;
         headquarters: string;
         divisions: string[];
         active: boolean;
+        updatedAt: Date;
     }>;
 }

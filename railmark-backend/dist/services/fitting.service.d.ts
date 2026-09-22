@@ -1,3 +1,39 @@
+export declare const MASTER_12_FITTINGS_FALLBACK: {
+    fittingId: string;
+    id: string;
+    qrCodeValue: string;
+    qrId: string;
+    fittingType: string;
+    manufacturer: string;
+    batchNumber: string;
+    manufacturingDate: string;
+    installationDate: string;
+    location: string;
+    railLine: string;
+    trackSection: string;
+    sleeperNumber: string;
+    railwayZone: string;
+    railwayZoneName: string;
+    division: string;
+    section: string;
+    kmMark: string;
+    trackType: string;
+    status: string;
+    lastInspection: string;
+    lastInspectionDate: string;
+    nextInspection: string;
+    nextInspectionDate: string;
+    maintenanceStatus: string;
+    description: string;
+    material: string;
+    materialGrade: string;
+    weight: string;
+    standardSpec: string;
+    gpsLatitude: number;
+    gpsLongitude: number;
+    torqueSpecNm: number;
+    qrVerificationStatus: string;
+}[];
 export declare class FittingService {
     static getAllFittings(options?: {
         status?: string;
@@ -6,6 +42,41 @@ export declare class FittingService {
         limit?: number;
         offset?: number;
     }): Promise<{
+        fittingId: string;
+        id: string;
+        qrCodeValue: string;
+        qrId: string;
+        fittingType: string;
+        manufacturer: string;
+        batchNumber: string;
+        manufacturingDate: string;
+        installationDate: string;
+        location: string;
+        railLine: string;
+        trackSection: string;
+        sleeperNumber: string;
+        railwayZone: string;
+        railwayZoneName: string;
+        division: string;
+        section: string;
+        kmMark: string;
+        trackType: string;
+        status: string;
+        lastInspection: string;
+        lastInspectionDate: string;
+        nextInspection: string;
+        nextInspectionDate: string;
+        maintenanceStatus: string;
+        description: string;
+        material: string;
+        materialGrade: string;
+        weight: string;
+        standardSpec: string;
+        gpsLatitude: number;
+        gpsLongitude: number;
+        torqueSpecNm: number;
+        qrVerificationStatus: string;
+    }[] | {
         fittingId: any;
         id: any;
         qrCodeValue: any;
@@ -103,6 +174,64 @@ export declare class FittingService {
         lifecycle: any;
         aiAssessments: any;
         media: any;
+    } | {
+        basicInfo: {
+            fittingId: string;
+            id: string;
+            qrCodeValue: string;
+            qrId: string;
+            fittingType: string;
+            manufacturer: string;
+            batchNumber: string;
+            manufacturingDate: string;
+            installationDate: string;
+            location: string;
+            railLine: string;
+            trackSection: string;
+            sleeperNumber: string;
+            railwayZone: string;
+            railwayZoneName: string;
+            division: string;
+            section: string;
+            kmMark: string;
+            trackType: string;
+            status: string;
+            lastInspection: string;
+            lastInspectionDate: string;
+            nextInspection: string;
+            nextInspectionDate: string;
+            maintenanceStatus: string;
+            description: string;
+            material: string;
+            materialGrade: string;
+            weight: string;
+            standardSpec: string;
+            gpsLatitude: number;
+            gpsLongitude: number;
+            torqueSpecNm: number;
+            qrVerificationStatus: string;
+        };
+        installationInfo: {
+            railLine: string;
+            trackSection: string;
+            sleeperNumber: string;
+            installedBy: string;
+            installationDate: string;
+            torqueSpecNm: number;
+            gpsLatitude: number;
+            gpsLongitude: number;
+        };
+        qrInfo: {
+            qrCodeValue: string;
+            laserMarkDate: string;
+            markingMachineId: string;
+            qrVerificationStatus: string;
+        };
+        inspections: never[];
+        maintenance: never[];
+        lifecycle: never[];
+        aiAssessments: never[];
+        media: never[];
     } | null>;
     static createFitting(data: any, actorName?: string): Promise<{
         fittingId: any;
@@ -183,6 +312,7 @@ export declare class FittingService {
     static deleteFitting(id: string): Promise<{
         id: string;
         createdAt: Date;
+        updatedAt: Date;
         qrCodeValue: string;
         fittingType: string;
         manufacturer: string;
@@ -213,7 +343,6 @@ export declare class FittingService {
         material: string | null;
         weight: string | null;
         description: string | null;
-        updatedAt: Date;
     }>;
     private static formatFittingResponse;
     private static formatFittingComposite;

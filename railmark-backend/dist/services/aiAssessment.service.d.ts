@@ -4,6 +4,7 @@ export declare class AIAssessmentService {
         metadata: import("@prisma/client/runtime/library").JsonValue | null;
         createdAt: Date;
         fittingId: string;
+        imageUrl: string | null;
         inspectionId: string | null;
         confidence: import("@prisma/client/runtime/library").Decimal;
         conditionAssessment: import(".prisma/client").$Enums.ConditionStatus;
@@ -11,13 +12,13 @@ export declare class AIAssessmentService {
         defectDetected: boolean;
         defectType: string | null;
         recommendation: string | null;
-        imageUrl: string | null;
     }[]>;
     static getAssessmentByInspectionId(inspectionId: string): Promise<{
         id: string;
         metadata: import("@prisma/client/runtime/library").JsonValue | null;
         createdAt: Date;
         fittingId: string;
+        imageUrl: string | null;
         inspectionId: string | null;
         confidence: import("@prisma/client/runtime/library").Decimal;
         conditionAssessment: import(".prisma/client").$Enums.ConditionStatus;
@@ -25,7 +26,6 @@ export declare class AIAssessmentService {
         defectDetected: boolean;
         defectType: string | null;
         recommendation: string | null;
-        imageUrl: string | null;
     } | null>;
     static createAssessment(data: {
         fittingId: string;
@@ -43,6 +43,7 @@ export declare class AIAssessmentService {
         metadata: import("@prisma/client/runtime/library").JsonValue | null;
         createdAt: Date;
         fittingId: string;
+        imageUrl: string | null;
         inspectionId: string | null;
         confidence: import("@prisma/client/runtime/library").Decimal;
         conditionAssessment: import(".prisma/client").$Enums.ConditionStatus;
@@ -50,6 +51,5 @@ export declare class AIAssessmentService {
         defectDetected: boolean;
         defectType: string | null;
         recommendation: string | null;
-        imageUrl: string | null;
     }>;
 }

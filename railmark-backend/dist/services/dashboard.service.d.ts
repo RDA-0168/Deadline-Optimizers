@@ -12,21 +12,6 @@ export declare class DashboardService {
             fair: number;
             critical: number;
         };
-        fittingsByType?: undefined;
-        fittingsByZone?: undefined;
-    } | {
-        totalFittings: number;
-        activeFittings: number;
-        inspected: number;
-        maintenanceDue: number;
-        pendingInspection: number;
-        recentScans: number;
-        qrVerificationRate: number;
-        conditionBreakdown: {
-            good: number;
-            fair: number;
-            critical: number;
-        };
         fittingsByType: {
             name: string;
             value: number;
@@ -106,6 +91,64 @@ export declare class QRService {
             lifecycle: any;
             aiAssessments: any;
             media: any;
+        } | {
+            basicInfo: {
+                fittingId: string;
+                id: string;
+                qrCodeValue: string;
+                qrId: string;
+                fittingType: string;
+                manufacturer: string;
+                batchNumber: string;
+                manufacturingDate: string;
+                installationDate: string;
+                location: string;
+                railLine: string;
+                trackSection: string;
+                sleeperNumber: string;
+                railwayZone: string;
+                railwayZoneName: string;
+                division: string;
+                section: string;
+                kmMark: string;
+                trackType: string;
+                status: string;
+                lastInspection: string;
+                lastInspectionDate: string;
+                nextInspection: string;
+                nextInspectionDate: string;
+                maintenanceStatus: string;
+                description: string;
+                material: string;
+                materialGrade: string;
+                weight: string;
+                standardSpec: string;
+                gpsLatitude: number;
+                gpsLongitude: number;
+                torqueSpecNm: number;
+                qrVerificationStatus: string;
+            };
+            installationInfo: {
+                railLine: string;
+                trackSection: string;
+                sleeperNumber: string;
+                installedBy: string;
+                installationDate: string;
+                torqueSpecNm: number;
+                gpsLatitude: number;
+                gpsLongitude: number;
+            };
+            qrInfo: {
+                qrCodeValue: string;
+                laserMarkDate: string;
+                markingMachineId: string;
+                qrVerificationStatus: string;
+            };
+            inspections: never[];
+            maintenance: never[];
+            lifecycle: never[];
+            aiAssessments: never[];
+            media: never[];
         };
         locationMeta: {
             latitude?: number;
@@ -120,6 +163,41 @@ export declare class SearchService {
         zone?: string;
         type?: string;
     }): Promise<{
+        fittingId: string;
+        id: string;
+        qrCodeValue: string;
+        qrId: string;
+        fittingType: string;
+        manufacturer: string;
+        batchNumber: string;
+        manufacturingDate: string;
+        installationDate: string;
+        location: string;
+        railLine: string;
+        trackSection: string;
+        sleeperNumber: string;
+        railwayZone: string;
+        railwayZoneName: string;
+        division: string;
+        section: string;
+        kmMark: string;
+        trackType: string;
+        status: string;
+        lastInspection: string;
+        lastInspectionDate: string;
+        nextInspection: string;
+        nextInspectionDate: string;
+        maintenanceStatus: string;
+        description: string;
+        material: string;
+        materialGrade: string;
+        weight: string;
+        standardSpec: string;
+        gpsLatitude: number;
+        gpsLongitude: number;
+        torqueSpecNm: number;
+        qrVerificationStatus: string;
+    }[] | {
         fittingId: any;
         id: any;
         qrCodeValue: any;
@@ -168,8 +246,8 @@ export declare class AuditService {
     }): Promise<{
         id: string;
         fittingId: string | null;
-        action: string;
         username: string;
+        action: string;
         details: string | null;
         ipAddress: string | null;
         timestamp: Date;
@@ -177,8 +255,8 @@ export declare class AuditService {
     static getLogs(limit?: number): Promise<{
         id: string;
         fittingId: string | null;
-        action: string;
         username: string;
+        action: string;
         details: string | null;
         ipAddress: string | null;
         timestamp: Date;

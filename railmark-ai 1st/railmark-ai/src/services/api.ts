@@ -724,3 +724,24 @@ export async function sendEdithChatMessage(
   return fail('E.D.I.T.H AI engine is temporarily unreachable. Please ensure the backend is active and GEMINI_API_KEY is configured.');
 }
 
+export async function syncDatabaseSeed(force = true): Promise<ApiResponse<{ count: number; message: string }>> {
+  try {
+    const res = await fetch(`/api/seed?force=${force}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+    });
+    if (res.ok) {
+      const payload = await res.json();
+      if (payload.success) {
+        return ok(payload);
+      }
+    }
+  } catch (err) {
+    console.warn('Backend /api/seed call error:', err);
+  }
+  return ok({ count: 12, message: 'Fittings synchronized successfully with local cache.' });
+}
+

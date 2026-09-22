@@ -13,6 +13,7 @@ import { validate } from '../middlewares/validate.middleware.js';
 import { createInspectionSchema } from '../schemas/inspection.schema.js';
 import { createMaintenanceSchema } from '../schemas/maintenance.schema.js';
 import { EdithController } from '../controllers/edith.controller.js';
+import { SeedService } from '../services/seed.service.js';
 
 const apiRouter = Router();
 
@@ -56,6 +57,26 @@ apiRouter.use('/dashboard', dashboardRouter);
 apiRouter.use('/qr', qrRouter);
 apiRouter.use('/search', searchRouter);
 apiRouter.use('/audit-logs', auditRouter);
+
+// Master Database Seed / Sync Endpoint
+apiRouter.post('/seed', async (req, res) => {
+  try {
+    const force = req.query.force === 'true' || req.body?.force === true;
+    const result = await SeedService.seedDatabase(force);
+    res.status(200).json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+apiRouter.get('/seed', async (req, res) => {
+  try {
+    const result = await SeedService.seedDatabase(true);
+    res.status(200).json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // E.D.I.T.H AI Conversational Endpoints
 apiRouter.post('/edith/chat', optionalAuthenticate, EdithController.chat);

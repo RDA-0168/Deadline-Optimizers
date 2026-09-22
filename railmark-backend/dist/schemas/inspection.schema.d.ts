@@ -34,21 +34,17 @@ export declare const createInspectionSchema: z.ZodObject<{
         aiQrQuality: number;
         notes?: string | undefined;
         inspectionDate?: string | undefined;
+        imageUrl?: string | undefined;
         defectDetected?: boolean | undefined;
         defectType?: string | undefined;
         recommendation?: string | undefined;
-        imageUrl?: string | undefined;
         aiCondition?: string | undefined;
         aiAssistanceResult?: string | undefined;
     }, {
         fittingId: string;
         notes?: string | undefined;
-        inspectionDate?: string | undefined;
-        defectDetected?: boolean | undefined;
-        defectType?: string | undefined;
-        recommendation?: string | undefined;
-        imageUrl?: string | undefined;
         inspector?: string | undefined;
+        inspectionDate?: string | undefined;
         inspectorId?: string | undefined;
         condition?: string | undefined;
         qrReadability?: string | undefined;
@@ -56,6 +52,10 @@ export declare const createInspectionSchema: z.ZodObject<{
         surfaceDamage?: string | undefined;
         deformation?: string | undefined;
         wear?: string | undefined;
+        imageUrl?: string | undefined;
+        defectDetected?: boolean | undefined;
+        defectType?: string | undefined;
+        recommendation?: string | undefined;
         aiConfidence?: number | undefined;
         aiCondition?: string | undefined;
         aiAssistanceResult?: string | undefined;
@@ -76,10 +76,10 @@ export declare const createInspectionSchema: z.ZodObject<{
         aiQrQuality: number;
         notes?: string | undefined;
         inspectionDate?: string | undefined;
+        imageUrl?: string | undefined;
         defectDetected?: boolean | undefined;
         defectType?: string | undefined;
         recommendation?: string | undefined;
-        imageUrl?: string | undefined;
         aiCondition?: string | undefined;
         aiAssistanceResult?: string | undefined;
     };
@@ -87,12 +87,8 @@ export declare const createInspectionSchema: z.ZodObject<{
     body: {
         fittingId: string;
         notes?: string | undefined;
-        inspectionDate?: string | undefined;
-        defectDetected?: boolean | undefined;
-        defectType?: string | undefined;
-        recommendation?: string | undefined;
-        imageUrl?: string | undefined;
         inspector?: string | undefined;
+        inspectionDate?: string | undefined;
         inspectorId?: string | undefined;
         condition?: string | undefined;
         qrReadability?: string | undefined;
@@ -100,6 +96,10 @@ export declare const createInspectionSchema: z.ZodObject<{
         surfaceDamage?: string | undefined;
         deformation?: string | undefined;
         wear?: string | undefined;
+        imageUrl?: string | undefined;
+        defectDetected?: boolean | undefined;
+        defectType?: string | undefined;
+        recommendation?: string | undefined;
         aiConfidence?: number | undefined;
         aiCondition?: string | undefined;
         aiAssistanceResult?: string | undefined;
