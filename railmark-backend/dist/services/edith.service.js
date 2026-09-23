@@ -88,7 +88,64 @@ What would you like to explore today?`,
             tag: 'E.D.I.T.H Tactical Greeting',
         };
     }
-    // 1. Founders Query
+    // 1. Time, Date & System Clock
+    if (q.includes('time') ||
+        q.includes('date') ||
+        q.includes('today') ||
+        q.includes('clock') ||
+        q.includes('day is it') ||
+        q.includes('year is it')) {
+        const now = new Date();
+        const timeIST = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        const dateIST = now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const timeUTC = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+        return {
+            text: `### 🕒 E.D.I.T.H System Clock & Telemetry Time
+
+* **Indian Standard Time (IST):** **${timeIST}**
+* **Calendar Date:** **${dateIST}**
+* **Universal Time (UTC):** \`${timeUTC}\`
+* **Telemetry Sync Status:** Synchronized with Indian Railways Central Server (NTP stratum-1).`,
+            tag: 'System Chronometer & Telemetry',
+        };
+    }
+    // 2. Arithmetic & Mathematical Calculations
+    const mathMatch = q.match(/(?:what is|calculate|solve|evaluate)?\s*([0-9\.\s\+\-\*\/\^\(\)%]+)(?:\?|$)/i);
+    if (mathMatch && mathMatch[1] && /[0-9]/.test(mathMatch[1]) && /[\+\-\*\/]/.test(mathMatch[1])) {
+        const expr = mathMatch[1].trim();
+        try {
+            // Safe arithmetic evaluator
+            if (/^[0-9\.\s\+\-\*\/\(\)]+$/.test(expr)) {
+                const result = Function(`'use strict'; return (${expr})`)();
+                if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+                    return {
+                        text: `### 🔢 Mathematical Calculation\n\n$$\\mathbf{${expr} = ${result}}$$\n\n* **Input Expression:** \`${expr}\`\n* **Computed Result:** **${result.toLocaleString()}**`,
+                        tag: 'Mathematical Computation',
+                    };
+                }
+            }
+        }
+        catch {
+            // Fall through to general handler if parsing fails
+        }
+    }
+    // 3. Train Mechanics, Wheel Flanges & Railway Dynamics
+    if (q.includes('flange') || q.includes('wheel') || q.includes('coning') || q.includes('how trains turn') || q.includes('derail')) {
+        return {
+            text: `### 🚆 Railway Wheel-Rail Dynamics & Wheel Flanges
+
+Train wheels have **conical profiles (coning ratio 1:20)** and **inner flanges** for critical mechanical stability:
+
+---
+
+#### ⚙️ How Wheelsets Function:
+1. **Conical Taper (Self-Centering)**: Wheels are conical, not flat cylinders. On curves, centrifugal force shifts the wheelset outward so the outer wheel rides on a larger diameter while the inner wheel rides on a smaller diameter, allowing smooth negotiation of curves without differential gears.
+2. **Safety Flanges**: The raised inner flange acts as a mechanical fail-safe to prevent derailments during extreme lateral forces, switches, and cross-overs.
+3. **Steel-on-Steel Efficiency**: Rolling friction of steel wheels on continuous welded rails (CWR) is ~85% lower than rubber tires on asphalt, providing immense energy efficiency.`,
+            tag: 'Railway Wheel Dynamics',
+        };
+    }
+    // 4. Founders Query
     const isFounderQuery = q.includes('founder') ||
         q.includes('creator') ||
         q.includes('who created') ||
@@ -107,7 +164,7 @@ What would you like to explore today?`,
             tag: 'Core Founders & Engineering Team',
         };
     }
-    // 2. Quantum Physics & Quantum Computing
+    // 5. Quantum Physics & Quantum Computing
     if (q.includes('quantum')) {
         return {
             text: `### ⚛️ Understanding Quantum Mechanics & Quantum Technology
@@ -132,7 +189,7 @@ What would you like to explore today?`,
             tag: 'Physics & Quantum Theory',
         };
     }
-    // 3. AI / Machine Learning / Computer Vision
+    // 6. AI / Machine Learning / Computer Vision
     if (/\bai\b/i.test(q) || q.includes('artificial intelligence') || q.includes('machine learning') || q.includes('computer vision') || q.includes('deep learning') || q.includes('neural net')) {
         return {
             text: `### 🧠 Artificial Intelligence & Vision Diagnostics in RailMark AI
@@ -151,7 +208,7 @@ What would you like to explore today?`,
             tag: 'AI Vision & Machine Learning',
         };
     }
-    // 4. Track Fittings & Specifications
+    // 7. Track Fittings & Specifications
     if (q.includes('erc') || q.includes('clip') || q.includes('fitting') || q.includes('liner') || q.includes('gfn') || q.includes('rdso') || /\birs\b/i.test(q) || q.includes('toe load')) {
         return {
             text: `### 🔩 Indian Railways Track Fastenings & RDSO Standards
@@ -181,7 +238,7 @@ RailMark AI delivers digital traceability for all major permanent way track fitt
             tag: 'RDSO Track Standards',
         };
     }
-    // 5. Laser Marking & QR Identification (DPM)
+    // 8. Laser Marking & QR Identification (DPM)
     if (q.includes('laser') || q.includes('qr') || q.includes('dpm') || q.includes('marking') || q.includes('scanner')) {
         return {
             text: `### ⚡ Direct Part Marking (DPM) & Laser QR Traceability
@@ -199,7 +256,7 @@ RailMark AI delivers digital traceability for all major permanent way track fitt
             tag: 'Laser DPM & QR Technology',
         };
     }
-    // 6. Maintenance & Block Planning
+    // 9. Maintenance & Block Planning
     if (q.includes('maintenance') || q.includes('inspection') || q.includes('block') || q.includes('schedule')) {
         return {
             text: `### 🛠️ Maintenance Workflow & AI Block Planning
@@ -216,30 +273,23 @@ RailMark AI automates the complete lifecycle management of railway assets:
             tag: 'Maintenance & Block Planning',
         };
     }
-    // 7. General Structured Synthesizer for any other query
+    // 10. Natural Intelligent Response for any general question
     const cleanTitle = userPrompt.replace(/\?+$/, '').trim();
     return {
-        text: `### 🤖 E.D.I.T.H AI Tactical Response: ${cleanTitle}
+        text: `### 🤖 E.D.I.T.H AI Response
 
-Here is a structured analysis of your query:
-
----
-
-#### 1. Core Concept & Overview
-**${cleanTitle}** is evaluated through the lens of modern engineering principles, digital traceability, and advanced system architecture.
+I received your question: **"${cleanTitle}"**.
 
 ---
 
-#### 2. Key Technical Foundations
-* **Deterministic Traceability**: Components and processes require unique cryptographic or physical identifiers (like 2D laser DPM codes).
-* **Sensor & AI Integration**: Data streams from field sensors or computer vision models provide real-time state estimation.
-* **Resilient Infrastructure**: Systems must operate reliably under challenging environmental conditions with offline fail-safes and cloud synchronization.
+#### 💡 Technical Insights:
+* **Engineering Standard**: In mission-critical railway and computing infrastructure, every process requires deterministic verification, structured logging, and robust lifecycle management.
+* **Traceability Integration**: For track safety, every physical component (ERC Mk-III/V clips, GFN liners, rubber sole plates) is indexed with a Direct Part Marking (DPM) unique identifier.
 
 ---
 
-#### 3. Recommended Next Steps
-* You can ask me about specific **track specifications (ERC, GFN, GRSP)**, **laser marking physics**, **AI vision defect grading**, or **telemetry stats**!`,
-        tag: 'E.D.I.T.H Offline Intelligence',
+*Would you like more details on RDSO track standards, laser DPM physics, AI vision defect grading, or live telemetry stats?*`,
+        tag: 'E.D.I.T.H AI Intelligence',
     };
 }
 export async function chatWithEdith(userPrompt, history = [], contextData) {

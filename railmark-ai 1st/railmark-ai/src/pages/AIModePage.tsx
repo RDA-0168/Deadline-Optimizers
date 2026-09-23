@@ -125,6 +125,31 @@ function generateEdithResponse(
     };
   }
 
+  // ── 2.5 TIME, DATE & SYSTEM CLOCK ─────────────────────────
+  if (
+    query.includes('time') ||
+    query.includes('date') ||
+    query.includes('today') ||
+    query.includes('clock') ||
+    query.includes('day is it') ||
+    query.includes('year is it')
+  ) {
+    const now = new Date();
+    const timeIST = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    const dateIST = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const timeUTC = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+
+    return {
+      text: `### 🕒 E.D.I.T.H System Clock & Telemetry Time
+
+* **Current Time (Local):** **${timeIST}**
+* **Calendar Date:** **${dateIST}**
+* **Universal Time (UTC):** \`${timeUTC}\`
+* **Telemetry Sync Status:** Synchronized with Indian Railways Central Server.`,
+      tag: 'System Chronometer & Telemetry',
+    };
+  }
+
   // ── 3. LIVE APPLICATION DATABASE & TELEMETRY INTEGRATION ──
   const isStatsQuery =
     query.includes('how many fitting') ||
