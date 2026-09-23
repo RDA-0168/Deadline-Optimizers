@@ -51,12 +51,13 @@ Style & Formatting:
 - Keep answers insightful, scientifically/mathematically/engineering accurate, and actionable.
 `;
 
-// Valid, active Google Gemini models on v1beta API
+// Valid, active Google Gemini models on v1beta API (ordered by speed & reliability)
 const CANDIDATE_MODELS = [
-  'gemini-1.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-pro',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+  'gemini-3.1-flash-lite',
+  'gemini-flash-latest',
 ];
 
 /**
@@ -114,7 +115,7 @@ function generateSmartFallback(userPrompt: string, contextData?: any): { text: s
   }
 
   // 3. AI / Machine Learning / Computer Vision
-  if (q.includes('ai') || q.includes('machine learning') || q.includes('vision') || q.includes('deep learning') || q.includes('neural')) {
+  if (/\bai\b/i.test(q) || q.includes('artificial intelligence') || q.includes('machine learning') || q.includes('computer vision') || q.includes('deep learning') || q.includes('neural net')) {
     return {
       text: `### 🧠 Artificial Intelligence & Vision Diagnostics in RailMark AI
 
@@ -134,7 +135,7 @@ function generateSmartFallback(userPrompt: string, contextData?: any): { text: s
   }
 
   // 4. Track Fittings & Specifications
-  if (q.includes('erc') || q.includes('clip') || q.includes('fitting') || q.includes('liner') || q.includes('gfn') || q.includes('rdso') || q.includes('irs') || q.includes('toe load')) {
+  if (q.includes('erc') || q.includes('clip') || q.includes('fitting') || q.includes('liner') || q.includes('gfn') || q.includes('rdso') || /\birs\b/i.test(q) || q.includes('toe load')) {
     return {
       text: `### 🔩 Indian Railways Track Fastenings & RDSO Standards
 
@@ -233,7 +234,7 @@ export async function chatWithEdith(
   history: ChatMessage[] = [],
   contextData?: any
 ): Promise<{ text: string; modelUsed: string; isFounders?: boolean; tag?: string }> {
-  const apiKey = process.env.GEMINI_API_KEY || (ENV as any).GEMINI_API_KEY || '';
+  const apiKey = ((ENV as any).GEMINI_API_KEY || process.env.GEMINI_API_KEY || '').trim();
   const queryLower = userPrompt.toLowerCase();
 
   const isFounderQuery =
@@ -287,9 +288,12 @@ export async function chatWithEdith(
 
         const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey.trim(),
+          },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(12000),
+          signal: AbortSignal.timeout(8000),
         });
 
         if (res.ok) {
