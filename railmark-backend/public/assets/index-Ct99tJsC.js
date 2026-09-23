@@ -586,7 +586,7 @@ All fitting records are indexed with unique Direct Part Marking (DPM) UUIDs and 
 3. **Safety Assurance**: Guarantees that track possession, OHE power cut-off, and track clearing are verified before allowing traffic to resume.`,tag:"Contextual Follow-up: Block Planning Benefits"};if(f.includes("wire damage")||f.includes("cable fault")||d.includes("Fault"))return{text:`### ⚡ Why Differentiating Fault Types Matters
 
 - **Rapid Crew Dispatch**: Wire damage requires OHE Tower Wagons and electrical traction linemen; cable faults require S&T (Signaling & Telecom) optical cable splicers.
-- **Block Requirement Estimation**: Wire damage always demands an emergency traction power block, whereas minor signaling cable issues may be resolved during shadow windows.`,tag:"Contextual Follow-up: Fault Classification"}}if(i.includes("what is railmark")||i.includes("what is")&&i.includes("this app")||i==="what is railmark ai?"||i==="what is railmark ai")return{text:`### 🚄 What is RAILMARK AI?
+- **Block Requirement Estimation**: Wire damage always demands an emergency traction power block, whereas minor signaling cable issues may be resolved during shadow windows.`,tag:"Contextual Follow-up: Fault Classification"}}return i.includes("what is railmark")||i.includes("what is")&&i.includes("this app")||i==="what is railmark ai?"||i==="what is railmark ai"?{text:`### 🚄 What is RAILMARK AI?
 
 **RAILMARK AI** is an advanced **Digital Traceability and AI-Assisted Maintenance Platform** designed specifically for Indian Railways track infrastructure.
 
@@ -598,7 +598,7 @@ All fitting records are indexed with unique Direct Part Marking (DPM) UUIDs and 
 3. **Digital Lifecycle Tracking**: Eliminating paper logs by recording real-time corrosion levels, wear metrics, and maintenance actions.
 4. **Audit-Ready Compliance**: Generating instant RDSO (IRS:T-31 / IRS:T-47) compliance reports and defect analytics.
 
-*Note: The platform is also actively being developed toward an AI-assisted railway maintenance and automatic block-planning system.*`,tag:"Platform Overview (Existing)"};if(i.includes("track fitting traceability")||i.includes("what is railway track fitting traceability")||i.includes("fitting traceability"))return{text:`### 🛤️ Railway Track Fitting Traceability Explained
+*Note: The platform is also actively being developed toward an AI-assisted railway maintenance and automatic block-planning system.*`,tag:"Platform Overview (Existing)"}:i.includes("track fitting traceability")||i.includes("what is railway track fitting traceability")||i.includes("fitting traceability")?{text:`### 🛤️ Railway Track Fitting Traceability Explained
 
 **Railway Track Fitting Traceability** is the end-to-end digital tracking of every component securing the rails to PSC (Pre-stressed Concrete) sleepers across its entire lifecycle—from manufacturing to decommission.
 
@@ -613,7 +613,7 @@ All fitting records are indexed with unique Direct Part Marking (DPM) UUIDs and 
 ---
 
 #### 🔗 The Traceability Chain:
-$$\\text{Factory Batch Manufacturing} \\rightarrow \\text{Laser DPM Etching} \\rightarrow \\text{Supply QA} \\rightarrow \\text{Track Installation} \\rightarrow \\text{Routine Inspections} \\rightarrow \\text{Predictive Maintenance} \\rightarrow \\text{Decommission}$$`,tag:"Track Fitting Traceability (Existing)"};if(i.includes("how qr")||i.includes("qr identification")||i.includes("how does qr")||i.includes("purpose of qr")||i.includes("direct part marking")||i.includes("dpm"))return{text:`### 📱 Direct Part Marking (DPM) & QR Identification
+$$\\text{Factory Batch Manufacturing} \\rightarrow \\text{Laser DPM Etching} \\rightarrow \\text{Supply QA} \\rightarrow \\text{Track Installation} \\rightarrow \\text{Routine Inspections} \\rightarrow \\text{Predictive Maintenance} \\rightarrow \\text{Decommission}$$`,tag:"Track Fitting Traceability (Existing)"}:i.includes("how qr")||i.includes("qr identification")||i.includes("how does qr")||i.includes("purpose of qr")||i.includes("direct part marking")||i.includes("dpm")?{text:`### 📱 Direct Part Marking (DPM) & QR Identification
 
 In Railmark AI, physical track components cannot use paper or sticker barcodes due to extreme ballast vibration, grease, brake dust, and outdoor weather. Instead, we use **Direct Part Marking (DPM)**:
 
@@ -634,13 +634,13 @@ Each QR code encodes a serialized asset URI (e.g. \`RM-FIT-0004\`) linked to:
 ---
 
 #### 3. Optical Field Decoupling
-When track gang inspectors scan the fitting via the **\`/scanner\`** module, the system instantly validates syntax and displays complete inspection history with zero manual data entry.`,tag:"QR Identification Architecture"};if(i.includes("how does inspection work")||i.includes("how is maintenance history maintained")||i.includes("inspection work")||i.includes("maintenance history"))return{text:"### 📋 Field Inspection & Maintenance Tracking Workflow\n\n#### 1. Inspection Recording (`/inspection`)\n- Inspectors enter the fitting ID or scan the DPM QR code.\n- Capture condition parameters: **Corrosion Severity** (None/Mild/Moderate/Severe), **Surface Wear**, **Mechanical Deformation**, and **QR Readability**.\n- Live AI confidence score calculates whether the fitting is in **Good**, **Needs Attention**, **Maintenance Required**, or **Critical** condition.\n\n#### 2. Maintenance Lifecycle Management (`/maintenance`)\n- If a fitting's toe load drops below 700 kg or severe corrosion is detected, an automated **Work Order** is generated.\n- Technicians update task statuses (`Pending`, `In Progress`, `Completed`) with replacement batch numbers and torque re-tightening notes.\n- Next scheduled inspection interval is automatically re-calculated per RDSO guidelines.",tag:"Inspection & Maintenance Operations"};if(i.includes("purpose of reports")||i.includes("report")||i.includes("compliance report"))return{text:`### 📑 Purpose of the Reports Module (\`/reports\`)
+When track gang inspectors scan the fitting via the **\`/scanner\`** module, the system instantly validates syntax and displays complete inspection history with zero manual data entry.`,tag:"QR Identification Architecture"}:i.includes("how does inspection work")||i.includes("how is maintenance history maintained")||i.includes("inspection work")||i.includes("maintenance history")?{text:"### 📋 Field Inspection & Maintenance Tracking Workflow\n\n#### 1. Inspection Recording (`/inspection`)\n- Inspectors enter the fitting ID or scan the DPM QR code.\n- Capture condition parameters: **Corrosion Severity** (None/Mild/Moderate/Severe), **Surface Wear**, **Mechanical Deformation**, and **QR Readability**.\n- Live AI confidence score calculates whether the fitting is in **Good**, **Needs Attention**, **Maintenance Required**, or **Critical** condition.\n\n#### 2. Maintenance Lifecycle Management (`/maintenance`)\n- If a fitting's toe load drops below 700 kg or severe corrosion is detected, an automated **Work Order** is generated.\n- Technicians update task statuses (`Pending`, `In Progress`, `Completed`) with replacement batch numbers and torque re-tightening notes.\n- Next scheduled inspection interval is automatically re-calculated per RDSO guidelines.",tag:"Inspection & Maintenance Operations"}:i.includes("purpose of reports")||i.includes("report")||i.includes("compliance report")?{text:`### 📑 Purpose of the Reports Module (\`/reports\`)
 
 The **Reports Module** generates audit-ready compliance documentation required by Indian Railways administrative authorities (RDSO, Chief Track Engineers, Divisional Railway Managers):
 
 - **Configurable Filters**: Generate reports filtered by Date Range, Railway Zone, or Report Type (*Full Report, Fittings Only, Inspections Only, Maintenance Only*).
 - **High-Density Data Tables**: Summary counts of Active vs Overdue components.
-- **Export Formats**: 1-Click CSV data export and print-ready styled PDF compliance certifications.`,tag:"Reports & Compliance Module"};if(i.includes("block planning")||i.includes("what is automatic block planning")||i.includes("automatic block")||i.includes("how can ai help maintenance planning"))return{text:`### 🚦 AI-Assisted Automatic Block Planning *(Proposed / Planned Extension)*
+- **Export Formats**: 1-Click CSV data export and print-ready styled PDF compliance certifications.`,tag:"Reports & Compliance Module"}:i.includes("block planning")||i.includes("what is automatic block planning")||i.includes("automatic block")||i.includes("how can ai help maintenance planning")?{text:`### 🚦 AI-Assisted Automatic Block Planning *(Proposed / Planned Extension)*
 
 > [!NOTE]
 > **Status**: This capability is part of the **planned / proposed future extension** for the Railmark AI ecosystem.
@@ -658,7 +658,7 @@ In railway operations, major maintenance (track tamping, OHE wire repair, point 
 3. **De-confliction & Recommendation**: Proposes optimal maintenance blocks (e.g. 90-minute shadow blocks) that minimize passenger train delays.
 4. **Decision Support**: Generates weekly and monthly block schedules for Section Controllers to review and approve.
 
-*Important: E.D.I.T.H. is designed as an AI-assisted decision-support tool—official operational authority always remains with railway dispatchers.*`,tag:"Proposed Feature: AI Block Planning"};if(i.includes("wire damage")||i.includes("cable fault")||i.includes("difference between wire damage and cable fault"))return{text:`### ⚡ Difference Between Wire Damage and Cable Fault *(Planned Asset Scope)*
+*Important: E.D.I.T.H. is designed as an AI-assisted decision-support tool—official operational authority always remains with railway dispatchers.*`,tag:"Proposed Feature: AI Block Planning"}:i.includes("wire damage")||i.includes("cable fault")||i.includes("difference between wire damage and cable fault")?{text:`### ⚡ Difference Between Wire Damage and Cable Fault *(Planned Asset Scope)*
 
 | Attribute | ⚡ Wire Damage | 🔌 Cable Fault |
 | :--- | :--- | :--- |
@@ -666,7 +666,7 @@ In railway operations, major maintenance (track tamping, OHE wire repair, point 
 | **Physical Asset**| 25 kV Contact Wire, Catenary Wire, Droppers | Underground Optical Fiber Cable (OFC), Quad signaling cables |
 | **Nature of Fault**| Mechanical parting, pantograph entanglement, thermal sag, or physical severance. | Insulation breakdown, dielectric degradation, rodent cuts, or water ingress. |
 | **Operational Impact**| Complete loss of electric traction; trains stranded immediately. | Signal failure (false red signal), track circuit disruption, or loss of communication. |
-| **Maintenance Block**| Requires **Traction Power Block** and OHE Tower Wagon dispatch. | Requires S&T cable jointing team and OTDR optical fault localization. |`,tag:"Railway Asset Fault Classification"};if(i.includes("maintenance workflow")||i.includes("explain the maintenance workflow")||i.includes("workflow"))return{text:`### 🔄 Complete AI-Assisted Railway Maintenance Workflow
+| **Maintenance Block**| Requires **Traction Power Block** and OHE Tower Wagon dispatch. | Requires S&T cable jointing team and OTDR optical fault localization. |`,tag:"Railway Asset Fault Classification"}:i.includes("maintenance workflow")||i.includes("explain the maintenance workflow")||i.includes("workflow")?{text:`### 🔄 Complete AI-Assisted Railway Maintenance Workflow
 
 Here is the end-to-end operational workflow designed for the Railmark AI platform:
 
@@ -691,7 +691,7 @@ $$\\begin{aligned}
 
 #### 📌 Key Principles:
 - **Traceability Integration**: Current track fitting records directly feed into the initial inspection and fault detection stage.
-- **Human-in-the-Loop**: The AI recommends priority and block schedules, but Railway Section Engineers formally approve execution.`,tag:"End-to-End Maintenance Workflow"};if(i.includes("assets")||i.includes("what assets"))return{text:`### 🛤️ Railmark AI Asset Coverage
+- **Human-in-the-Loop**: The AI recommends priority and block schedules, but Railway Section Engineers formally approve execution.`,tag:"End-to-End Maintenance Workflow"}:i.includes("assets")||i.includes("what assets")?{text:`### 🛤️ Railmark AI Asset Coverage
 
 #### 1. Implemented in Current System:
 - **Track Fittings**: Elastic Rail Clips (ERC MK-III / MK-V), Grooved Rubber Sole Plates (GRSP), GFN-66 Insulating Liners, Metal Liners, Single Coil Washers.
@@ -700,7 +700,7 @@ $$\\begin{aligned}
 - **Track & Civil**: Rails (60 kg / 52 kg 90 UTS), PSC Sleepers, Points & Crossings, CMS Crossings.
 - **Electrification (OHE)**: Contact Wires, Catenary Wires, Droppers, Section Insulators, Cantilevers.
 - **Signaling**: Point Machines, Track Circuits (DC & Audio Frequency), Electronic Interlocking, Axle Counters.
-- **Telecom**: Optical Fiber Cables (OFC), Quad telecom cables, GSM-R / LTE-R base stations.`,tag:"Asset Domain Scope"};if(i.includes("architect")||i.includes("tech stack")||i.includes("how is this app built")||i.includes("system design"))return{text:`### 🏗️ Railmark AI — Comprehensive System Architecture
+- **Telecom**: Optical Fiber Cables (OFC), Quad telecom cables, GSM-R / LTE-R base stations.`,tag:"Asset Domain Scope"}:i.includes("architect")||i.includes("tech stack")||i.includes("how is this app built")||i.includes("system design")?{text:`### 🏗️ Railmark AI — Comprehensive System Architecture
 
 Railmark AI is engineered as a **3-Tier Distributed Digital Twin Architecture**:
 
@@ -722,7 +722,7 @@ Railmark AI is engineered as a **3-Tier Distributed Digital Twin Architecture**:
 #### 3. Client Presentation & Digital Twin Dashboard
 - **Frontend**: React 18, TypeScript, Vite build pipeline, and Tailwind CSS.
 - **Analytics Engine**: Recharts dynamic telemetry visualizations for RUL projections and zone-wise distributions.
-- **E.D.I.T.H. Assistant**: Context-aware AI assistant with full platform and CS domain intelligence.`,tag:"System Architecture Specification"};if(i.includes("quantum"))return{text:`### ⚛️ Understanding Quantum Mechanics & Quantum Technology
+- **E.D.I.T.H. Assistant**: Context-aware AI assistant with full platform and CS domain intelligence.`,tag:"System Architecture Specification"}:i.includes("quantum")?{text:`### ⚛️ Understanding Quantum Mechanics & Quantum Technology
 
 **Quantum Physics** is the fundamental branch of physics that describes nature at the atomic and subatomic scale, where classical Newtonian mechanics no longer applies.
 
@@ -741,7 +741,7 @@ u$)**: Energy is emitted or absorbed in discrete packets called *quanta* (photon
 #### 💻 Applications to Modern Technology & Railmark AI:
 - **Direct Part Marking Optics**: Railmark AI's 1064nm MOPA fiber laser relies on quantum stimulated emission within doped silica fiber cores.
 - **Quantum Combinatorial Optimization**: Future quantum annealing algorithms can optimize nationwide multi-corridor railway traffic and block planning.
-- **Quantum Key Distribution (QKD)**: Unbreakable cryptographic security for critical railway signaling and control telemetry.`,tag:"Physics & Quantum Mechanics"};if(i.includes("machine learning")||i.includes("deep learning")||i.includes("what is ml")||i.includes("neural network")||i.includes("computer vision")||i.includes("cnn"))return{text:`### 🤖 Machine Learning (ML) & Computer Vision Master Guide
+- **Quantum Key Distribution (QKD)**: Unbreakable cryptographic security for critical railway signaling and control telemetry.`,tag:"Physics & Quantum Mechanics"}:i.includes("machine learning")||i.includes("deep learning")||i.includes("what is ml")||i.includes("neural network")||i.includes("computer vision")||i.includes("cnn")?{text:`### 🤖 Machine Learning (ML) & Computer Vision Master Guide
 
 **Machine Learning** is a domain of Artificial Intelligence focused on algorithms that learn patterns from empirical data rather than relying solely on explicit rule-based code.
 
@@ -756,7 +756,7 @@ u$)**: Energy is emitted or absorbed in discrete packets called *quanta* (photon
 
 #### 🔍 Railmark AI Vision Diagnostics:
 - **Defect Segmentation**: Convolutional neural networks classify ERC clip surface corrosion (None/Mild/Moderate/Severe).
-- **Geometric Deflection Analysis**: Measures toe clearance deflection to calculate loss of holding force ($<850	ext{ kg}$).`,tag:"Computer Science: Machine Learning & Vision"};if(i.includes("binary search")||i.includes("search")&&i.includes("sorted"))return{text:`### 🔍 Binary Search Algorithm
+- **Geometric Deflection Analysis**: Measures toe clearance deflection to calculate loss of holding force ($<850	ext{ kg}$).`,tag:"Computer Science: Machine Learning & Vision"}:i.includes("binary search")||i.includes("search")&&i.includes("sorted")?{text:`### 🔍 Binary Search Algorithm
 
 **Binary Search** is an optimal divide-and-conquer algorithm for finding an element in a **sorted collection**.
 
@@ -794,33 +794,39 @@ function binarySearch(arr: number[], target: number): number {
   }
   return -1;
 }
-\`\`\``,tag:"Computer Science: Binary Search"};if((/^h+i+/i.test(i)||/^h+e+y+/i.test(i)||/^h+e+l+l+o+/i.test(i)||i.includes("good morning")||i.includes("good evening")||i.includes("namaste")||i.includes("vanakkam"))&&o.split(" ").length<=4)return{text:`Hello! 👋 I am **E.D.I.T.H.** (*Even Dead, I'm The Hero*), your intelligent co-pilot for **RAILMARK AI**.
+\`\`\``,tag:"Computer Science: Binary Search"}:(/^h+i+/i.test(i)||/^h+e+y+/i.test(i)||/^h+e+l+l+o+/i.test(i)||i.includes("good morning")||i.includes("good evening")||i.includes("namaste")||i.includes("vanakkam"))&&o.split(" ").length<=4?{text:`Hello! 👋 I am **E.D.I.T.H.** (*Even Dead, I'm The Hero*), your intelligent co-pilot for **RAILMARK AI**.
 
-I can assist you with railway track fitting traceability, laser DPM QR identification, RDSO standards (IRS:T-31 / IRS:T-47), field inspection workflows, quantum physics, and computer science topics. What would you like to explore?`,tag:"E.D.I.T.H. Assistant Greeting"};const A=r.replace(/\?+$/,"").trim();return{text:`### 🧠 E.D.I.T.H. Technical Analysis: ${A}
+I can assist you with railway track fitting traceability, laser DPM QR identification, RDSO standards (IRS:T-31 / IRS:T-47), field inspection workflows, quantum physics, and computer science topics. What would you like to explore?`,tag:"E.D.I.T.H. Assistant Greeting"}:i.startsWith("can you")||i.startsWith("could you")||i.startsWith("are you able to")||i.startsWith("will you")||i.startsWith("do you know how to")||i.includes("write an essay")||i.includes("write a poem")||i.includes("write a story")||i.includes("book a ticket")||i.includes("hack")||i.includes("stop the train")||i.includes("delete database")?i.includes("fitting")||i.includes("qr")||i.includes("inspect")||i.includes("maintenance")||i.includes("rdso")||i.includes("calc")||i.includes("math")||i.includes("quantum")||i.includes("stat")||i.includes("track")?{text:`### ✅ Direct Answer: Yes
 
-Here is a structured technical breakdown of **${A}**:
-
----
-
-#### 1. Core Fundamentals & Concepts
-* **Definition & Context**: ${A} represents a pivotal concept within modern computational, engineering, or physical systems.
-* **Deterministic Verification**: In high-reliability domains like railway permanent way infrastructure and mission-critical software, deterministic guarantees and rigorous standards are applied.
+**Yes**, I can assist you with that!
 
 ---
 
-#### 2. Key Engineering Principles
-* **State Management & Traceability**: Maintaining an unambiguous, verifiable audit trail across all components and transactions.
-* **Resilient Architecture**: Designing systems capable of autonomous offline operation, rapid synchronization, and fault containment.
-* **Human-in-the-Loop AI**: Augmenting human decision-makers (e.g., Section Controllers and Track Engineers) with intelligent data synthesis.
+#### 📌 What I Can Do:
+As **E.D.I.T.H AI** for RailMark AI, I can decode Direct Part Marking (DPM) laser QR data, provide RDSO technical specs (IRS:T-31 / IRS:T-47), analyze track fitting defect severity, explain maintenance block planning, and compute engineering calculations.
+
+*Please specify the fitting ID, RDSO specification, or technical topic you would like me to analyze.*`,tag:"E.D.I.T.H Capability Verification"}:{text:`### ❌ Direct Answer: No
+
+**No**, I cannot perform this request.
 
 ---
 
-#### 3. Related Explorations
-Feel free to ask me for:
-- Deep dives into **mathematical proofs or algorithms**
-- Specific **RDSO railway track standards (ERC Mk-III/V, GFN, GRSP)**
-- Direct Part Marking **laser physics (1064nm fiber laser)**
-- System architecture or code implementations!`,tag:"E.D.I.T.H. Cognitive Analysis"}}function yc(e){return e.replace(/\$\\ge\s*([^\$]+)\$/g,"≥ $1").replace(/\$\\le\s*([^\$]+)\$/g,"≤ $1").replace(/\$\\sigma_e\$/g,"σ_e").replace(/\$\\times\$/g,"×").replace(/\$\\mathbf\{([^\}]+)\}\$/g,"$1").replace(/\$\\text\{([^\}]+)\}\$/g,"$1").replace(/\$([^\$]+)\$/g,"$1").split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g).map((r,i)=>r.startsWith("`")&&r.endsWith("`")&&r.length>2?g.jsx("code",{className:"px-1.5 py-0.5 rounded bg-navy-950/90 text-cyan-accent-300 font-mono text-[11px] border border-cyan-500/20",children:r.slice(1,-1)},i):r.startsWith("**")&&r.endsWith("**")&&r.length>4?g.jsx("strong",{className:"font-bold text-white tracking-wide",children:r.slice(2,-2)},i):r.startsWith("*")&&r.endsWith("*")&&r.length>2&&!r.startsWith("**")?g.jsx("em",{className:"italic text-cyan-200",children:r.slice(1,-1)},i):r)}function Qae({text:e}){const t=e.split(/(```[\s\S]*?```)/g);return g.jsx("div",{className:"space-y-2.5 leading-relaxed text-xs sm:text-sm",children:t.map((n,r)=>{if(n.startsWith("```")&&n.endsWith("```")){const o=n.slice(3,-3).trim().split(`
+#### 📌 Situation & System Scope:
+I am **E.D.I.T.H** (*Enhanced Digital Intelligence for Track & Hardware*), an AI co-pilot engineered strictly for **RailMark AI** and Indian Railways permanent way maintenance.
+
+* **My Dedicated Focus**: Direct Part Marking (1064nm laser QR codes), track fastenings (ERC Mk-III/V clips, GFN liners, rubber sole plates), AI vision defect diagnostics, and maintenance block planning.
+* **Out of Scope**: General non-railway essay writing, creative prose, external bookings, or tasks outside railway engineering.
+
+*Please feel free to ask me anything related to track fittings, RDSO standards, physics, or live system telemetry!*`,tag:"E.D.I.T.H Capability Limit"}:{text:`### ℹ️ Direct Answer: Out of Domain Scope
+
+**No**, this topic is outside the dedicated domain of **RailMark AI**.
+
+---
+
+#### 📌 Situation & System Scope:
+I am **E.D.I.T.H AI**, engineered specifically for Indian Railways track fitting digital traceability, laser DPM QR identification, RDSO standards (IRS:T-31 / IRS:T-47), and predictive maintenance workflows.
+
+* **How to Use Me**: Ask me about track fittings (ERC clips, GFN liners, rubber sole plates), laser Direct Part Marking physics, AI defect grading, or live database statistics!`,tag:"E.D.I.T.H Domain Scope"}}function yc(e){return e.replace(/\$\\ge\s*([^\$]+)\$/g,"≥ $1").replace(/\$\\le\s*([^\$]+)\$/g,"≤ $1").replace(/\$\\sigma_e\$/g,"σ_e").replace(/\$\\times\$/g,"×").replace(/\$\\mathbf\{([^\}]+)\}\$/g,"$1").replace(/\$\\text\{([^\}]+)\}\$/g,"$1").replace(/\$([^\$]+)\$/g,"$1").split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g).map((r,i)=>r.startsWith("`")&&r.endsWith("`")&&r.length>2?g.jsx("code",{className:"px-1.5 py-0.5 rounded bg-navy-950/90 text-cyan-accent-300 font-mono text-[11px] border border-cyan-500/20",children:r.slice(1,-1)},i):r.startsWith("**")&&r.endsWith("**")&&r.length>4?g.jsx("strong",{className:"font-bold text-white tracking-wide",children:r.slice(2,-2)},i):r.startsWith("*")&&r.endsWith("*")&&r.length>2&&!r.startsWith("**")?g.jsx("em",{className:"italic text-cyan-200",children:r.slice(1,-1)},i):r)}function Qae({text:e}){const t=e.split(/(```[\s\S]*?```)/g);return g.jsx("div",{className:"space-y-2.5 leading-relaxed text-xs sm:text-sm",children:t.map((n,r)=>{if(n.startsWith("```")&&n.endsWith("```")){const o=n.slice(3,-3).trim().split(`
 `),c=o[0].trim().length>0&&!o[0].includes(" ")?o[0].trim():"code",f=c!=="code"&&o.length>1?o.slice(1).join(`
 `):o.join(`
 `);return g.jsxs("div",{className:"my-3 rounded-xl overflow-hidden border border-navy-700 bg-navy-950 font-mono shadow-md",children:[g.jsxs("div",{className:"bg-navy-900/90 px-3.5 py-1.5 border-b border-navy-800 flex items-center justify-between text-[11px] text-gray-400",children:[g.jsxs("span",{className:"flex items-center gap-1.5 text-cyan-accent-300 font-semibold uppercase tracking-wider",children:[g.jsx(xM,{size:12}),c]}),g.jsxs("button",{type:"button",onClick:()=>navigator.clipboard.writeText(f),className:"hover:text-white flex items-center gap-1 transition-colors",title:"Copy code",children:[g.jsx(nM,{size:12}),g.jsx("span",{children:"Copy"})]})]}),g.jsx("pre",{className:"p-3.5 overflow-x-auto text-[11px] sm:text-xs text-gray-200 scrollbar-thin",children:g.jsx("code",{children:f})})]},r)}const i=n.split(`

@@ -453,35 +453,52 @@ function binarySearch(arr: number[], target: number): number {
     };
   }
 
-  // ── 10. UNIVERSAL COGNITIVE SYNTHESIZER ────────────────────
-  const cleanTitle = raw.replace(/\?+$/, '').trim();
+  // ── 10. DIRECT CAPABILITIES & YES/NO INQUIRIES ───────────
+  const isCapabilityQuery =
+    query.startsWith('can you') ||
+    query.startsWith('could you') ||
+    query.startsWith('are you able to') ||
+    query.startsWith('will you') ||
+    query.startsWith('do you know how to') ||
+    query.includes('write an essay') ||
+    query.includes('write a poem') ||
+    query.includes('write a story') ||
+    query.includes('book a ticket') ||
+    query.includes('hack') ||
+    query.includes('stop the train') ||
+    query.includes('delete database');
+
+  if (isCapabilityQuery) {
+    const isSupportedAction =
+      query.includes('fitting') ||
+      query.includes('qr') ||
+      query.includes('inspect') ||
+      query.includes('maintenance') ||
+      query.includes('rdso') ||
+      query.includes('calc') ||
+      query.includes('math') ||
+      query.includes('quantum') ||
+      query.includes('stat') ||
+      query.includes('track');
+
+    if (isSupportedAction) {
+      return {
+        text: `### ✅ Direct Answer: Yes\n\n**Yes**, I can assist you with that!\n\n---\n\n#### 📌 What I Can Do:\nAs **E.D.I.T.H AI** for RailMark AI, I can decode Direct Part Marking (DPM) laser QR data, provide RDSO technical specs (IRS:T-31 / IRS:T-47), analyze track fitting defect severity, explain maintenance block planning, and compute engineering calculations.\n\n*Please specify the fitting ID, RDSO specification, or technical topic you would like me to analyze.*`,
+        tag: 'E.D.I.T.H Capability Verification',
+      };
+    }
+
+    // Direct and straightforward NO for out-of-scope actions
+    return {
+      text: `### ❌ Direct Answer: No\n\n**No**, I cannot perform this request.\n\n---\n\n#### 📌 Situation & System Scope:\nI am **E.D.I.T.H** (*Enhanced Digital Intelligence for Track & Hardware*), an AI co-pilot engineered strictly for **RailMark AI** and Indian Railways permanent way maintenance.\n\n* **My Dedicated Focus**: Direct Part Marking (1064nm laser QR codes), track fastenings (ERC Mk-III/V clips, GFN liners, rubber sole plates), AI vision defect diagnostics, and maintenance block planning.\n* **Out of Scope**: General non-railway essay writing, creative prose, external bookings, or tasks outside railway engineering.\n\n*Please feel free to ask me anything related to track fittings, RDSO standards, physics, or live system telemetry!*`,
+      tag: 'E.D.I.T.H Capability Limit',
+    };
+  }
+
+  // ── 11. GENERAL OUT-OF-DOMAIN SCOPE CLARIFICATION ─────────
   return {
-    text: `### 🧠 E.D.I.T.H. Technical Analysis: ${cleanTitle}
-
-Here is a structured technical breakdown of **${cleanTitle}**:
-
----
-
-#### 1. Core Fundamentals & Concepts
-* **Definition & Context**: ${cleanTitle} represents a pivotal concept within modern computational, engineering, or physical systems.
-* **Deterministic Verification**: In high-reliability domains like railway permanent way infrastructure and mission-critical software, deterministic guarantees and rigorous standards are applied.
-
----
-
-#### 2. Key Engineering Principles
-* **State Management & Traceability**: Maintaining an unambiguous, verifiable audit trail across all components and transactions.
-* **Resilient Architecture**: Designing systems capable of autonomous offline operation, rapid synchronization, and fault containment.
-* **Human-in-the-Loop AI**: Augmenting human decision-makers (e.g., Section Controllers and Track Engineers) with intelligent data synthesis.
-
----
-
-#### 3. Related Explorations
-Feel free to ask me for:
-- Deep dives into **mathematical proofs or algorithms**
-- Specific **RDSO railway track standards (ERC Mk-III/V, GFN, GRSP)**
-- Direct Part Marking **laser physics (1064nm fiber laser)**
-- System architecture or code implementations!`,
-    tag: 'E.D.I.T.H. Cognitive Analysis',
+    text: `### ℹ️ Direct Answer: Out of Domain Scope\n\n**No**, this topic is outside the dedicated domain of **RailMark AI**.\n\n---\n\n#### 📌 Situation & System Scope:\nI am **E.D.I.T.H AI**, engineered specifically for Indian Railways track fitting digital traceability, laser DPM QR identification, RDSO standards (IRS:T-31 / IRS:T-47), and predictive maintenance workflows.\n\n* **How to Use Me**: Ask me about track fittings (ERC clips, GFN liners, rubber sole plates), laser Direct Part Marking physics, AI defect grading, or live database statistics!`,
+    tag: 'E.D.I.T.H Domain Scope',
   };
 }
 
