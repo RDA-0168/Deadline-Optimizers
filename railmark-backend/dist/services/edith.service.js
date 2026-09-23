@@ -55,6 +55,39 @@ const CANDIDATE_MODELS = [
  */
 function generateSmartFallback(userPrompt, contextData) {
     const q = userPrompt.toLowerCase().trim();
+    // 0. Greetings & Conversational Inquiries
+    const isGreeting = /^(hi+|hey+|hello+|namaste|vanakkam|hola|greetings|howdy)\b/i.test(q) ||
+        q === 'hi' ||
+        q === 'hello' ||
+        q === 'hey' ||
+        q === 'how are you' ||
+        q === 'how are you?' ||
+        q === 'who are you' ||
+        q === 'who are you?' ||
+        q === 'what can you do' ||
+        q === 'what can you do?' ||
+        q.startsWith('good morning') ||
+        q.startsWith('good afternoon') ||
+        q.startsWith('good evening');
+    if (isGreeting && q.split(' ').length <= 6) {
+        return {
+            text: `### 🤖 Greetings! E.D.I.T.H AI Online
+
+Hello! 👋 I am **E.D.I.T.H** (*Enhanced Digital Intelligence for Track & Hardware*), your intelligent co-pilot for the **RailMark AI** platform.
+
+---
+
+#### 🚄 How I Can Help You:
+1. **Railway Track Fastenings & RDSO Standards**: Technical specifications for Elastic Rail Clips (ERC Mk-III / Mk-V), Grooved Rubber Sole Plates (GRSP), and GFN-66 insulating liners.
+2. **Direct Part Marking (DPM) & Laser QR Traceability**: 1064nm fiber laser etching, optical scanner decoding, and lifecycle tracking.
+3. **AI Vision Defect Diagnostics**: Automated surface corrosion grading, toe load deflection estimation, and condition scoring.
+4. **AI Block Planning & Maintenance**: Corridor possession planning de-conflicted with train schedules.
+5. **General Science & Computing**: Quantum mechanics, physics, algorithms, architecture, and live database telemetry.
+
+What would you like to explore today?`,
+            tag: 'E.D.I.T.H Tactical Greeting',
+        };
+    }
     // 1. Founders Query
     const isFounderQuery = q.includes('founder') ||
         q.includes('creator') ||
