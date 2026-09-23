@@ -305,27 +305,108 @@ function generateEdithResponse(
     };
   }
 
-  // ── 8. GENERAL AI & COMPUTER SCIENCE CAPABILITIES ──────────
-  // Machine Learning
+  // ── 8. GENERAL AI, QUANTUM PHYSICS & COMPUTER SCIENCE ──────
+  // Quantum Physics / Quantum Computing
+  if (query.includes('quantum')) {
+    return {
+      text: `### ⚛️ Understanding Quantum Mechanics & Quantum Technology
+
+**Quantum Physics** is the fundamental branch of physics that describes nature at the atomic and subatomic scale, where classical Newtonian mechanics no longer applies.
+
+---
+
+#### 🔬 Key Principles of Quantum Mechanics:
+1. **Quantization of Energy ($E = h\nu$)**: Energy is emitted or absorbed in discrete packets called *quanta* (photons), discovered by Max Planck.
+2. **Wave-Particle Duality**: Matter and radiation exhibit both wave-like and particle-like characteristics (de Broglie wavelength $\lambda = \frac{h}{p}$).
+3. **Superposition Principle**: A quantum state $|\psi\rangle$ can exist as a linear combination of basis states until measured ($|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$).
+4. **Quantum Entanglement**: Entangled particles remain intrinsically linked such that measuring one determines the state of the other instantly across arbitrary distances.
+5. **Heisenberg Uncertainty Principle**: Complementary variables like position and momentum cannot be simultaneously measured to arbitrary precision ($\Delta x \cdot \Delta p \ge \frac{\hbar}{2}$).
+
+---
+
+#### 💻 Applications to Modern Technology & Railmark AI:
+- **Direct Part Marking Optics**: Railmark AI's 1064nm MOPA fiber laser relies on quantum stimulated emission within doped silica fiber cores.
+- **Quantum Combinatorial Optimization**: Future quantum annealing algorithms can optimize nationwide multi-corridor railway traffic and block planning.
+- **Quantum Key Distribution (QKD)**: Unbreakable cryptographic security for critical railway signaling and control telemetry.`,
+      tag: 'Physics & Quantum Mechanics',
+    };
+  }
+
+  // Machine Learning & AI
   if (
     query.includes('machine learning') ||
     query.includes('deep learning') ||
     query.includes('what is ml') ||
-    query.includes('neural network')
+    query.includes('neural network') ||
+    query.includes('computer vision') ||
+    query.includes('cnn')
   ) {
     return {
-      text: `### 🤖 Machine Learning (ML) & Deep Learning Master Guide\n\n**Machine Learning** is a domain of Artificial Intelligence focused on algorithms that learn patterns from empirical data rather than relying solely on explicit rule-based code.\n\n---\n\n#### 📌 Primary Paradigms:\n1. **Supervised Learning**: Mapping inputs to labeled outputs ($X \\rightarrow y$). Examples: Linear/Logistic Regression, Random Forest, XGBoost, CNNs.\n2. **Unsupervised Learning**: Discovering latent structure in unlabeled data. Examples: K-Means Clustering, PCA, Autoencoders.\n3. **Reinforcement Learning**: Learning optimal decision policies $(\\pi)$ through state-action-reward loops ($S, A, R$).\n\n---\n\n#### 🧠 Deep Neural Networks:\n- **Forward Propagation**: $z^{[l]} = W^{[l]} a^{[l-1]} + b^{[l]}, \\quad a^{[l]} = \\text{ReLU}(z^{[l]})$\n- **Backpropagation**: Gradients calculated via Chain Rule to update weights using optimizers like Adam: $W := W - \\alpha \\frac{\\partial \\mathcal{L}}{\\partial W}$.`,
-      tag: 'Computer Science: Machine Learning',
+      text: `### 🤖 Machine Learning (ML) & Computer Vision Master Guide
+
+**Machine Learning** is a domain of Artificial Intelligence focused on algorithms that learn patterns from empirical data rather than relying solely on explicit rule-based code.
+
+---
+
+#### 📌 Primary Paradigms:
+1. **Supervised Learning**: Mapping inputs to labeled targets ($X \rightarrow y$). E.g., Linear/Logistic Regression, Random Forest, ResNet, YOLO.
+2. **Unsupervised Learning**: Discovering latent manifolds and clusters in unlabeled data. E.g., K-Means, PCA, Autoencoders.
+3. **Reinforcement Learning**: Optimizing decision policies ($\pi_\theta$) via Markov Decision Processes (MDPs) to maximize cumulative discounted reward.
+
+---
+
+#### 🔍 Railmark AI Vision Diagnostics:
+- **Defect Segmentation**: Convolutional neural networks classify ERC clip surface corrosion (None/Mild/Moderate/Severe).
+- **Geometric Deflection Analysis**: Measures toe clearance deflection to calculate loss of holding force ($<850\text{ kg}$).`,
+      tag: 'Computer Science: Machine Learning & Vision',
     };
   }
 
-  // Binary Search
+  // Binary Search & Algorithms
   if (
     query.includes('binary search') ||
     (query.includes('search') && query.includes('sorted'))
   ) {
     return {
-      text: `### 🔍 Binary Search Algorithm\n\n**Binary Search** is an optimal divide-and-conquer algorithm for finding an element in a **sorted collection**.\n\n---\n\n#### ⏱️ Asymptotic Complexity:\n- **Time Complexity**: **$O(\\log n)$**\n- **Space Complexity**: **$O(1)$** (Iterative)\n\n---\n\n#### 💻 Python & TypeScript Implementation:\n\`\`\`python\ndef binary_search(arr: list[int], target: int) -> int:\n    low, high = 0, len(arr) - 1\n    while low <= high:\n        mid = low + (high - low) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n\`\`\`\n\n\`\`\`typescript\nfunction binarySearch(arr: number[], target: number): number {\n  let low = 0, high = arr.length - 1;\n  while (low <= high) {\n    const mid = Math.floor(low + (high - low) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) low = mid + 1;\n    else high = mid - 1;\n  }\n  return -1;\n}\n\`\`\``,
+      text: `### 🔍 Binary Search Algorithm
+
+**Binary Search** is an optimal divide-and-conquer algorithm for finding an element in a **sorted collection**.
+
+---
+
+#### ⏱️ Asymptotic Complexity:
+- **Time Complexity**: **$O(\log n)$**
+- **Space Complexity**: **$O(1)$** (Iterative)
+
+---
+
+#### 💻 Python & TypeScript Implementation:
+\`\`\`python
+def binary_search(arr: list[int], target: int) -> int:
+    low, high = 0, len(arr) - 1
+    while low <= high:
+        mid = low + (high - low) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+\`\`\`
+
+\`\`\`typescript
+function binarySearch(arr: number[], target: number): number {
+  let low = 0, high = arr.length - 1;
+  while (low <= high) {
+    const mid = Math.floor(low + (high - low) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) low = mid + 1;
+    else high = mid - 1;
+  }
+  return -1;
+}
+\`\`\``,
       tag: 'Computer Science: Binary Search',
     };
   }
@@ -342,7 +423,7 @@ function generateEdithResponse(
 
   if (isGreeting && cleanTokens.split(' ').length <= 4) {
     return {
-      text: `Hello! 👋 I am **E.D.I.T.H.** (*Even Dead, I'm The Hero*), your intelligent assistant for **RAILMARK AI**.\n\nI can assist you with railway track fitting traceability, QR Direct Part Marking, inspection workflows, AI block planning concepts, and general computer science topics. How can I help you today?`,
+      text: `Hello! 👋 I am **E.D.I.T.H.** (*Even Dead, I'm The Hero*), your intelligent co-pilot for **RAILMARK AI**.\n\nI can assist you with railway track fitting traceability, laser DPM QR identification, RDSO standards (IRS:T-31 / IRS:T-47), field inspection workflows, quantum physics, and computer science topics. What would you like to explore?`,
       tag: 'E.D.I.T.H. Assistant Greeting',
     };
   }
@@ -350,8 +431,32 @@ function generateEdithResponse(
   // ── 10. UNIVERSAL COGNITIVE SYNTHESIZER ────────────────────
   const cleanTitle = raw.replace(/\?+$/, '').trim();
   return {
-    text: `### 🧠 E.D.I.T.H. Cognitive Analysis: ${cleanTitle}\n\nHere is a structured overview and technical analysis:\n\n---\n\n#### 1. Overview & Context\n**${cleanTitle}** is evaluated against Railmark AI's engineering domain, system design principles, and general computing science standards.\n\n---\n\n#### 2. Technical Principles\n- **Systematic Execution**: Follows standardized verification and deterministic guarantees.\n- **Data Integrity**: Maintains end-to-end traceability and auditability across all lifecycle stages.\n- **Decision Support**: Provides human-in-the-loop insights rather than unsupervised overrides in critical environments.\n\n---\n\n*Would you like to explore specific implementation details, mathematical formulas, or application workflows related to this topic?*`,
-    tag: 'E.D.I.T.H. Neural Synthesis',
+    text: `### 🧠 E.D.I.T.H. Technical Analysis: ${cleanTitle}
+
+Here is a structured technical breakdown of **${cleanTitle}**:
+
+---
+
+#### 1. Core Fundamentals & Concepts
+* **Definition & Context**: ${cleanTitle} represents a pivotal concept within modern computational, engineering, or physical systems.
+* **Deterministic Verification**: In high-reliability domains like railway permanent way infrastructure and mission-critical software, deterministic guarantees and rigorous standards are applied.
+
+---
+
+#### 2. Key Engineering Principles
+* **State Management & Traceability**: Maintaining an unambiguous, verifiable audit trail across all components and transactions.
+* **Resilient Architecture**: Designing systems capable of autonomous offline operation, rapid synchronization, and fault containment.
+* **Human-in-the-Loop AI**: Augmenting human decision-makers (e.g., Section Controllers and Track Engineers) with intelligent data synthesis.
+
+---
+
+#### 3. Related Explorations
+Feel free to ask me for:
+- Deep dives into **mathematical proofs or algorithms**
+- Specific **RDSO railway track standards (ERC Mk-III/V, GFN, GRSP)**
+- Direct Part Marking **laser physics (1064nm fiber laser)**
+- System architecture or code implementations!`,
+    tag: 'E.D.I.T.H. Cognitive Analysis',
   };
 }
 
